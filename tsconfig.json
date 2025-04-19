@@ -1,32 +1,33 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "module": "NodeNext",
-    "lib": ["ESNext"],
-    "skipLibCheck": true,
+	"compilerOptions": {
+		"target": "ESNext",
+		"useDefineForClassFields": true,
+		"module": "NodeNext",
+		"lib": ["ESNext"],
+		"skipLibCheck": true,
 
-    /* Bundler mode */
-    "moduleResolution": "NodeNext",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": false,
-    
-    "isolatedModules": true,
-    "moduleDetection": "force",
-    // "noEmit": true,
+		/* Bundler mode */
+		"moduleResolution": "NodeNext",
+		"allowImportingTsExtensions": true,
+		"verbatimModuleSyntax": true,
 
-    /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
+		"isolatedModules": true,
+		"moduleDetection": "force",
+		// "noEmit": true,
 
-    /* Declaration */
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "outDir": "dist"
-  },
-  "include": ["src", "test/rules/my-first-rule.test.ts"]
+		/* Linting */
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedSideEffectImports": true,
+		"strictBuiltinIteratorReturn": true,
+
+		/* Declaration */
+		"declaration": true,
+		"declarationMap": true,
+		"emitDeclarationOnly": true,
+		"outDir": "dist"
+	},
+	"include": ["src", "test", "scripts"]
 }
