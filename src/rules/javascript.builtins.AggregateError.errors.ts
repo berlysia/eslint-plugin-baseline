@@ -9,13 +9,13 @@ const rule: Rule.RuleModule = {
 		type: "problem",
 		docs: {
 			description:
-				"Ensure AggregateError constructor is supported based on specified baseline",
+				"Ensure AggregateError.errors property is supported based on specified baseline",
 			category: "Possible Errors",
 			recommended: true,
 		},
 		messages: {
 			notAvailable:
-				"The AggregateError constructor is not available as of {{asOf}} for {{support}} support.",
+				"The AggregateError.errors property is not available as of {{asOf}} for {{support}} support.",
 		},
 		schema: [
 			{
@@ -44,30 +44,30 @@ const rule: Rule.RuleModule = {
 		const config: BaselineRuleConfig = ensureConfig(options);
 
 		const baseline = computeBaseline({
-			compatKeys: ["javascript.builtins.AggregateError.AggregateError"],
+			compatKeys: ["javascript.builtins.AggregateError.errors"],
 			checkAncestors: true,
 		});
 
 		return {
-			NewExpression(node) {
+			MemberExpression(node) {
 				if (
-					node.callee.type !== "Identifier" ||
-					node.callee.name !== "AggregateError"
+					node.object.type === "Identifier" &&
+					node.object.name === "AggregateError" &&
+					node.property.type === "Identifier" &&
+					node.property.name === "errors"
 				) {
-					return;
-				}
+					const isAvailable = checkIsAvailable(config, baseline);
 
-				const isAvailable = checkIsAvailable(config, baseline);
-
-				if (!isAvailable) {
-					context.report({
-						messageId: "notAvailable",
-						node,
-						data: {
-							asOf: config.asOf,
-							support: config.support,
-						},
-					});
+					if (!isAvailable) {
+						context.report({
+							messageId: "notAvailable",
+							node,
+							data: {
+								asOf: config.asOf,
+								support: config.support,
+							},
+						});
+					}
 				}
 			},
 		};

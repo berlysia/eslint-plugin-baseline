@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint";
-import rule from "../../src/rules/javascript.builtins.AggregateError.AggregateError.ts";
+import rule from "../../src/rules/javascript.builtins.AggregateError.errors.ts";
 
 const tester = new RuleTester({
 	languageOptions: {
@@ -8,24 +8,20 @@ const tester = new RuleTester({
 	},
 });
 
-tester.run("javascript.builtins.AggregateError.AggregateError", rule, {
+tester.run("javascript.builtins.AggregateError.errors", rule, {
 	valid: [
 		{
-			code: "new AggregateError([new Error('error')], 'message')",
+			code: "const errors = AggregateError.errors;",
 			options: [{ asOf: "2025-01-01", support: "widely" }],
 		},
 		{
-			code: "new AggregateError([new Error('error')])",
-			options: [{ asOf: "2025-01-01", support: "widely" }],
-		},
-		{
-			code: "new AggregateError([], 'empty')",
+			code: "const err = new AggregateError([]); const errors = err.errors;",
 			options: [{ asOf: "2025-01-01", support: "widely" }],
 		},
 	],
 	invalid: [
 		{
-			code: "new AggregateError([new Error('error')], 'message')",
+			code: "const errors = AggregateError.errors;",
 			options: [{ asOf: "2020-01-01", support: "widely" }],
 			errors: [
 				{
@@ -38,7 +34,7 @@ tester.run("javascript.builtins.AggregateError.AggregateError", rule, {
 			],
 		},
 		{
-			code: "new AggregateError([], 'empty')",
+			code: "const err = new AggregateError([]); const errors = err.errors;",
 			options: [{ asOf: "2020-01-01", support: "widely" }],
 			errors: [
 				{
