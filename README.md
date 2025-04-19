@@ -21,8 +21,8 @@
   - [ ] 各ルールの実装
     - `npm run agent:rules:next` で次に実装するルールの情報を取得
       - コマンドが失敗したら、実装は完了
-    - seedPathにあるJSONを `jq` コマンドで読む。 `description` と `mdn_url` と `spec_url` を取得し、理解する。
-    - rulePathにファイルを作成し、ルールを実装する。
+    - ruleNameに注目する
+    - `npm run generateRuleScaffold --ruleName <ルール名>` でルールの雛形を生成、ルールを実装する。
       - 対応するテストを実装しながら開発する。
       - すでに実装されているルールやテストを参考にすべきである。
       - シンタックスレベルの機能は、その構文で判定する。

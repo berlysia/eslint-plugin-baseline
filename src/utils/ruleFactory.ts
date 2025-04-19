@@ -11,6 +11,8 @@ type RuleModuleSeed = {
 	compatKeys: [string, ...string[]];
 	mdnUrl?: string;
 	specUrl?: string;
+	newlyAvailableAt?: string;
+	widelyAvailableAt?: string;
 };
 
 type Docs = {

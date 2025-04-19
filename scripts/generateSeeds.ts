@@ -2,6 +2,7 @@ import bcd, {
 	type CompatStatement,
 	type Identifier,
 } from "@mdn/browser-compat-data" with { type: "json" };
+import { computeBaseline } from "compute-baseline";
 import fsp from "node:fs/promises";
 
 function getKeysWithoutCompat(obj: object) {
@@ -131,9 +132,17 @@ async function main() {
 		/* x.name.startsWith("api.") || */ x.name.startsWith("javascript."),
 	)) {
 		queue.add(async () => {
+			const baseline = computeBaseline({
+				compatKeys: [value.name],
+				checkAncestors: true,
+			});
 			fsp.writeFile(
 				`src/generated/${value.name}.json`,
-				JSON.stringify(value.value, null, 2),
+				JSON.stringify(
+					{ bcd: value.value, baseline: JSON.parse(baseline.toJSON()) },
+					null,
+					2,
+				),
 			);
 		});
 		for (const tag of value.value.tags ?? []) {

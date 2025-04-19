@@ -1,4 +1,6 @@
 import { computeBaseline } from "compute-baseline";
+import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
+import type { TSESTree } from "@typescript-eslint/typescript-estree";
 import { ensureConfig } from "../config.ts";
 import type { BaselineRuleConfig } from "../types.ts";
 import checkIsAvailable from "../utils/checkIsAvailable.ts";
@@ -7,6 +9,7 @@ import {
 	createRule,
 	createSeed,
 } from "../utils/ruleFactory.ts";
+import { createIsTargetType } from "../utils/createIsTargetType.ts";
 
 export const seed = createSeed({
 	concern: "AggregateError constructor",
@@ -23,23 +26,49 @@ const rule = createRule(seed, {
 			checkAncestors: true,
 		});
 
+		const services = getParserServices(context);
+		const typeChecker = services.program.getTypeChecker();
+
+		const isTargetType = createIsTargetType(
+			typeChecker,
+			"AggregateErrorConstructor",
+		);
+
 		return {
 			NewExpression(node) {
-				if (
-					node.callee.type !== "Identifier" ||
-					node.callee.name !== "AggregateError"
-				) {
-					return;
+				const tsNode = services.esTreeNodeToTSNodeMap.get(node.callee);
+				const type = typeChecker.getTypeAtLocation(tsNode);
+
+				if (isTargetType(type)) {
+					const isAvailable = checkIsAvailable(config, baseline);
+
+					if (!isAvailable) {
+						context.report({
+							messageId: "notAvailable",
+							node,
+							data: createMessageData(seed, config).notAvailable,
+						});
+					}
 				}
+			},
+			"ClassExpression, ClassDeclaration"(
+				node: TSESTree.ClassExpression | TSESTree.ClassDeclaration,
+			) {
+				if (node.superClass) {
+					const tsNode = services.esTreeNodeToTSNodeMap.get(node.superClass);
+					const type = typeChecker.getTypeAtLocation(tsNode);
 
-				const isAvailable = checkIsAvailable(config, baseline);
+					if (isTargetType(type)) {
+						const isAvailable = checkIsAvailable(config, baseline);
 
-				if (!isAvailable) {
-					context.report({
-						messageId: "notAvailable",
-						node,
-						data: createMessageData(seed, config).notAvailable,
-					});
+						if (!isAvailable) {
+							context.report({
+								messageId: "notAvailable",
+								node,
+								data: createMessageData(seed, config).notAvailable,
+							});
+						}
+					}
 				}
 			},
 		};

@@ -1,4 +1,6 @@
 import { computeBaseline } from "compute-baseline";
+import type { TSESTree } from "@typescript-eslint/utils";
+import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
 import { ensureConfig } from "../config.ts";
 import type { BaselineRuleConfig } from "../types.ts";
 import checkIsAvailable from "../utils/checkIsAvailable.ts";
@@ -7,9 +9,7 @@ import {
 	createRule,
 	createSeed,
 } from "../utils/ruleFactory.ts";
-import { TSESTree } from "@typescript-eslint/utils";
-import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
-import * as ts from "typescript";
+import { createIsTargetType } from "../utils/createIsTargetType.ts";
 
 export const seed = createSeed({
 	concern: "AggregateError.errors",
@@ -33,50 +33,14 @@ const rule = createRule(seed, {
 		const services = getParserServices(context);
 		const typeChecker = services.program.getTypeChecker();
 
-		const targetSymbol = typeChecker.resolveName(
-			"AggregateError",
-			/* location */ undefined,
-			ts.SymbolFlags.All,
-			/* excludeGlobals */ false,
-		);
-		if (!targetSymbol) {
-			return {};
-		}
-
-		const targetType = typeChecker.getDeclaredTypeOfSymbol(targetSymbol);
-
-		function isAggregateErrorType(type: ts.Type): boolean {
-			const symbol = type.getSymbol();
-			if (!symbol) return false;
-
-			// 直接のAggregateError型チェック
-			if (symbol.getName() === "AggregateError") return true;
-
-			// Union型のチェック
-			if (type.isUnion()) {
-				return type.types.some((t) => isAggregateErrorType(t));
-			}
-
-			// 継承チェック
-			const baseTypes = type.getBaseTypes();
-			if (baseTypes) {
-				return baseTypes.some((t) => isAggregateErrorType(t));
-			}
-
-			// 代入可能性のチェック
-			if (targetType && typeChecker.isTypeAssignableTo(type, targetType)) {
-				return true;
-			}
-
-			return false;
-		}
+		const isTargetType = createIsTargetType(typeChecker, "AggregateError");
 
 		function checkAndReport(node: TSESTree.Node, objectNode: TSESTree.Node) {
 			const objectType = typeChecker.getTypeAtLocation(
 				services.esTreeNodeToTSNodeMap.get(objectNode),
 			);
 
-			if (isAggregateErrorType(objectType)) {
+			if (isTargetType(objectType)) {
 				const isAvailable = checkIsAvailable(config, baseline);
 				if (!isAvailable) {
 					context.report({
