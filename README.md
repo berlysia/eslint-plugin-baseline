@@ -22,7 +22,7 @@
     - `npm run agent:rules:next` で次に実装するルールの情報を取得
       - コマンドが失敗したら、実装は完了
     - ruleNameに注目する
-    - `npm run generateRuleScaffold --ruleName <ルール名>` でルールの雛形を生成、ルールを実装する。
+    - `npm run agent:rules:scaffold --ruleName <ルール名>` でルールの雛形を生成、ルールを実装する。
       - 対応するテストを実装しながら開発する。
       - すでに実装されているルールやテストを参考にすべきである。
       - シンタックスレベルの機能は、その構文で判定する。

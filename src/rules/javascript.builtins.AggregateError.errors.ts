@@ -18,6 +18,8 @@ export const seed = createSeed({
 		"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/AggregateError/errors",
 	specUrl:
 		"https://tc39.es/ecma262/multipage/fundamental-objects.html#sec-aggregate-error",
+	newlyAvailableAt: "2020-09-16",
+	widelyAvailableAt: "2023-03-16",
 });
 
 const rule = createRule(seed, {

@@ -6,9 +6,9 @@
 		"prepare": "tshy",
 		"test": "node --test test/**/*.test.ts",
 		"generateSeeds": "node scripts/generateSeeds.ts",
-		"generateRuleScaffold": "node scripts/generateRuleScaffold.ts",
 		"agent:ast:acorn": "node scripts/tools/getAstByAcorn.ts",
 		"agent:ast:typescript": "node scripts/tools/getAstByTsParser.ts",
+		"agent:rules:scaffold": "node scripts/tools/generateRuleScaffold.ts",
 		"agent:rules:next": "node scripts/tools/getUnimplementedRuleName.ts"
 	},
 	"keywords": [],
@@ -19,6 +19,7 @@
 	"devDependencies": {
 		"@berlysia/eslint-config": "^7.1.1",
 		"@mdn/browser-compat-data": "^6.0.7",
+		"@types/node": "^22.14.1",
 		"@typescript-eslint/rule-tester": "^8.30.1",
 		"@typescript-eslint/typescript-estree": "^8.30.1",
 		"acorn": "^8.14.1",

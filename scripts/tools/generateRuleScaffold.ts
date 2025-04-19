@@ -19,8 +19,8 @@ const seedDir = path.join(process.cwd(), "./src/generated");
 const rulePath = path.join(ruleDir, `${ruleName}.ts`);
 const seedPath = path.join(seedDir, `${ruleName}.json`);
 
-const seedFile = await fsp.readFile(seedPath, "utf-8");
-const seed = JSON.parse(seedFile);
+const seedFile = await fsp.readFile(seedPath);
+const seed = JSON.parse(seedFile as unknown as string);
 
 const codeForBuiltins = `
 import { computeBaseline } from "compute-baseline";
@@ -33,17 +33,15 @@ import {
   createSeed,
 } from "../utils/ruleFactory.ts";
 import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
-import * as ts from "typescript";
-import type { TSESTree } from "@typescript-eslint/typescript-estree";
 import { createIsTargetType } from "../utils/createIsTargetType.ts";
 
 export const seed = createSeed({
   concern: "FIXME",
   compatKeys: [${JSON.stringify(ruleName)}],
-  mdnUrl: "${seed.bcd.mdn_url}",
-  specUrl: "${seed.bcd.spec_url}",  
-	newlyAvailableAt: "${seed.baseline.baseline_low_date}",;
-	widelyAvailableAt: "${seed.baseline.baseline_high_date}",;
+  mdnUrl: ${JSON.stringify(seed.mdn_url)},
+  specUrl: ${JSON.stringify(seed.bcd.spec_url)},  
+	newlyAvailableAt: ${JSON.stringify(seed.baseline.baseline_low_date)},
+	widelyAvailableAt: ${JSON.stringify(seed.baseline.baseline_high_date)},
 });
 
 const rule = createRule(seed, {
@@ -71,6 +69,6 @@ export default rule;
 `;
 
 if (ruleName.startsWith("javascript.builtins.")) {
-	await fsp.writeFile(rulePath, codeForBuiltins, "utf-8");
+	await fsp.writeFile(rulePath, codeForBuiltins, "utf8");
 	console.log(`Rule ${ruleName} scaffold generated at ${rulePath}`);
 }

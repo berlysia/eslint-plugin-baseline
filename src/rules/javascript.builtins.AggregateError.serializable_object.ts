@@ -11,6 +11,10 @@ import {
 export const seed = createSeed({
 	concern: "AggregateError serialization",
 	compatKeys: ["javascript.builtins.AggregateError.serializable_object"],
+	mdnUrl: "https://developer.mozilla.org/docs/Glossary/Serializable_object",
+	specUrl: undefined,
+	newlyAvailableAt: "2023-09-18",
+	widelyAvailableAt: undefined,
 });
 
 const rule = createRule(seed, {
