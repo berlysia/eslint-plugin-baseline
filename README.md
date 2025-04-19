@@ -24,7 +24,14 @@
     - seedPathにあるJSONを `jq` コマンドで読む。 `description` と `mdn_url` と `spec_url` を取得し、理解する。
     - rulePathにファイルを作成し、ルールを実装する。
       - 対応するテストを実装しながら開発する。
-      - すでに実装されているルールやテストを参考にしてよい。
+      - すでに実装されているルールやテストを参考にすべきである。
+      - シンタックスレベルの機能は、その構文で判定する。
+        - 例: `import` 文は `ImportDeclaration` ノードで判定する。
+        - 例: `class` 文は `ClassDeclaration` ノードで判定する。
+        - 例: `async` 関数は `FunctionDeclaration` ノードで判定する。
+      - オブジェクトやメンバーの存在を確認する場合は、型情報を使用する。
+        - 例: `AggregateError` は `AggregateError` 型で判定する。
+        - 例: `AggregateError.prototype.errors` は `.errors` へのアクセスのレシーバが `AggregateError` 型のオブジェクトかどうかで判定する。
       - seedPathのファイルへの参照をルール内に持つことは禁止されている。
         - `npm run agent:ast:acorn` でASTを生成し、役立てる。
         - `npm run agent:ast:typescript` でTypeScriptのASTを生成し、役立てる。

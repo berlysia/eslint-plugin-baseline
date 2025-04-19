@@ -1,5 +1,5 @@
 import "./init.ts";
-import { RuleTester } from "eslint";
+import { RuleTester } from "@typescript-eslint/rule-tester";
 import rule, {
 	seed,
 } from "../../src/rules/javascript.statements.async_function.ts";

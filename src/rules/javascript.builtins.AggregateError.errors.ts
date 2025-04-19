@@ -7,10 +7,17 @@ import {
 	createRule,
 	createSeed,
 } from "../utils/ruleFactory.ts";
+import { TSESTree } from "@typescript-eslint/utils";
+import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
+import * as ts from "typescript";
 
 export const seed = createSeed({
 	concern: "AggregateError.errors",
 	compatKeys: ["javascript.builtins.AggregateError.errors"],
+	mdnUrl:
+		"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/AggregateError/errors",
+	specUrl:
+		"https://tc39.es/ecma262/multipage/fundamental-objects.html#sec-aggregate-error",
 });
 
 const rule = createRule(seed, {
@@ -23,22 +30,87 @@ const rule = createRule(seed, {
 			checkAncestors: true,
 		});
 
+		const services = getParserServices(context);
+		const typeChecker = services.program.getTypeChecker();
+
+		const targetSymbol = typeChecker.resolveName(
+			"AggregateError",
+			/* location */ undefined,
+			ts.SymbolFlags.All,
+			/* excludeGlobals */ false,
+		);
+		if (!targetSymbol) {
+			return {};
+		}
+
+		const targetType = typeChecker.getDeclaredTypeOfSymbol(targetSymbol);
+
+		function isAggregateErrorType(type: ts.Type): boolean {
+			const symbol = type.getSymbol();
+			if (!symbol) return false;
+
+			// 直接のAggregateError型チェック
+			if (symbol.getName() === "AggregateError") return true;
+
+			// Union型のチェック
+			if (type.isUnion()) {
+				return type.types.some((t) => isAggregateErrorType(t));
+			}
+
+			// 継承チェック
+			const baseTypes = type.getBaseTypes();
+			if (baseTypes) {
+				return baseTypes.some((t) => isAggregateErrorType(t));
+			}
+
+			// 代入可能性のチェック
+			if (targetType && typeChecker.isTypeAssignableTo(type, targetType)) {
+				return true;
+			}
+
+			return false;
+		}
+
+		function checkAndReport(node: TSESTree.Node, objectNode: TSESTree.Node) {
+			const objectType = typeChecker.getTypeAtLocation(
+				services.esTreeNodeToTSNodeMap.get(objectNode),
+			);
+
+			if (isAggregateErrorType(objectType)) {
+				const isAvailable = checkIsAvailable(config, baseline);
+				if (!isAvailable) {
+					context.report({
+						messageId: "notAvailable",
+						node,
+						data: createMessageData(seed, config).notAvailable,
+					});
+				}
+			}
+		}
+
 		return {
-			MemberExpression(node) {
+			// メンバーアクセス (obj.errors, obj?.errors)
+			MemberExpression(node: TSESTree.MemberExpression) {
 				if (
-					node.object.type === "Identifier" &&
-					node.object.name === "AggregateError" &&
 					node.property.type === "Identifier" &&
 					node.property.name === "errors"
 				) {
-					const isAvailable = checkIsAvailable(config, baseline);
+					checkAndReport(node, node.object);
+				}
+			},
 
-					if (!isAvailable) {
-						context.report({
-							messageId: "notAvailable",
-							node,
-							data: createMessageData(seed, config).notAvailable,
-						});
+			// 分割代入 ({ errors } = aggregateError)
+			VariableDeclarator(node: TSESTree.VariableDeclarator) {
+				if (node.id.type === "ObjectPattern" && node.init) {
+					const errorsProp = node.id.properties.find(
+						(prop) =>
+							prop.type === "Property" &&
+							prop.key.type === "Identifier" &&
+							prop.key.name === "errors",
+					);
+
+					if (errorsProp) {
+						checkAndReport(errorsProp, node.init);
 					}
 				}
 			},

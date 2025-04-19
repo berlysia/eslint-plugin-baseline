@@ -9,6 +9,13 @@ import { defaultConfig } from "../config.ts";
 type RuleModuleSeed = {
 	concern: string;
 	compatKeys: [string, ...string[]];
+	mdnUrl?: string;
+	specUrl?: string;
+};
+
+type Docs = {
+	mdnUrl?: string;
+	specUrl?: string;
 };
 
 export function createSeed(args: RuleModuleSeed): RuleModuleSeed {
@@ -18,13 +25,13 @@ export function createSeed(args: RuleModuleSeed): RuleModuleSeed {
 type Options = [{ asOf: string; support: "widely" | "newly" }];
 type MessageIds = "notAvailable";
 
-export function createMeta(
-	params: RuleModuleSeed,
-): NamedCreateRuleMeta<MessageIds, unknown, Options> {
+export function createMeta(params: RuleModuleSeed) {
 	return {
 		type: "problem",
 		docs: {
 			description: `Ensure ${params.concern} property is supported based on specified baseline`,
+			mdnUrl: params.mdnUrl,
+			specUrl: params.specUrl,
 		},
 		messages: {
 			notAvailable:
@@ -50,7 +57,7 @@ export function createMeta(
 				},
 			},
 		],
-	} as const satisfies Rule.RuleModule["meta"];
+	} as const satisfies NamedCreateRuleMeta<MessageIds, Docs, Options>;
 }
 
 export function createMessageData(
