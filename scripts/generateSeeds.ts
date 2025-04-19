@@ -23,7 +23,11 @@ function* recursiveKeys(obj: Identifier, prefix = ""): Generator<CompatEntry> {
 		}
 		const newKey = prefix ? `${prefix}.${key}` : key;
 		if (typeof value === "object" && value !== null) {
-			if ("__compat" in value && value.__compat) {
+			if (
+				"__compat" in value &&
+				value.__compat &&
+				!getKeysWithoutCompat(value).includes(key)
+			) {
 				yield {
 					name: newKey,
 					keys: getKeysWithoutCompat(value),

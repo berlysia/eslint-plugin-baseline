@@ -26,8 +26,10 @@
       - 対応するテストを実装しながら開発する。
       - すでに実装されているルールやテストを参考にしてよい。
       - seedPathのファイルへの参照をルール内に持つことは禁止されている。
-      - `npm run agent:ast:acorn` でASTを生成し、役立てる。
-      - `npm run agent:ast:typescript` でTypeScriptのASTを生成し、役立てる。
+        - `npm run agent:ast:acorn` でASTを生成し、役立てる。
+        - `npm run agent:ast:typescript` でTypeScriptのASTを生成し、役立てる。
+      - `npm run test` でテストを実行し、ルールが正しく動作することを確認する。
+      - `src/rules/index.ts` にルールを追加する。
   - [ ] 統合ルールの実装
   - [ ] 設定ファクトリ関数の実装
   - [ ] ディテクターの実装

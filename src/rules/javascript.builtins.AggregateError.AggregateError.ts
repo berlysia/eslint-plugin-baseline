@@ -8,8 +8,7 @@ const rule: Rule.RuleModule = {
 	meta: {
 		type: "problem",
 		docs: {
-			description:
-				"Ensure AggregateError constructor is supported based on specified baseline",
+			description: "Ensure AggregateError constructor is supported based on specified baseline",
 			category: "Possible Errors",
 			recommended: true,
 		},
@@ -25,7 +24,7 @@ const rule: Rule.RuleModule = {
 						oneOf: [
 							{
 								type: "string",
-								pattern: "^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$",
+								pattern: "^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
 							},
 							{},
 						],

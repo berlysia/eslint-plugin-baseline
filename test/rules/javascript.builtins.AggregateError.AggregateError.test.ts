@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint";
-import rule from "../../src/rules/javascript.builtins.AggregateError.ts";
+import rule from "../../src/rules/javascript.builtins.AggregateError.AggregateError.ts";
 
 const tester = new RuleTester({
 	languageOptions: {
@@ -8,7 +8,7 @@ const tester = new RuleTester({
 	},
 });
 
-tester.run("javascript.builtins.AggregateError", rule, {
+tester.run("javascript.builtins.AggregateError.AggregateError", rule, {
 	valid: [
 		{
 			code: "new AggregateError([new Error('error')], 'message')",
@@ -18,10 +18,27 @@ tester.run("javascript.builtins.AggregateError", rule, {
 			code: "new AggregateError([new Error('error')])",
 			options: [{ asOf: "2025-01-01", support: "widely" }],
 		},
+		{
+			code: "new AggregateError([], 'empty')",
+			options: [{ asOf: "2025-01-01", support: "widely" }],
+		},
 	],
 	invalid: [
 		{
 			code: "new AggregateError([new Error('error')], 'message')",
+			options: [{ asOf: "2020-01-01", support: "widely" }],
+			errors: [
+				{
+					messageId: "notAvailable",
+					data: {
+						asOf: "2020-01-01",
+						support: "widely",
+					},
+				},
+			],
+		},
+		{
+			code: "new AggregateError([], 'empty')",
 			options: [{ asOf: "2020-01-01", support: "widely" }],
 			errors: [
 				{
