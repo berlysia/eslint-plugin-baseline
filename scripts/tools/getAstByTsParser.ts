@@ -36,7 +36,7 @@ if (!options.values.code) {
 	throw new Error("Code is required");
 }
 if (options.values.jsx) {
-	console.log(getAstWithJsx(options.values.code));
+	console.log(JSON.stringify(getAstWithJsx(options.values.code)));
 } else {
-	console.log(getAst(options.values.code));
+	console.log(JSON.stringify(getAst(options.values.code)));
 }

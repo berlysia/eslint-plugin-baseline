@@ -1,5 +1,9 @@
+import "./init.ts";
 import { RuleTester } from "eslint";
-import rule from "../../src/rules/javascript.builtins.AggregateError.errors.ts";
+import rule, {
+	seed,
+} from "../../src/rules/javascript.builtins.AggregateError.errors.ts";
+import { createMessageData } from "../../src/utils/ruleFactory.ts";
 
 const tester = new RuleTester({
 	languageOptions: {
@@ -8,7 +12,7 @@ const tester = new RuleTester({
 	},
 });
 
-tester.run("javascript.builtins.AggregateError.errors", rule, {
+tester.run(seed.concern, rule, {
 	valid: [
 		{
 			code: "const errors = AggregateError.errors;",
@@ -26,10 +30,10 @@ tester.run("javascript.builtins.AggregateError.errors", rule, {
 			errors: [
 				{
 					messageId: "notAvailable",
-					data: {
+					data: createMessageData(seed, {
 						asOf: "2020-01-01",
 						support: "widely",
-					},
+					}).notAvailable,
 				},
 			],
 		},
@@ -39,10 +43,10 @@ tester.run("javascript.builtins.AggregateError.errors", rule, {
 			errors: [
 				{
 					messageId: "notAvailable",
-					data: {
+					data: createMessageData(seed, {
 						asOf: "2020-01-01",
 						support: "widely",
-					},
+					}).notAvailable,
 				},
 			],
 		},

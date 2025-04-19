@@ -1,7 +1,7 @@
 import type { BaselineRuleConfig, PublicBaselineRuleConfig } from "./types.ts";
 import formatYYYYMMDD from "./utils/formatYYYYMMDD.ts";
 
-const defaultConfig: BaselineRuleConfig = {
+export const defaultConfig: BaselineRuleConfig = {
 	asOf: formatYYYYMMDD(new Date()),
 	support: "widely",
 };

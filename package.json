@@ -49,5 +49,8 @@
 			}
 		},
 		"./package.json": "./package.json"
+	},
+	"dependencies": {
+		"@typescript-eslint/utils": "^8.30.1"
 	}
 }

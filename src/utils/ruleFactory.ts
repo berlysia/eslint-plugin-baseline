@@ -1,4 +1,10 @@
 import type { Rule } from "eslint";
+import { ESLintUtils } from "@typescript-eslint/utils";
+import type {
+	NamedCreateRuleMeta,
+	RuleWithMetaAndName,
+} from "@typescript-eslint/utils/eslint-utils";
+import { defaultConfig } from "../config.ts";
 
 type RuleModuleSeed = {
 	concern: string;
@@ -9,13 +15,16 @@ export function createSeed(args: RuleModuleSeed): RuleModuleSeed {
 	return args;
 }
 
-export function createMeta(params: RuleModuleSeed) {
+type Options = [{ asOf: string; support: "widely" | "newly" }];
+type MessageIds = "notAvailable";
+
+export function createMeta(
+	params: RuleModuleSeed,
+): NamedCreateRuleMeta<MessageIds, unknown, Options> {
 	return {
 		type: "problem",
 		docs: {
 			description: `Ensure ${params.concern} property is supported based on specified baseline`,
-			category: "Possible Errors",
-			recommended: true,
 		},
 		messages: {
 			notAvailable:
@@ -32,10 +41,10 @@ export function createMeta(params: RuleModuleSeed) {
 								pattern:
 									"^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
 							},
-							{},
 						],
 					},
 					support: {
+						type: "string",
 						enum: ["widely", "newly"],
 					},
 				},
@@ -45,7 +54,7 @@ export function createMeta(params: RuleModuleSeed) {
 }
 
 export function createMessageData(
-	params: RuleModuleSeed,
+	seed: RuleModuleSeed,
 	config: { asOf: string; support: string },
 ): Record<
 	keyof ReturnType<typeof createMeta>["messages"],
@@ -53,9 +62,28 @@ export function createMessageData(
 > {
 	return {
 		notAvailable: {
-			concern: params.concern,
+			concern: seed.concern,
 			asOf: config.asOf,
 			supportLevel: config.support,
 		},
 	} as const;
+}
+
+const privateCreateRule = ESLintUtils.RuleCreator(
+	(name: string) => `http://localhost:3000/rule/${name}`,
+);
+
+export function createRule(
+	seed: RuleModuleSeed,
+	args: Omit<
+		RuleWithMetaAndName<Options, MessageIds, unknown>,
+		"name" | "meta" | "defaultOptions"
+	>,
+) {
+	return privateCreateRule<Options, MessageIds>({
+		name: seed.concern,
+		defaultOptions: [defaultConfig],
+		meta: createMeta(seed),
+		...args,
+	});
 }

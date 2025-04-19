@@ -9,8 +9,8 @@ import {
 } from "../utils/ruleFactory.ts";
 
 export const seed = createSeed({
-	concern: "AggregateError constructor",
-	compatKeys: ["javascript.builtins.AggregateError.AggregateError"],
+	concern: "AggregateError serialization",
+	compatKeys: ["javascript.builtins.AggregateError.serializable_object"],
 });
 
 const rule = createRule(seed, {
@@ -24,11 +24,34 @@ const rule = createRule(seed, {
 		});
 
 		return {
-			NewExpression(node) {
+			CallExpression(node) {
 				if (
-					node.callee.type !== "Identifier" ||
-					node.callee.name !== "AggregateError"
+					node.callee.type !== "MemberExpression" ||
+					node.callee.property.type !== "Identifier" ||
+					node.callee.property.name !== "stringify"
 				) {
+					return;
+				}
+
+				if (
+					node.callee.object.type !== "Identifier" ||
+					node.callee.object.name !== "JSON"
+				) {
+					return;
+				}
+
+				// Check if any argument contains AggregateError
+				const hasAggregateError = node.arguments.some((arg) => {
+					if (arg.type === "NewExpression") {
+						return (
+							arg.callee.type === "Identifier" &&
+							arg.callee.name === "AggregateError"
+						);
+					}
+					return false;
+				});
+
+				if (!hasAggregateError) {
 					return;
 				}
 

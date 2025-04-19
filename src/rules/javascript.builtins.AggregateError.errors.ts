@@ -1,22 +1,19 @@
-import type { Rule } from "eslint";
 import { computeBaseline } from "compute-baseline";
 import { ensureConfig } from "../config.ts";
 import type { BaselineRuleConfig } from "../types.ts";
 import checkIsAvailable from "../utils/checkIsAvailable.ts";
 import {
 	createMessageData,
-	createMeta,
+	createRule,
 	createSeed,
 } from "../utils/ruleFactory.ts";
 
-const seed = createSeed({
+export const seed = createSeed({
 	concern: "AggregateError.errors",
 	compatKeys: ["javascript.builtins.AggregateError.errors"],
 });
 
-const rule: Rule.RuleModule = {
-	meta: createMeta(seed),
-
+const rule = createRule(seed, {
 	create(context) {
 		const options = context.options[0] || {};
 		const config: BaselineRuleConfig = ensureConfig(options);
@@ -47,6 +44,6 @@ const rule: Rule.RuleModule = {
 			},
 		};
 	},
-};
+});
 
 export default rule;

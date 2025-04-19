@@ -1,5 +1,9 @@
+import "./init.ts";
 import { RuleTester } from "eslint";
-import rule from "../../src/rules/javascript.statements.async_function.ts";
+import rule, {
+	seed,
+} from "../../src/rules/javascript.statements.async_function.ts";
+import { createMessageData } from "../../src/utils/ruleFactory.ts";
 
 const ruleTester = new RuleTester({
 	languageOptions: {
@@ -8,7 +12,7 @@ const ruleTester = new RuleTester({
 	},
 });
 
-ruleTester.run("baseline-features", rule, {
+ruleTester.run(seed.concern, rule, {
 	valid: [
 		{
 			code: "async function foo() {}",
@@ -32,10 +36,10 @@ ruleTester.run("baseline-features", rule, {
 			errors: [
 				{
 					messageId: "notAvailable",
-					data: {
+					data: createMessageData(seed, {
 						asOf: "2017-01-01",
 						support: "widely",
-					},
+					}).notAvailable,
 				},
 			],
 		},

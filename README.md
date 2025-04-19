@@ -29,7 +29,7 @@
         - `npm run agent:ast:acorn` でASTを生成し、役立てる。
         - `npm run agent:ast:typescript` でTypeScriptのASTを生成し、役立てる。
       - `npm run test` でテストを実行し、ルールが正しく動作することを確認する。
-      - `src/rules/index.ts` にルールを追加する。
+      - `src/index.ts` にルールを追加する。
   - [ ] 統合ルールの実装
   - [ ] 設定ファクトリ関数の実装
   - [ ] ディテクターの実装

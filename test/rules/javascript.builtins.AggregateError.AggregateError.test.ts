@@ -1,5 +1,9 @@
+import "./init.ts";
 import { RuleTester } from "eslint";
-import rule from "../../src/rules/javascript.builtins.AggregateError.AggregateError.ts";
+import rule, {
+	seed,
+} from "../../src/rules/javascript.builtins.AggregateError.AggregateError.ts";
+import { createMessageData } from "../../src/utils/ruleFactory.ts";
 
 const tester = new RuleTester({
 	languageOptions: {
@@ -8,7 +12,7 @@ const tester = new RuleTester({
 	},
 });
 
-tester.run("javascript.builtins.AggregateError.AggregateError", rule, {
+tester.run(seed.concern, rule, {
 	valid: [
 		{
 			code: "new AggregateError([new Error('error')], 'message')",
@@ -26,27 +30,27 @@ tester.run("javascript.builtins.AggregateError.AggregateError", rule, {
 	invalid: [
 		{
 			code: "new AggregateError([new Error('error')], 'message')",
-			options: [{ asOf: "2020-01-01", support: "widely" }],
+			options: [{ asOf: "2017-01-01", support: "widely" }],
 			errors: [
 				{
 					messageId: "notAvailable",
-					data: {
-						asOf: "2020-01-01",
+					data: createMessageData(seed, {
+						asOf: "2017-01-01",
 						support: "widely",
-					},
+					}).notAvailable,
 				},
 			],
 		},
 		{
 			code: "new AggregateError([], 'empty')",
-			options: [{ asOf: "2020-01-01", support: "widely" }],
+			options: [{ asOf: "2017-01-01", support: "widely" }],
 			errors: [
 				{
 					messageId: "notAvailable",
-					data: {
-						asOf: "2020-01-01",
+					data: createMessageData(seed, {
+						asOf: "2017-01-01",
 						support: "widely",
-					},
+					}).notAvailable,
 				},
 			],
 		},
