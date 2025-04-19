@@ -23,9 +23,11 @@
       - コマンドが失敗したら、実装は完了
     - seedPathにあるJSONを `jq` コマンドで読む。 `description` と `mdn_url` と `spec_url` を取得し、理解する。
     - rulePathにファイルを作成し、ルールを実装する。
+      - 対応するテストを実装しながら開発する。
+      - すでに実装されているルールやテストを参考にしてよい。
       - seedPathのファイルへの参照をルール内に持つことは禁止されている。
-      - すでに実装されているルールを参考にしてよい。
       - `npm run agent:ast:acorn` でASTを生成し、役立てる。
+      - `npm run agent:ast:typescript` でTypeScriptのASTを生成し、役立てる。
   - [ ] 統合ルールの実装
   - [ ] 設定ファクトリ関数の実装
   - [ ] ディテクターの実装
