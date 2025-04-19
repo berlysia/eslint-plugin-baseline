@@ -8,13 +8,14 @@ const rule: Rule.RuleModule = {
 	meta: {
 		type: "problem",
 		docs: {
-			description: "Ensure features are supported based on specified baseline",
+			description:
+				"Ensure AggregateError constructor is supported based on specified baseline",
 			category: "Possible Errors",
 			recommended: true,
 		},
 		messages: {
 			notAvailable:
-				"The feature is not available as of {{asOf}} for {{support}} support.",
+				"The AggregateError constructor is not available as of {{asOf}} for {{support}} support.",
 		},
 		schema: [
 			{
@@ -42,13 +43,16 @@ const rule: Rule.RuleModule = {
 		const config: BaselineRuleConfig = ensureConfig(options);
 
 		const baseline = computeBaseline({
-			compatKeys: ["javascript.statements.async_function"],
+			compatKeys: ["javascript.builtins.AggregateError.AggregateError"],
 			checkAncestors: true,
 		});
 
 		return {
-			FunctionDeclaration(node) {
-				if (!node.async) {
+			NewExpression(node) {
+				if (
+					node.callee.type !== "Identifier" ||
+					node.callee.name !== "AggregateError"
+				) {
 					return;
 				}
 

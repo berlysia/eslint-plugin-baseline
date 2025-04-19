@@ -1,5 +1,5 @@
 import { RuleTester } from "eslint";
-import { baselineFeatures } from "../../src/rules/javascript.statements.async_function.ts";
+import rule from "../../src/rules/javascript.statements.async_function.ts";
 
 const ruleTester = new RuleTester({
 	languageOptions: {
@@ -8,7 +8,7 @@ const ruleTester = new RuleTester({
 	},
 });
 
-ruleTester.run("baseline-features", baselineFeatures, {
+ruleTester.run("baseline-features", rule, {
 	valid: [
 		{
 			code: "async function foo() {}",
