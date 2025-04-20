@@ -19,28 +19,49 @@
 
 - [ ] コア機能の実装
   - [ ] 各ルールの実装
+    - **注意**: 実装済みルールの一覧は、規模が大きくなるため本READMEには含めていません。
+      - どうしても必要ならば、全てを読み込まなくてよいようなツールを新規に作成します。
     - `npm run agent:rules:next` で次に実装するルールの情報を取得
       - コマンドが失敗したら、実装は完了
     - ruleNameに注目する
     - `npm run agent:rules:scaffold --ruleName <ルール名>` でルールの雛形を生成、ルールを実装する。
-      - 対応するテストを実装しながら開発する。
-      - すでに実装されているルールやテストを参考にすべきである。
-      - シンタックスレベルの機能は、その構文で判定する。
-        - 例: `import` 文は `ImportDeclaration` ノードで判定する。
-        - 例: `class` 文は `ClassDeclaration` ノードで判定する。
-        - 例: `async` 関数は `FunctionDeclaration` ノードで判定する。
-      - オブジェクトやメンバーの存在を確認する場合は、型情報を使用する。
-        - 例: `AggregateError` は `AggregateError` 型で判定する。
-        - 例: `AggregateError.prototype.errors` は `.errors` へのアクセスのレシーバが `AggregateError` 型のオブジェクトかどうかで判定する。
-      - seedPathのファイルへの参照をルール内に持つことは禁止されている。
-        - `npm run agent:ast:acorn` でASTを生成し、役立てる。
-        - `npm run agent:ast:typescript` でTypeScriptのASTを生成し、役立てる。
-      - `npm run test` でテストを実行し、ルールが正しく動作することを確認する。
-      - `src/index.ts` にルールを追加する。
-  - [ ] 統合ルールの実装
-  - [ ] 設定ファクトリ関数の実装
-  - [ ] ディテクターの実装
-  - [ ] キャッシング機構の実装
+
+#### ルール開発のガイドライン
+
+1. テストの実装
+
+   - 各ルールには対応するテストを実装する
+   - テストは以下のパターンを含むべき:
+     - 正常系: 対象の機能が十分にサポートされている場合
+     - 異常系: 対象の機能がサポートされていない場合
+     - エッジケース: 特殊な状況での動作
+
+2. 機能の判定方法
+
+   - シンタックスレベルの機能は、その構文で判定:
+     - 例: `import` 文は `ImportDeclaration` ノードで判定
+     - 例: `class` 文は `ClassDeclaration` ノードで判定
+     - 例: `async` 関数は `FunctionDeclaration` ノードで判定
+   - オブジェクトやメンバーの存在確認は型情報を使用:
+     - 例: `AggregateError` は `AggregateError` 型で判定
+     - 例: `AggregateError.prototype.errors` は `.errors` へのアクセスのレシーバが `AggregateError` 型のオブジェクトかどうかで判定
+
+3. 実装上の制約
+   - seedPathのファイルへの参照をルール内に持つことは禁止
+   - ASTの解析には提供されているツールを使用:
+     - `npm run agent:ast:acorn` でASTを生成
+     - `npm run agent:ast:typescript` でTypeScriptのASTを生成
+4. 実装フロー
+   - テストを実装しながら開発を進める
+   - `npm run test` でテストを実行し、動作を確認
+   - 実装完了後、`src/index.ts` にルールを追加
+
+その他の実装項目:
+
+- [ ] 統合ルールの実装
+- [ ] 設定ファクトリ関数の実装
+- [ ] ディテクターの実装
+- [ ] キャッシング機構の実装
 
 ### 予定
 
@@ -73,10 +94,32 @@
 
 ## エージェント向け開発用ツール
 
+### ASTの解析
+
 - `npm run agent:ast:acorn` - Acornを使用してASTを生成
-  - `--code` 文字列でコードを与える
+
+  - `--code "<コード>"` コードを文字列で与える
   - `--jsx` JSXを有効にする
+  - 出力: AST（JSON形式）
+
 - `npm run agent:ast:typescript` - TypeScript ESTreeを使用してASTを生成
-  - `--code` 文字列でコードを与える
+  - `--code "<コード>"` コードを文字列で与える
   - `--jsx` JSXを有効にする
+  - 出力: AST（JSON形式）と型情報
+
+### ルール開発
+
 - `npm run agent:rules:next` - 次に実装するルールの情報を取得
+
+  - 出力:
+    - `ruleName`: 実装すべきルール名
+    - `description`: ルールの説明
+    - `seedPath`: 機能のサポート状況データへのパス
+  - 注意: すべてのルールが実装済みの場合はエラーを返します
+
+- `npm run agent:rules:scaffold --ruleName <ルール名>`
+  - 指定されたルール名で新しいルールの雛形を生成
+  - 生成されるファイル:
+    - `src/rules/<ルール名>.ts`: ルールの実装
+    - `test/rules/<ルール名>.test.ts`: テストファイル
+  - テンプレートには基本的なルール構造とテストケースが含まれます
