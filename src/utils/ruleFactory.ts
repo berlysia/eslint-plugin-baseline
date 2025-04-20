@@ -24,8 +24,8 @@ export function createSeed(args: RuleModuleSeed): RuleModuleSeed {
 	return args;
 }
 
-type Options = [{ asOf: string; support: "widely" | "newly" }];
-type MessageIds = "notAvailable";
+export type RuleOptions = [{ asOf: string; support: "widely" | "newly" }];
+export type MessageIds = "notAvailable";
 
 export function createMeta(params: RuleModuleSeed) {
 	return {
@@ -59,7 +59,7 @@ export function createMeta(params: RuleModuleSeed) {
 				},
 			},
 		],
-	} as const satisfies NamedCreateRuleMeta<MessageIds, Docs, Options>;
+	} as const satisfies NamedCreateRuleMeta<MessageIds, Docs, RuleOptions>;
 }
 
 export function createMessageData(
@@ -85,11 +85,11 @@ const privateCreateRule = ESLintUtils.RuleCreator(
 export function createRule(
 	seed: RuleModuleSeed,
 	args: Omit<
-		RuleWithMetaAndName<Options, MessageIds, unknown>,
+		RuleWithMetaAndName<RuleOptions, MessageIds, unknown>,
 		"name" | "meta" | "defaultOptions"
 	>,
 ) {
-	return privateCreateRule<Options, MessageIds>({
+	return privateCreateRule<RuleOptions, MessageIds>({
 		name: seed.concern,
 		defaultOptions: [defaultConfig],
 		meta: createMeta(seed),

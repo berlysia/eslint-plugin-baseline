@@ -1,4 +1,6 @@
 import { computeBaseline } from "compute-baseline";
+import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
+import type { TSESTree } from "@typescript-eslint/typescript-estree";
 import { ensureConfig } from "../config.ts";
 import type { BaselineRuleConfig } from "../types.ts";
 import checkIsAvailable from "../utils/checkIsAvailable.ts";
@@ -7,6 +9,7 @@ import {
 	createRule,
 	createSeed,
 } from "../utils/ruleFactory.ts";
+import { createIsTargetType } from "../utils/createIsTargetType.ts";
 
 export const seed = createSeed({
 	concern: "AggregateError serialization",
@@ -26,47 +29,98 @@ const rule = createRule(seed, {
 			compatKeys: seed.compatKeys,
 			checkAncestors: true,
 		});
+		const services = getParserServices(context);
+		const typeChecker = services.program.getTypeChecker();
 
-		return {
-			CallExpression(node) {
-				if (
-					node.callee.type !== "MemberExpression" ||
-					node.callee.property.type !== "Identifier" ||
-					node.callee.property.name !== "stringify"
-				) {
-					return;
-				}
+		const isTargetType = createIsTargetType(typeChecker, "AggregateError");
 
-				if (
-					node.callee.object.type !== "Identifier" ||
-					node.callee.object.name !== "JSON"
-				) {
-					return;
-				}
+		function checkType(node: TSESTree.Node) {
+			const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+			const type = typeChecker.getTypeAtLocation(tsNode);
+			return isTargetType(type);
+		}
 
-				// Check if any argument contains AggregateError
-				const hasAggregateError = node.arguments.some((arg) => {
-					if (arg.type === "NewExpression") {
-						return (
-							arg.callee.type === "Identifier" &&
-							arg.callee.name === "AggregateError"
-						);
-					}
-					return false;
-				});
-
-				if (!hasAggregateError) {
-					return;
-				}
-
+		function checkAndReport(node: TSESTree.Node, objectNode: TSESTree.Node) {
+			if (checkType(objectNode)) {
 				const isAvailable = checkIsAvailable(config, baseline);
-
 				if (!isAvailable) {
 					context.report({
 						messageId: "notAvailable",
 						node,
 						data: createMessageData(seed, config).notAvailable,
 					});
+				}
+			}
+		}
+
+		function checkRecursively(node: TSESTree.Node) {
+			switch (node.type) {
+				case "NewExpression": {
+					const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+					const type = typeChecker.getTypeAtLocation(tsNode);
+					if (isTargetType(type)) {
+						checkAndReport(node, node);
+					}
+
+					break;
+				}
+				case "ObjectExpression": {
+					for (const prop of node.properties) {
+						if (prop.type === "Property") {
+							const value = prop.value;
+							if (value.type === "NewExpression") {
+								const tsNode = services.esTreeNodeToTSNodeMap.get(value);
+								const type = typeChecker.getTypeAtLocation(tsNode);
+								if (isTargetType(type)) {
+									checkAndReport(node, value);
+								}
+							} else {
+								checkRecursively(value);
+							}
+						}
+					}
+
+					break;
+				}
+				case "ArrayExpression": {
+					for (const element of node.elements) {
+						if (element) {
+							if (element.type === "NewExpression") {
+								const tsNode = services.esTreeNodeToTSNodeMap.get(element);
+								const type = typeChecker.getTypeAtLocation(tsNode);
+								if (isTargetType(type)) {
+									checkAndReport(node, element);
+								}
+							} else {
+								checkRecursively(element);
+							}
+						}
+					}
+
+					break;
+				}
+				case "Identifier": {
+					checkAndReport(node, node);
+
+					break;
+				}
+				// No default
+			}
+		}
+
+		return {
+			CallExpression(node) {
+				if (
+					node.callee.type === "MemberExpression" &&
+					node.callee.object.type === "Identifier" &&
+					node.callee.object.name === "JSON" &&
+					node.callee.property.type === "Identifier" &&
+					node.callee.property.name === "stringify"
+				) {
+					const [arg] = node.arguments;
+					if (!arg) return;
+
+					checkRecursively(arg);
 				}
 			},
 		};
