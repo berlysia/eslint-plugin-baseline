@@ -1,7 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { glob } from "glob";
-import { MethodType } from "../src/utils/createObjectMethodRule.ts";
+import { METHOD_TYPE } from "../src/utils/createObjectMethodRule.ts";
+import type { MethodType } from "../src/utils/createObjectMethodRule.ts";
 
 const RULES_DIR = path.join(process.cwd(), "src/rules");
 
@@ -18,8 +19,8 @@ function parseRuleName(ruleName: string) {
 	// メソッドタイプを判定する
 	// prototypeが含まれている場合はインスタンスメソッド
 	const methodType = parts.includes("prototype")
-		? MethodType.Instance
-		: MethodType.Static;
+		? METHOD_TYPE.Instance
+		: METHOD_TYPE.Static;
 
 	return {
 		objectType,
@@ -38,7 +39,7 @@ function determineMethodTypeFromContent(fileContent: string): MethodType {
 		fileContent.includes("concern: `") &&
 		fileContent.includes(".prototype.")
 	) {
-		return MethodType.Instance;
+		return METHOD_TYPE.Instance;
 	}
 
 	// MemberExpressionのチェックパターンを分析
@@ -46,11 +47,11 @@ function determineMethodTypeFromContent(fileContent: string): MethodType {
 		/object\.type === "Identifier" && object\.name === /;
 
 	if (staticMethodPattern.test(fileContent)) {
-		return MethodType.Static;
+		return METHOD_TYPE.Static;
 	}
 
 	// デフォルトはインスタンスメソッド
-	return MethodType.Instance;
+	return METHOD_TYPE.Instance;
 }
 
 /**
@@ -112,21 +113,14 @@ function extractRuleMetadata(fileContent: string) {
 /**
  * ファイルパスからオブジェクトタイプを特定
  */
-function determineObjectType(rulePath: string) {
+function determineObjectType(rulePath: string, methodType: MethodType) {
 	const filename = path.basename(rulePath);
+	const isStatic = methodType === METHOD_TYPE.Static;
+	const suffix = isStatic ? "Constructor" : "";
 
-	if (filename.includes("javascript.builtins.Array.")) {
-		return "Array";
-	} else if (filename.includes("javascript.builtins.String.")) {
-		return "String";
-	} else if (filename.includes("javascript.builtins.Map.")) {
-		return "Map";
-	} else if (filename.includes("javascript.builtins.Set.")) {
-		return "Set";
-	} else if (filename.includes("javascript.builtins.Object.")) {
-		return "Object";
-	} else if (filename.includes("javascript.builtins.Promise.")) {
-		return "Promise";
+	if (filename.startsWith("javascript.builtins.")) {
+		const objectType = filename.split(".")[2];
+		return `${objectType}${suffix}`;
 	}
 
 	return null;
@@ -135,59 +129,12 @@ function determineObjectType(rulePath: string) {
 /**
  * 適切なファクトリ関数名を取得
  */
-function getFactoryFunctionName(
-	objectType: string,
-	methodType: MethodType,
-): string | null {
-	if (methodType === MethodType.Instance) {
-		switch (objectType) {
-			case "Array": {
-				return "createArrayInstanceMethodRule";
-			}
-			case "String": {
-				return "createStringInstanceMethodRule";
-			}
-			case "Map": {
-				return "createMapInstanceMethodRule";
-			}
-			case "Set": {
-				return "createSetInstanceMethodRule";
-			}
-			case "Object": {
-				return "createObjectInstanceMethodRule";
-			}
-			case "Promise": {
-				return "createPromiseInstanceMethodRule";
-			}
-			default: {
-				return null;
-			}
-		}
-	} else {
-		switch (objectType) {
-			case "Array": {
-				return "createArrayStaticMethodRule";
-			}
-			case "String": {
-				return "createStringStaticMethodRule";
-			}
-			case "Map": {
-				return "createMapStaticMethodRule";
-			}
-			case "Set": {
-				return "createSetStaticMethodRule";
-			}
-			case "Object": {
-				return "createObjectStaticMethodRule";
-			}
-			case "Promise": {
-				return "createPromiseStaticMethodRule";
-			}
-			default: {
-				return null;
-			}
-		}
+function getFactoryFunctionName(methodType: MethodType): string | null {
+	// 型別ファクトリ関数を削除し、一般的なファクトリ関数に置き換え
+	if (methodType === METHOD_TYPE.Instance) {
+		return "createInstanceMethodRule";
 	}
+	return "createStaticMethodRule";
 }
 
 /**
@@ -217,12 +164,9 @@ async function migrateRuleFile(rulePath: string) {
 		return false;
 	}
 
-	// オブジェクトの種類を特定
-	const objectType = determineObjectType(rulePath);
-	if (!objectType) {
-		console.log(`  Skipping: Could not determine object type.`);
-		return false;
-	}
+	// メソッドのタイプを判定（インスタンスメソッドかスタティックメソッドか）
+	const methodType = determineMethodTypeFromContent(fileContent);
+	console.log(`  Detected method type: ${methodType}`);
 
 	// メソッド名を特定
 	const filename = path.basename(rulePath);
@@ -234,12 +178,15 @@ async function migrateRuleFile(rulePath: string) {
 		return false;
 	}
 
-	// メソッドのタイプを判定（インスタンスメソッドかスタティックメソッドか）
-	const methodType = determineMethodTypeFromContent(fileContent);
-	console.log(`  Detected method type: ${methodType}`);
+	// オブジェクトの種類を特定
+	const objectType = determineObjectType(rulePath, methodType);
+	if (!objectType) {
+		console.log(`  Skipping: Could not determine object type.`);
+		return false;
+	}
 
 	// ファクトリ関数を選択
-	const factoryFunction = getFactoryFunctionName(objectType, methodType);
+	const factoryFunction = getFactoryFunctionName(methodType);
 	if (!factoryFunction) {
 		console.log(
 			`  Skipping: Could not determine appropriate factory function.`,
@@ -248,11 +195,18 @@ async function migrateRuleFile(rulePath: string) {
 	}
 
 	// 新しいコードを生成
+	const parts = path.basename(rulePath).split(".");
+	const compatKeyPrefix = parts.slice(0, -2).join(".");
+	const concern = `${objectType}${methodType === METHOD_TYPE.Instance ? ".prototype" : ""}.${methodName}`;
+
 	const newCode = `
-import { ${factoryFunction} } from "../utils/createObjectMethodRule";
+import { ${factoryFunction} } from "../utils/createObjectMethodRule.ts";
 
 export const { seed, rule } = ${factoryFunction}({
+  objectTypeName: "${objectType}",
   methodName: "${methodName}",
+  compatKeyPrefix: "${compatKeyPrefix}",
+  concern: "${concern}",
   mdnUrl: ${metadata.mdnUrl ? `"${metadata.mdnUrl}"` : "undefined"},
   specUrl: ${metadata.specUrl ? `"${metadata.specUrl}"` : "undefined"},
   newlyAvailableAt: ${metadata.newlyAvailableAt ? `"${metadata.newlyAvailableAt}"` : "undefined"},
@@ -345,7 +299,8 @@ async function dryRunMigration() {
 					fileContent.includes("property.type"));
 
 			const metadata = extractRuleMetadata(fileContent);
-			const objectType = determineObjectType(rulePath);
+			const methodType = determineMethodTypeFromContent(fileContent);
+			const objectType = determineObjectType(rulePath, methodType);
 
 			const filename = path.basename(rulePath);
 
@@ -354,7 +309,7 @@ async function dryRunMigration() {
 				eligibleRules.push({
 					file: filename,
 					type:
-						methodType === MethodType.Instance
+						methodType === METHOD_TYPE.Instance
 							? "Instance Method"
 							: "Static Method",
 				});
@@ -447,7 +402,7 @@ async function generateRuleScaffold(ruleName: string, seedPath: string) {
 	const { objectType, methodName, methodType } = parsedInfo;
 
 	// ファクトリ関数を選択
-	const factoryFunction = getFactoryFunctionName(objectType, methodType);
+	const factoryFunction = getFactoryFunctionName(methodType);
 	if (!factoryFunction) {
 		throw new Error(
 			`Unsupported object type or method type: ${objectType}, ${methodType}`,
@@ -455,11 +410,16 @@ async function generateRuleScaffold(ruleName: string, seedPath: string) {
 	}
 
 	// ルールコードの生成
+	const concern = `${objectType}${methodType === METHOD_TYPE.Instance ? ".prototype" : ""}.${methodName}`;
+
 	const ruleCode = `
 import { ${factoryFunction} } from "../utils/createObjectMethodRule";
 
 export const { seed, rule } = ${factoryFunction}({
+  objectTypeName: "${objectType}",
   methodName: "${methodName}",
+  compatKeyPrefix: "${parsedInfo.compatKeyPrefix}",
+  concern: "${concern}",
   mdnUrl: ${seed.mdn_url ? `"${seed.mdn_url}"` : "undefined"},
   specUrl: ${seed.bcd.spec_url ? `"${seed.bcd.spec_url}"` : "undefined"},
   newlyAvailableAt: ${seed.baseline.baseline_low_date ? `"${seed.baseline.baseline_low_date}"` : "undefined"},

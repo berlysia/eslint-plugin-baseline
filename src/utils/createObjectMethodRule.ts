@@ -9,12 +9,14 @@ import { createIsTargetType } from "./createIsTargetType.ts";
 /**
  * メソッドの種類を表す文字列定数
  */
-export const MethodType = {
+export const METHOD_TYPE = {
 	Instance: "instance", // インスタンスメソッド（例：Array.prototype.map）
 	Static: "static", // 静的メソッド（例：Array.from）
 } as const;
 
-export type MethodTypeValue = typeof MethodType[keyof typeof MethodType];
+export type MethodType = (typeof METHOD_TYPE)[keyof typeof METHOD_TYPE];
+
+export type MethodTypeValue = (typeof METHOD_TYPE)[keyof typeof METHOD_TYPE];
 
 export interface ObjectMethodRuleConfig {
 	/**
@@ -186,4 +188,3 @@ export function createStaticMethodRule(config: ObjectMethodRuleConfig) {
 
 	return { seed, rule };
 }
-

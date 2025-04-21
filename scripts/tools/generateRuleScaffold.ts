@@ -1,7 +1,8 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { MethodType } from "../../src/utils/createObjectMethodRule.ts";
+import { METHOD_TYPE } from "../../src/utils/createObjectMethodRule.ts";
+import type { MethodType } from "../../src/utils/createObjectMethodRule.ts";
 import { transformRuleName } from "./utils.ts";
 
 const { values: args } = parseArgs({
@@ -43,8 +44,8 @@ function parseRuleName(ruleName: string) {
 	// メソッドタイプを判定する
 	// prototypeが含まれている場合はインスタンスメソッド
 	const methodType = parts.includes("prototype")
-		? MethodType.Instance
-		: MethodType.Static;
+		? METHOD_TYPE.Instance
+		: METHOD_TYPE.Static;
 
 	return {
 		objectType,
@@ -57,59 +58,12 @@ function parseRuleName(ruleName: string) {
 /**
  * 適切なファクトリ関数名を取得
  */
-function getFactoryFunctionName(
-	objectType: string,
-	methodType: MethodType,
-): string | null {
-	if (methodType === MethodType.Instance) {
-		switch (objectType) {
-			case "Array": {
-				return "createArrayInstanceMethodRule";
-			}
-			case "String": {
-				return "createStringInstanceMethodRule";
-			}
-			case "Map": {
-				return "createMapInstanceMethodRule";
-			}
-			case "Set": {
-				return "createSetInstanceMethodRule";
-			}
-			case "Object": {
-				return "createObjectInstanceMethodRule";
-			}
-			case "Promise": {
-				return "createPromiseInstanceMethodRule";
-			}
-			default: {
-				return null;
-			}
-		}
-	} else {
-		switch (objectType) {
-			case "Array": {
-				return "createArrayStaticMethodRule";
-			}
-			case "String": {
-				return "createStringStaticMethodRule";
-			}
-			case "Map": {
-				return "createMapStaticMethodRule";
-			}
-			case "Set": {
-				return "createSetStaticMethodRule";
-			}
-			case "Object": {
-				return "createObjectStaticMethodRule";
-			}
-			case "Promise": {
-				return "createPromiseStaticMethodRule";
-			}
-			default: {
-				return null;
-			}
-		}
+function getFactoryFunctionName(methodType: MethodType): string | null {
+	// 型別ファクトリ関数を削除し、一般的なファクトリ関数に置き換え
+	if (methodType === METHOD_TYPE.Instance) {
+		return "createInstanceMethodRule";
 	}
+	return "createStaticMethodRule";
 }
 
 /**
@@ -124,7 +78,7 @@ const generateMethodRuleCode = (ruleName: string, seed: any) => {
 	const { objectType, methodName, methodType } = parsedInfo;
 
 	// 対応するファクトリ関数を選択
-	const factoryFunction = getFactoryFunctionName(objectType, methodType);
+	const factoryFunction = getFactoryFunctionName(methodType);
 	if (!factoryFunction) {
 		// 対応するファクトリ関数がない場合はnullを返す
 		return null;
@@ -134,7 +88,10 @@ const generateMethodRuleCode = (ruleName: string, seed: any) => {
 import { ${factoryFunction} } from "../utils/createObjectMethodRule";
 
 export const { seed, rule } = ${factoryFunction}({
+  objectTypeName: "${objectType}",
   methodName: ${JSON.stringify(methodName)},
+  compatKeyPrefix: "${parsedInfo.compatKeyPrefix}",
+  concern: "${objectType}${methodType === METHOD_TYPE.Instance ? ".prototype" : ""}.${methodName}",
   mdnUrl: ${JSON.stringify(seed.mdn_url)},
   specUrl: ${JSON.stringify(seed.bcd.spec_url)},
   newlyAvailableAt: ${JSON.stringify(seed.baseline.baseline_low_date)},
