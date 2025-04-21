@@ -7,12 +7,14 @@ import { createMessageData, createRule, createSeed } from "./ruleFactory.ts";
 import { createIsTargetType } from "./createIsTargetType.ts";
 
 /**
- * メソッドの種類を表す列挙型
+ * メソッドの種類を表す文字列定数
  */
-export enum MethodType {
-	Instance = "instance", // インスタンスメソッド（例：Array.prototype.map）
-	Static = "static", // 静的メソッド（例：Array.from）
-}
+export const MethodType = {
+	Instance: "instance", // インスタンスメソッド（例：Array.prototype.map）
+	Static: "static", // 静的メソッド（例：Array.from）
+} as const;
+
+export type MethodTypeValue = typeof MethodType[keyof typeof MethodType];
 
 export interface ObjectMethodRuleConfig {
 	/**
@@ -184,3 +186,4 @@ export function createStaticMethodRule(config: ObjectMethodRuleConfig) {
 
 	return { seed, rule };
 }
+
