@@ -4,7 +4,7 @@
 	"scripts": {
 		"build": "tshy && vite build",
 		"prepare": "tshy",
-		"test": "node --test test/**/*.test.ts",
+		"test": "node --test-reporter=dot --test test/**/*.test.ts ",
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
@@ -12,7 +12,8 @@
 		"agent:ast:acorn": "node scripts/tools/getAstByAcorn.ts",
 		"agent:ast:typescript": "node scripts/tools/getAstByTsParser.ts",
 		"agent:rules:scaffold": "node scripts/tools/generateRuleScaffold.ts",
-		"agent:rules:next": "node scripts/tools/getUnimplementedRuleName.ts"
+		"agent:rules:next": "node scripts/tools/getUnimplementedRuleName.ts",
+		"agent:check": "node scripts/tools/check.ts"
 	},
 	"keywords": [],
 	"author": "",
@@ -28,6 +29,7 @@
 		"acorn": "^8.14.1",
 		"acorn-jsx": "^5.3.2",
 		"compute-baseline": "^0.3.1",
+		"dax-sh": "^0.43.0",
 		"eslint": "^9.25.0",
 		"prettier": "^3.5.3",
 		"tshy": "^3.0.2",
