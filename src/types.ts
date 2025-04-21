@@ -1,9 +1,7 @@
 export interface BaselineRuleConfig {
 	asOf: string;
 	support: "widely" | "newly";
-	overrides?: {
-		[feature: string]: OverrideConfig;
-	};
+	overrides?: Record<string, OverrideConfig>;
 }
 
 export interface OverrideConfig {

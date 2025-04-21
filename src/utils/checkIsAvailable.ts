@@ -1,6 +1,6 @@
+import type { computeBaseline } from "compute-baseline";
 import type { BaselineRuleConfig } from "../types.ts";
-import isDatePastThreshold from "../utils/isDatePastThreshold.ts";
-import { computeBaseline } from "compute-baseline";
+import isDatePastThreshold from "./isDatePastThreshold.ts";
 
 export default function checkIsAvailable(
 	config: BaselineRuleConfig,

@@ -1,5 +1,5 @@
-import { parse } from "@typescript-eslint/typescript-estree";
 import { parseArgs } from "node:util";
+import { parse } from "@typescript-eslint/typescript-estree";
 
 function getAst(code: string) {
 	return parse(code, {

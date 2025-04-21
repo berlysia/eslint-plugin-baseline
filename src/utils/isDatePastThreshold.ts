@@ -1,6 +1,6 @@
 /**
  *
- * @param target - The date to check against. YYYY-MM-DD format.
+ * @param current - The date to check against. YYYY-MM-DD format.
  * @param threshold - The date should be past. YYYY-MM-DD format.
  */
 export default function isDatePastThreshold(

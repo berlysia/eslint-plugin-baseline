@@ -9,12 +9,10 @@ interface BaselineConfig {
   // 必要なサポート範囲（widely, newly）
   support: "widely" | "newly";
   // オプション：特定の機能に対する個別設定
-  overrides?: {
-    [feature: string]: {
+  overrides?: Record<string, {
       support?: "widely" | "newly";
       enabled?: boolean;
-    };
-  };
+    }>;
 }
 
 function createConfig(config: BaselineConfig) {

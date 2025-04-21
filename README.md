@@ -53,7 +53,10 @@
      - `npm run agent:ast:typescript` でTypeScriptのASTを生成
 4. 実装フロー
    - テストを実装しながら開発を進める
-   - `npm run test` でテストを実行し、動作を確認
+   - 実装の完了には次の3つが正常終了することを確認する
+     - `npm run test` でテストを実行し、動作を確認
+     - `npm run lint` でコードの整形と静的解析を実行
+     - `npm run typecheck` で型チェックを実行
    - 実装完了後、`src/index.ts` にルールを追加
 
 その他の実装項目:

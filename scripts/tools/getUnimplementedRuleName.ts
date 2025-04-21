@@ -8,13 +8,13 @@ const rulesDir = path.join(srcDir, "rules");
 const generatedDir = path.join(srcDir, "generated");
 const rules = await fsp.readdir(rulesDir);
 const generated = await fsp.readdir(generatedDir);
-const ruleNames = rules.map((rule) => path.basename(rule, ".ts"));
+const ruleNames = new Set(rules.map((rule) => path.basename(rule, ".ts")));
 const generatedNames = generated
 	.filter((x) => x.endsWith(".json"))
 	.map((rule) => path.basename(rule, ".json"));
 
 const unimplementedRuleNames = generatedNames.filter(
-	(name) => !ruleNames.includes(name),
+	(name) => !ruleNames.has(name),
 );
 
 if (unimplementedRuleNames.length === 0) {

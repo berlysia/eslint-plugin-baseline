@@ -5,6 +5,9 @@
 		"build": "tshy && vite build",
 		"prepare": "tshy",
 		"test": "node --test test/**/*.test.ts",
+		"typecheck": "tsc --noEmit",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
 		"generateSeeds": "node scripts/generateSeeds.ts",
 		"agent:ast:acorn": "node scripts/tools/getAstByAcorn.ts",
 		"agent:ast:typescript": "node scripts/tools/getAstByTsParser.ts",
@@ -17,7 +20,7 @@
 	"description": "",
 	"type": "module",
 	"devDependencies": {
-		"@berlysia/eslint-config": "^7.1.1",
+		"@berlysia/eslint-config": "^7.1.3",
 		"@mdn/browser-compat-data": "^6.0.7",
 		"@types/node": "^22.14.1",
 		"@typescript-eslint/rule-tester": "^8.30.1",

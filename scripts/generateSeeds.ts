@@ -1,9 +1,7 @@
-import bcd, {
-	type CompatStatement,
-	type Identifier,
-} from "@mdn/browser-compat-data" with { type: "json" };
-import { computeBaseline } from "compute-baseline";
 import fsp from "node:fs/promises";
+import bcd from "@mdn/browser-compat-data" with { type: "json" };
+import type { CompatStatement, Identifier } from "@mdn/browser-compat-data";
+import { computeBaseline } from "compute-baseline";
 
 function getKeysWithoutCompat(obj: object) {
 	const keys = Object.keys(obj);
@@ -46,11 +44,12 @@ function* iterateBCD(givenBcd: typeof bcd) {
 	}
 }
 
+/* eslint-disable no-void, promise/prefer-await-to-then, promise/catch-or-return -- promise tool */
 class AsyncQueueWithConcurrency {
-	#queue: (() => Promise<void>)[] = [];
-	#runningSet: Set<Promise<void>> = new Set();
+	#queue: Array<() => Promise<void>> = [];
+	#runningSet = new Set<Promise<void>>();
 	#concurrency: number;
-	#awaiterSet: Set<PromiseWithResolvers<void>> = new Set();
+	#awaiterSet = new Set<PromiseWithResolvers<void>>();
 
 	constructor(concurrency: number) {
 		this.#concurrency = concurrency;
@@ -64,10 +63,12 @@ class AsyncQueueWithConcurrency {
 			if (work) {
 				const promise = work();
 				this.#runningSet.add(promise);
-				promise.finally(() => {
-					this.#runningSet.delete(promise);
-					this.#checkWork();
-				});
+				promise
+					.finally(() => {
+						this.#runningSet.delete(promise);
+						this.#checkWork();
+					})
+					.catch(console.error);
 			}
 		}
 	}
@@ -81,25 +82,17 @@ class AsyncQueueWithConcurrency {
 			this.#kickWork();
 		}
 	}
-	#wrapWork<T>(
-		fn: () => Promise<T>,
-		resolve: (x: T) => void,
-		reject: (e: unknown) => void,
-	) {
-		const wrapped = async () => {
-			try {
-				const result = await fn();
-				resolve(result);
-			} catch (e) {
-				reject(e);
-			}
-		};
-		return wrapped;
-	}
 
 	add<T>(fn: () => Promise<T>): Promise<T> {
 		const promise = new Promise<T>((resolve, reject) => {
-			this.#queue.push(this.#wrapWork(fn, resolve, reject));
+			this.#queue.push(async function wrapped() {
+				try {
+					const result = await fn();
+					resolve(result);
+				} catch (error) {
+					reject(error);
+				}
+			});
 		});
 		this.#kickWork();
 
@@ -107,9 +100,10 @@ class AsyncQueueWithConcurrency {
 	}
 
 	wait(): Promise<void> {
+		// eslint-disable-next-line @typescript-eslint/no-invalid-void-type -- this pattern requires it
 		const deferred = Promise.withResolvers<void>();
 		this.#awaiterSet.add(deferred);
-		deferred.promise.finally(() => {
+		deferred.promise.catch(console.error).finally(() => {
 			this.#awaiterSet.delete(deferred);
 		});
 		return deferred.promise;
@@ -119,6 +113,7 @@ class AsyncQueueWithConcurrency {
 		this.#kickWork();
 	}
 }
+/* eslint-enable no-void, promise/prefer-await-to-then, promise/catch-or-return */
 
 async function main() {
 	// ensure empty `bcdKeys.ts` file
@@ -158,7 +153,7 @@ async function main() {
 	await queue.wait();
 
 	// write tags to `bcdTags.ts`
-	const tagEntries = Array.from(tags.entries());
+	const tagEntries = [...tags.entries()];
 	const tagEntriesString = tagEntries
 		.map(([key, value]) => `${JSON.stringify(key)}: ${JSON.stringify(value)}`)
 		.join(",\n");
@@ -166,4 +161,4 @@ async function main() {
 	await fsp.writeFile("src/generated/bcdTags.ts", tagEntriesObject);
 }
 
-void main().catch(console.error);
+await main();

@@ -1,4 +1,3 @@
-import type { Rule } from "eslint";
 import { ESLintUtils } from "@typescript-eslint/utils";
 import type {
 	NamedCreateRuleMeta,
@@ -47,8 +46,7 @@ export function createMeta(params: RuleModuleSeed) {
 						oneOf: [
 							{
 								type: "string",
-								pattern:
-									"^\\d{4}\\-(0?[1-9]|1[012])\\-(0?[1-9]|[12][0-9]|3[01])$",
+								pattern: String.raw`^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$`,
 							},
 						],
 					},

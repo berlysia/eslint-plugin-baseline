@@ -19,7 +19,7 @@ export function ensureConfig(
 
 	// ensure YYYY-MM-DD format
 	if (typeof finalConfig.asOf !== "string") {
-		throw new Error("asOf must be a string in YYYY-MM-DD format");
+		throw new TypeError("asOf must be a string in YYYY-MM-DD format");
 	}
 
 	// asOfがYYYY-MM-DD形式でない場合、エラーをスロー

@@ -1,6 +1,6 @@
+import { parseArgs } from "node:util";
 import { parse, Parser } from "acorn";
 import jsx from "acorn-jsx";
-import { parseArgs } from "node:util";
 
 function getAst(code: string) {
 	return parse(code, {
