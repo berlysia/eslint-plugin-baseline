@@ -62,7 +62,7 @@
      - `npm run lint` でコードの整形と静的解析を実行
      - `npm run typecheck` で型チェックを実行
    - 3つのコマンドの正常終了を確認したら、`src/index.ts` にルールを追加
-   - 作業内容をコミット
+   - 作業内容を `git status` で確認、必要なファイルを `git add` して、 `git commit` する。
 
 その他の実装項目:
 
