@@ -3,11 +3,12 @@
  * 例: "@@iterator" → "symbolIterator"
  */
 export function transformRuleName(ruleName: string): string {
-  // @@で始まるシンボル名をsymbolXxxの形式に変換
-  // 例: @@iterator → symbolIterator (最初の文字を大文字に)
-  return ruleName.replace(/@@([a-z][a-z_]*)/g, (_, symbolName) => {
-    // 最初の文字を大文字にする
-    const capitalizedName = symbolName.charAt(0).toUpperCase() + symbolName.slice(1);
-    return `symbol${capitalizedName}`;
-  });
+	// @@で始まるシンボル名をsymbolXxxの形式に変換
+	// 例: @@iterator → symbolIterator (最初の文字を大文字に)
+	return ruleName.replaceAll(/@@([a-z][_a-z]*)/g, (_, symbolName) => {
+		// 最初の文字を大文字にする
+		const capitalizedName =
+			symbolName.charAt(0).toUpperCase() + symbolName.slice(1);
+		return `symbol${capitalizedName}`;
+	});
 }
