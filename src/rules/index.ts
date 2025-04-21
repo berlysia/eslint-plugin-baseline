@@ -13,6 +13,8 @@ import js$builtin$Array$fill from "./javascript.builtins.Array.fill.ts";
 import js$builtin$Array$filter from "./javascript.builtins.Array.filter.ts";
 import js$builtin$Array$find from "./javascript.builtins.Array.find.ts";
 import js$builtin$Array$findIndex from "./javascript.builtins.Array.findIndex.ts";
+import js$builtin$Array$findLast from "./javascript.builtins.Array.findLast.ts";
+import js$builtin$Array$findLastIndex from "./javascript.builtins.Array.findLastIndex.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -32,6 +34,8 @@ const rules = {
 	"javascript.builtins.Array.filter": js$builtin$Array$filter,
 	"javascript.builtins.Array.find": js$builtin$Array$find,
 	"javascript.builtins.Array.findIndex": js$builtin$Array$findIndex,
+	"javascript.builtins.Array.findLast": js$builtin$Array$findLast,
+	"javascript.builtins.Array.findLastIndex": js$builtin$Array$findLastIndex,
 };
 
 export default rules;
