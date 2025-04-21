@@ -32,6 +32,8 @@ const seed = JSON.parse(seedFile as unknown as string);
 // 通常のルールのコード生成
 const codeForBuiltins = `
 import { computeBaseline } from "compute-baseline";
+import type { TSESTree } from "@typescript-eslint/typescript-estree";
+import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
 import { ensureConfig } from "../config.ts";
 import type { BaselineRuleConfig } from "../types.ts";
 import checkIsAvailable from "../utils/checkIsAvailable.ts";
@@ -40,8 +42,6 @@ import {
   createRule,
   createSeed,
 } from "../utils/ruleFactory.ts";
-import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
-import type { TSESTree } from "@typescript-eslint/typescript-estree";
 import { createIsTargetType } from "../utils/createIsTargetType.ts";
 
 export const seed = createSeed({
