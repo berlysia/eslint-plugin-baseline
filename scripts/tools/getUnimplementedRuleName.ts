@@ -2,6 +2,7 @@
 
 import fsp from "node:fs/promises";
 import path from "node:path";
+import { transformRuleName } from "./utils.ts";
 
 const srcDir = path.join(process.cwd(), "./src");
 const rulesDir = path.join(srcDir, "rules");
@@ -14,7 +15,7 @@ const generatedNames = generated
 	.map((rule) => path.basename(rule, ".json"));
 
 const unimplementedRuleNames = generatedNames.filter(
-	(name) => !ruleNames.has(name),
+	(name) => !ruleNames.has(transformRuleName(name)),
 );
 
 if (unimplementedRuleNames.length === 0) {
@@ -26,9 +27,10 @@ const unimplementedRuleSeedPath = path.join(
 	generatedDir,
 	`${unimplementedRuleName}.json`,
 );
+const transformedRuleName = transformRuleName(unimplementedRuleName);
 const rulePathToBeImplemented = path.join(
 	rulesDir,
-	`${unimplementedRuleName}.ts`,
+	`${transformedRuleName}.ts`,
 );
 
 console.log({

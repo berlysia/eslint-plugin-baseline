@@ -1,6 +1,7 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
+import { transformRuleName } from "./utils.ts";
 
 const { values: args } = parseArgs({
 	options: {
@@ -16,7 +17,11 @@ if (!ruleName) {
 }
 const ruleDir = path.join(process.cwd(), "./src/rules");
 const seedDir = path.join(process.cwd(), "./src/generated");
-const rulePath = path.join(ruleDir, `${ruleName}.ts`);
+
+// 特殊文字を処理したファイル名
+const transformedRuleName = transformRuleName(ruleName);
+
+const rulePath = path.join(ruleDir, `${transformedRuleName}.ts`);
 const seedPath = path.join(seedDir, `${ruleName}.json`);
 
 const seedFile = await fsp.readFile(seedPath);
