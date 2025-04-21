@@ -6,6 +6,7 @@ import js$builtin$Array$iterator from "./javascript.builtins.Array.symbolIterato
 import js$builtin$Array$Array from "./javascript.builtins.Array.Array.ts";
 import js$builtin$Array$at from "./javascript.builtins.Array.at.ts";
 import js$builtin$Array$concat from "./javascript.builtins.Array.concat.ts";
+import js$builtin$Array$entries from "./javascript.builtins.Array.entries.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -18,6 +19,7 @@ const rules = {
 	"javascript.builtins.Array.Array": js$builtin$Array$Array,
 	"javascript.builtins.Array.at": js$builtin$Array$at,
 	"javascript.builtins.Array.concat": js$builtin$Array$concat,
+	"javascript.builtins.Array.entries": js$builtin$Array$entries,
 };
 
 export default rules;
