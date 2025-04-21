@@ -24,7 +24,8 @@
     - `npm run agent:rules:next` で次に実装するルールの情報を取得
       - コマンドが失敗したら、実装は完了
     - ruleNameに注目する
-    - `npm run agent:rules:scaffold --ruleName <ルール名>` でルールの雛形を生成、ルールを実装する。
+    - `npm run agent:rules:scaffold -- --ruleName "<ルール名>"` でルールの雛形を生成、ルールを実装する。
+      - ルール名はエスケープされている場合があるが、元の名前を指定する。
 
 #### ルール開発のガイドライン
 
@@ -35,6 +36,9 @@
      - 正常系: 対象の機能が十分にサポートされている場合
      - 異常系: 対象の機能がサポートされていない場合
      - エッジケース: 特殊な状況での動作
+   - 常に実装上で検知すべきASTの種別の特定には次のツールを使用:
+     - `npm run agent:ast:acorn` でASTを生成
+     - `npm run agent:ast:typescript` でTypeScriptのASTを生成
 
 2. 機能の判定方法
 
@@ -47,11 +51,11 @@
      - 例: `AggregateError.prototype.errors` は `.errors` へのアクセスのレシーバが `AggregateError` 型のオブジェクトかどうかで判定
 
 3. 実装上の制約
+
    - seedPathのファイルへの参照をルール内に持つことは禁止
-   - ASTの解析には提供されているツールを使用:
-     - `npm run agent:ast:acorn` でASTを生成
-     - `npm run agent:ast:typescript` でTypeScriptのASTを生成
+
 4. 実装フロー
+
    - テストを実装しながら開発を進める
    - 実装の完了には次の3つが正常終了することを確認する
      - `npm run test` でテストを実行し、動作を確認
