@@ -1,6 +1,5 @@
 
 import { computeBaseline } from "compute-baseline";
-import type { TSESTree } from "@typescript-eslint/typescript-estree";
 import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
 import { ensureConfig } from "../config.ts";
 import type { BaselineRuleConfig } from "../types.ts";

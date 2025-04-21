@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import fsp from "node:fs/promises";
 import $ from "dax-sh";
 
 const lintResult = await $`npm run lint:fix`.noThrow();

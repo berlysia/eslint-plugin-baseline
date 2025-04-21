@@ -12,12 +12,12 @@ import {
 import { createIsTargetType } from "../utils/createIsTargetType.ts";
 
 export const seed = createSeed({
-  concern: "Array.prototype.includes",
-  compatKeys: ["javascript.builtins.Array.includes"],
-  mdnUrl: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/includes",
-  specUrl: "https://tc39.es/ecma262/multipage/indexed-collections.html#sec-array.prototype.includes",  
-  newlyAvailableAt: "2016-08-02",
-  widelyAvailableAt: "2019-02-02",
+  concern: "Array.isArray",
+  compatKeys: ["javascript.builtins.Array.isArray"],
+  mdnUrl: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray",
+  specUrl: "https://tc39.es/ecma262/multipage/indexed-collections.html#sec-array.isarray",  
+  newlyAvailableAt: "2015-07-29",
+  widelyAvailableAt: "2018-01-29",
 });
 
 const rule = createRule(seed, {
@@ -33,19 +33,26 @@ const rule = createRule(seed, {
     const services = getParserServices(context);
     const typeChecker = services.program.getTypeChecker();
 
-    // Check if a type is Array or array-like
-    const isArrayType = createIsTargetType(typeChecker, "Array");
+    // Array constructor type check
+    const isArrayConstructorType = createIsTargetType(typeChecker, "ArrayConstructor");
 
     return {
-      // Check for Array.prototype.includes method calls
+      // Check for Array.isArray() method calls
       CallExpression(node) {
         if (node.callee.type === "MemberExpression") {
           const property = node.callee.property;
-          if (property.type === "Identifier" && property.name === "includes") {
-            const objectTsNode = services.esTreeNodeToTSNodeMap.get(node.callee.object);
+          const object = node.callee.object;
+          
+          if (
+            property.type === "Identifier" && 
+            property.name === "isArray" &&
+            object.type === "Identifier" && 
+            object.name === "Array"
+          ) {
+            const objectTsNode = services.esTreeNodeToTSNodeMap.get(object);
             const objectType = typeChecker.getTypeAtLocation(objectTsNode);
             
-            if (isArrayType(objectType)) {
+            if (isArrayConstructorType(objectType)) {
               const isAvailable = checkIsAvailable(config, baseline);
               
               if (!isAvailable) {
