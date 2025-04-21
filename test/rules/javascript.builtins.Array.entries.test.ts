@@ -35,7 +35,7 @@ tester.run(seed.concern, rule, {
 				{
 					messageId: "notAvailable",
 					data: createMessageData(seed, {
-						asOf: "2017-01-01", 
+						asOf: "2017-01-01",
 						support: "widely",
 					}).notAvailable,
 				},
@@ -51,7 +51,7 @@ tester.run(seed.concern, rule, {
 						asOf: "2016-01-01",
 						support: "widely",
 					}).notAvailable,
-					},
+				},
 			],
 		},
 	],
