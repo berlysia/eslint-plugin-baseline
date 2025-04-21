@@ -47,7 +47,7 @@
      - 例: `class` 文は `ClassDeclaration` ノードで判定
      - 例: `async` 関数は `FunctionDeclaration` ノードで判定
    - オブジェクトやメンバーの存在確認は型情報を使用:
-     - 例: `AggregateError` は `AggregateError` 型で判定
+     - 例: `AggregateError` は `AggregateError` コンストラクタの参照で判定する。型的には `AggregateErrorConstructor` のような型が対応していることが多い。
      - 例: `AggregateError.prototype.errors` は `.errors` へのアクセスのレシーバが `AggregateError` 型のオブジェクトかどうかで判定
 
 3. コード品質と実装原則
