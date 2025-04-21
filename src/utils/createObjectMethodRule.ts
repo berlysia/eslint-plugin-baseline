@@ -160,8 +160,6 @@ export function createStaticMethodRule(config: ObjectMethodRuleConfig) {
 						const property = node.callee.property;
 
 						if (
-							object.type === "Identifier" &&
-							object.name === config.objectTypeName &&
 							property.type === "Identifier" &&
 							property.name === config.methodName
 						) {

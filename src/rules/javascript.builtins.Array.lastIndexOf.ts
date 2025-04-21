@@ -1,66 +1,15 @@
 
-import { computeBaseline } from "compute-baseline";
-import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
-import { ensureConfig } from "../config.ts";
-import type { BaselineRuleConfig } from "../types.ts";
-import checkIsAvailable from "../utils/checkIsAvailable.ts";
-import {
-  createMessageData,
-  createRule,
-  createSeed,
-} from "../utils/ruleFactory.ts";
-import { createIsTargetType } from "../utils/createIsTargetType.ts";
+import { createInstanceMethodRule } from "../utils/createObjectMethodRule.ts";
 
-export const seed = createSeed({
+export const { seed, rule } = createInstanceMethodRule({
+  objectTypeName: "Array",
+  methodName: "lastIndexOf",
+  compatKeyPrefix: "javascript.builtins.Array",
   concern: "Array.prototype.lastIndexOf",
-  compatKeys: ["javascript.builtins.Array.lastIndexOf"],
   mdnUrl: "https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf",
-  specUrl: "https://tc39.es/ecma262/multipage/indexed-collections.html#sec-array.prototype.lastindexof",  
+  specUrl: "https://tc39.es/ecma262/multipage/indexed-collections.html#sec-array.prototype.lastindexof",
   newlyAvailableAt: "2015-07-29",
   widelyAvailableAt: "2018-01-29",
-});
-
-const rule = createRule(seed, {
-  create(context) {
-    const options = context.options[0] || {};
-    const config: BaselineRuleConfig = ensureConfig(options);
-
-    const baseline = computeBaseline({
-      compatKeys: seed.compatKeys,
-      checkAncestors: true,
-    });
-
-    const services = getParserServices(context);
-    const typeChecker = services.program.getTypeChecker();
-
-    // Check if a type is Array or array-like
-    const isArrayType = createIsTargetType(typeChecker, "Array");
-
-    return {
-      // Check for Array.prototype.lastIndexOf method calls
-      CallExpression(node) {
-        if (node.callee.type === "MemberExpression") {
-          const property = node.callee.property;
-          if (property.type === "Identifier" && property.name === "lastIndexOf") {
-            const objectTsNode = services.esTreeNodeToTSNodeMap.get(node.callee.object);
-            const objectType = typeChecker.getTypeAtLocation(objectTsNode);
-            
-            if (isArrayType(objectType)) {
-              const isAvailable = checkIsAvailable(config, baseline);
-              
-              if (!isAvailable) {
-                context.report({
-                  messageId: "notAvailable",
-                  node,
-                  data: createMessageData(seed, config).notAvailable,
-                });
-              }
-            }
-          }
-        }
-      }
-    };
-  },
 });
 
 export default rule;
