@@ -19,6 +19,7 @@ import js$builtin$Array$flat from "./javascript.builtins.Array.flat.ts";
 import js$builtin$Array$flatMap from "./javascript.builtins.Array.flatMap.ts";
 import js$builtin$Array$forEach from "./javascript.builtins.Array.forEach.ts";
 import js$builtin$Array$from from "./javascript.builtins.Array.from.ts";
+import js$builtin$Array$fromAsync from "./javascript.builtins.Array.fromAsync.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -44,6 +45,7 @@ const rules = {
 	"javascript.builtins.Array.flatMap": js$builtin$Array$flatMap,
 	"javascript.builtins.Array.forEach": js$builtin$Array$forEach,
 	"javascript.builtins.Array.from": js$builtin$Array$from,
+	"javascript.builtins.Array.fromAsync": js$builtin$Array$fromAsync,
 };
 
 export default rules;
