@@ -8,6 +8,7 @@ import js$builtin$Array$at from "./javascript.builtins.Array.at.ts";
 import js$builtin$Array$concat from "./javascript.builtins.Array.concat.ts";
 import js$builtin$Array$entries from "./javascript.builtins.Array.entries.ts";
 import js$builtin$Array$copyWithin from "./javascript.builtins.Array.copyWithin.ts";
+import js$builtin$Array$every from "./javascript.builtins.Array.every.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -22,6 +23,7 @@ const rules = {
 	"javascript.builtins.Array.concat": js$builtin$Array$concat,
 	"javascript.builtins.Array.entries": js$builtin$Array$entries,
 	"javascript.builtins.Array.copyWithin": js$builtin$Array$copyWithin,
+	"javascript.builtins.Array.every": js$builtin$Array$every,
 };
 
 export default rules;
