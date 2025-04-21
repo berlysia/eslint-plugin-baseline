@@ -4,6 +4,7 @@ import js$builtin$AggregateError$serializable_object from "./javascript.builtins
 import js$statements$async_function from "./javascript.statements.async_function.ts";
 import js$builtin$Array$iterator from "./javascript.builtins.Array.symbolIterator.ts";
 import js$builtin$Array$Array from "./javascript.builtins.Array.Array.ts";
+import js$builtin$Array$at from "./javascript.builtins.Array.at.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -14,6 +15,7 @@ const rules = {
 	"javascript.statements.async_function": js$statements$async_function,
 	"javascript.builtins.Array.@@iterator": js$builtin$Array$iterator,
 	"javascript.builtins.Array.Array": js$builtin$Array$Array,
+	"javascript.builtins.Array.at": js$builtin$Array$at,
 };
 
 export default rules;
