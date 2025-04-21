@@ -5,16 +5,7 @@ import rule, {
 } from "../../src/rules/javascript.builtins.AggregateError.errors.ts";
 import { createMessageData } from "../../src/utils/ruleFactory.ts";
 
-const tester = new RuleTester({
-	languageOptions: {
-		parserOptions: {
-			projectService: {
-				allowDefaultProject: ["*.ts*"],
-			},
-			tsconfigRootDir: process.cwd(),
-		},
-	},
-});
+const tester = new RuleTester();
 
 tester.run(seed.concern, rule, {
 	valid: [

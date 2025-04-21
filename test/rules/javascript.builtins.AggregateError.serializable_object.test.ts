@@ -7,18 +7,7 @@ import rule, {
 import { createMessageData } from "../../src/utils/ruleFactory.ts";
 import type { MessageIds, RuleOptions } from "../../src/utils/ruleFactory.ts";
 
-const tester = new RuleTester({
-	languageOptions: {
-		ecmaVersion: 2024,
-		sourceType: "module",
-		parserOptions: {
-			projectService: {
-				allowDefaultProject: ["*.ts*"],
-			},
-			tsconfigRootDir: process.cwd(),
-		},
-	},
-});
+const tester = new RuleTester();
 
 tester.run("javascript.builtins.AggregateError.serializable_object", rule, {
 	valid: [

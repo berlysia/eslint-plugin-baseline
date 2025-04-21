@@ -5,12 +5,7 @@ import rule, {
 } from "../../src/rules/javascript.statements.async_function.ts";
 import { createMessageData } from "../../src/utils/ruleFactory.ts";
 
-const ruleTester = new RuleTester({
-	languageOptions: {
-		ecmaVersion: 2024,
-		sourceType: "module",
-	},
-});
+const ruleTester = new RuleTester();
 
 ruleTester.run(seed.concern, rule, {
 	valid: [
