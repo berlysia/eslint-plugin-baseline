@@ -49,7 +49,7 @@ const rule = createRule(seed, {
 		}
 
 		// Array コンストラクタを検知するための型チェック
-		const isArrayType = createIsTargetType(typeChecker, "Array");
+		const isArrayType = createIsTargetType(typeChecker, "ArrayConstructor");
 
 		return {
 			// セレクタで直接的なArray使用をチェック
