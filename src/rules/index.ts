@@ -28,6 +28,7 @@ import js$builtin$Array$keys from "./javascript.builtins.Array.keys.ts";
 import js$builtin$Array$lastIndexOf from "./javascript.builtins.Array.lastIndexOf.ts";
 import js$builtin$Array$length from "./javascript.builtins.Array.length.ts";
 import js$builtin$Array$map from "./javascript.builtins.Array.map.ts";
+import js$builtin$Array$of from "./javascript.builtins.Array.of.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -62,6 +63,7 @@ const rules = {
 	"javascript.builtins.Array.lastIndexOf": js$builtin$Array$lastIndexOf,
 	"javascript.builtins.Array.length": js$builtin$Array$length,
 	"javascript.builtins.Array.map": js$builtin$Array$map,
+	"javascript.builtins.Array.of": js$builtin$Array$of,
 };
 
 export default rules;
