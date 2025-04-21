@@ -21,6 +21,7 @@ import js$builtin$Array$forEach from "./javascript.builtins.Array.forEach.ts";
 import js$builtin$Array$from from "./javascript.builtins.Array.from.ts";
 import js$builtin$Array$fromAsync from "./javascript.builtins.Array.fromAsync.ts";
 import js$builtin$Array$includes from "./javascript.builtins.Array.includes.ts";
+import js$builtin$Array$indexOf from "./javascript.builtins.Array.indexOf.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -48,6 +49,7 @@ const rules = {
 	"javascript.builtins.Array.from": js$builtin$Array$from,
 	"javascript.builtins.Array.fromAsync": js$builtin$Array$fromAsync,
 	"javascript.builtins.Array.includes": js$builtin$Array$includes,
+	"javascript.builtins.Array.indexOf": js$builtin$Array$indexOf,
 };
 
 export default rules;
