@@ -32,6 +32,7 @@ import js$builtin$Array$of from "./javascript.builtins.Array.of.ts";
 import js$builtin$Array$pop from "./javascript.builtins.Array.pop.ts";
 import js$builtin$Array$push from "./javascript.builtins.Array.push.ts";
 import js$builtin$Array$reduce from "./javascript.builtins.Array.reduce.ts";
+import js$builtin$Array$reduceRight from "./javascript.builtins.Array.reduceRight.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -70,6 +71,7 @@ const rules = {
 	"javascript.builtins.Array.pop": js$builtin$Array$pop,
 	"javascript.builtins.Array.push": js$builtin$Array$push,
 	"javascript.builtins.Array.reduce": js$builtin$Array$reduce,
+	"javascript.builtins.Array.reduceRight": js$builtin$Array$reduceRight,
 };
 
 export default rules;
