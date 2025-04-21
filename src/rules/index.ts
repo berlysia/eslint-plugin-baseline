@@ -12,6 +12,7 @@ import js$builtin$Array$every from "./javascript.builtins.Array.every.ts";
 import js$builtin$Array$fill from "./javascript.builtins.Array.fill.ts";
 import js$builtin$Array$filter from "./javascript.builtins.Array.filter.ts";
 import js$builtin$Array$find from "./javascript.builtins.Array.find.ts";
+import js$builtin$Array$findIndex from "./javascript.builtins.Array.findIndex.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -30,6 +31,7 @@ const rules = {
 	"javascript.builtins.Array.fill": js$builtin$Array$fill,
 	"javascript.builtins.Array.filter": js$builtin$Array$filter,
 	"javascript.builtins.Array.find": js$builtin$Array$find,
+	"javascript.builtins.Array.findIndex": js$builtin$Array$findIndex,
 };
 
 export default rules;
