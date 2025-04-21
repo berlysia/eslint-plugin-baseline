@@ -1,6 +1,7 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
+import { MethodType } from "../../src/utils/createObjectMethodRule.ts";
 import { transformRuleName } from "./utils.ts";
 
 const { values: args } = parseArgs({
@@ -29,7 +30,122 @@ const testPath = path.join(testDir, `${transformedRuleName}.test.ts`);
 const seedFile = await fsp.readFile(seedPath);
 const seed = JSON.parse(seedFile as unknown as string);
 
-// 通常のルールのコード生成
+/**
+ * ルール名から種類とメソッド名を抽出
+ */
+function parseRuleName(ruleName: string) {
+	const parts = ruleName.split(".");
+	if (parts.length < 3) return null;
+
+	const objectType = parts[2]; // 例: Array, String, Map など
+	const methodName = parts.at(-1); // 最後の部分がメソッド名
+
+	// メソッドタイプを判定する
+	// prototypeが含まれている場合はインスタンスメソッド
+	const methodType = parts.includes("prototype")
+		? MethodType.Instance
+		: MethodType.Static;
+
+	return {
+		objectType,
+		methodName,
+		methodType,
+		compatKeyPrefix: parts.slice(0, -1).join("."),
+	};
+}
+
+/**
+ * 適切なファクトリ関数名を取得
+ */
+function getFactoryFunctionName(
+	objectType: string,
+	methodType: MethodType,
+): string | null {
+	if (methodType === MethodType.Instance) {
+		switch (objectType) {
+			case "Array": {
+				return "createArrayInstanceMethodRule";
+			}
+			case "String": {
+				return "createStringInstanceMethodRule";
+			}
+			case "Map": {
+				return "createMapInstanceMethodRule";
+			}
+			case "Set": {
+				return "createSetInstanceMethodRule";
+			}
+			case "Object": {
+				return "createObjectInstanceMethodRule";
+			}
+			case "Promise": {
+				return "createPromiseInstanceMethodRule";
+			}
+			default: {
+				return null;
+			}
+		}
+	} else {
+		switch (objectType) {
+			case "Array": {
+				return "createArrayStaticMethodRule";
+			}
+			case "String": {
+				return "createStringStaticMethodRule";
+			}
+			case "Map": {
+				return "createMapStaticMethodRule";
+			}
+			case "Set": {
+				return "createSetStaticMethodRule";
+			}
+			case "Object": {
+				return "createObjectStaticMethodRule";
+			}
+			case "Promise": {
+				return "createPromiseStaticMethodRule";
+			}
+			default: {
+				return null;
+			}
+		}
+	}
+}
+
+/**
+ * オブジェクトメソッドのルールのコード生成（インスタンス/スタティックを区別した版）
+ */
+const generateMethodRuleCode = (ruleName: string, seed: any) => {
+	const parsedInfo = parseRuleName(ruleName);
+	if (!parsedInfo) {
+		return null;
+	}
+
+	const { objectType, methodName, methodType } = parsedInfo;
+
+	// 対応するファクトリ関数を選択
+	const factoryFunction = getFactoryFunctionName(objectType, methodType);
+	if (!factoryFunction) {
+		// 対応するファクトリ関数がない場合はnullを返す
+		return null;
+	}
+
+	return `
+import { ${factoryFunction} } from "../utils/createObjectMethodRule";
+
+export const { seed, rule } = ${factoryFunction}({
+  methodName: ${JSON.stringify(methodName)},
+  mdnUrl: ${JSON.stringify(seed.mdn_url)},
+  specUrl: ${JSON.stringify(seed.bcd.spec_url)},
+  newlyAvailableAt: ${JSON.stringify(seed.baseline.baseline_low_date)},
+  widelyAvailableAt: ${JSON.stringify(seed.baseline.baseline_high_date)},
+});
+
+export default rule;
+`;
+};
+
+// カスタムルールのコード生成
 const codeForBuiltins = `
 import { computeBaseline } from "compute-baseline";
 import type { TSESTree } from "@typescript-eslint/typescript-estree";
@@ -49,8 +165,8 @@ export const seed = createSeed({
   compatKeys: [${JSON.stringify(ruleName)}],
   mdnUrl: ${JSON.stringify(seed.mdn_url)},
   specUrl: ${JSON.stringify(seed.bcd.spec_url)},  
-	newlyAvailableAt: ${JSON.stringify(seed.baseline.baseline_low_date)},
-	widelyAvailableAt: ${JSON.stringify(seed.baseline.baseline_high_date)},
+  newlyAvailableAt: ${JSON.stringify(seed.baseline.baseline_low_date)},
+  widelyAvailableAt: ${JSON.stringify(seed.baseline.baseline_high_date)},
 });
 
 const rule = createRule(seed, {
@@ -144,66 +260,79 @@ const testTemplate = `
 import "./init.ts";
 import { RuleTester } from "@typescript-eslint/rule-tester";
 import rule, {
-	seed,
+  seed,
 } from "../../src/rules/${transformedRuleName}.ts";
 import { createMessageData } from "../../src/utils/ruleFactory.ts";
 
 const tester = new RuleTester({
-	languageOptions: {
-		parserOptions: {
-			projectService: {
-				allowDefaultProject: ["*.ts*"],
-			},
-			tsconfigRootDir: process.cwd(),
-		},
-	},
+  languageOptions: {
+    parserOptions: {
+      projectService: {
+        allowDefaultProject: ["*.ts*"],
+      },
+      tsconfigRootDir: process.cwd(),
+    },
+  },
 });
 
 tester.run(seed.concern, rule, {
-	valid: [
-		{
-			code: "// FIXME: 有効なコード例",
-			options: [{ asOf: "2025-01-01", support: "widely" }],
-		},
-		{
-			code: "// FIXME: 有効なコード例2",
-			options: [{ asOf: "2025-01-01", support: "widely" }],
-		},
-	],
-	invalid: [
-		{
-			code: "// FIXME: 無効なコード例",
-			options: [{ asOf: "2017-01-01", support: "widely" }],
-			errors: [
-				{
-					messageId: "notAvailable",
-					data: createMessageData(seed, {
-						asOf: "2017-01-01", 
-						support: "widely",
-					}).notAvailable,
-				},
-			],
-		},
-		{
-			code: "// FIXME: 無効なコード例2",
-			options: [{ asOf: "2017-01-01", support: "widely" }],
-			errors: [
-				{
-					messageId: "notAvailable",
-					data: createMessageData(seed, {
-						asOf: "2017-01-01",
-						support: "widely",
-					}).notAvailable,
-				},
-			],
-		},
-	],
+  valid: [
+    {
+      code: "// FIXME: 有効なコード例",
+      options: [{ asOf: "2025-01-01", support: "widely" }],
+    },
+    {
+      code: "// FIXME: 有効なコード例2",
+      options: [{ asOf: "2025-01-01", support: "widely" }],
+    },
+  ],
+  invalid: [
+    {
+      code: "// FIXME: 無効なコード例",
+      options: [{ asOf: "2017-01-01", support: "widely" }],
+      errors: [
+        {
+          messageId: "notAvailable",
+          data: createMessageData(seed, {
+            asOf: "2017-01-01", 
+            support: "widely",
+          }).notAvailable,
+        },
+      ],
+    },
+    {
+      code: "// FIXME: 無効なコード例2",
+      options: [{ asOf: "2017-01-01", support: "widely" }],
+      errors: [
+        {
+          messageId: "notAvailable",
+          data: createMessageData(seed, {
+            asOf: "2017-01-01",
+            support: "widely",
+          }).notAvailable,
+        },
+      ],
+    },
+  ],
 });
 `;
 
 if (ruleName.startsWith("javascript.builtins.")) {
-	await fsp.writeFile(rulePath, codeForBuiltins, "utf8");
+	// ファクトリー関数を使ったコードの生成を試みる
+	const methodRuleCode = generateMethodRuleCode(ruleName, seed);
+
+	// メソッドルールとして認識できた場合はファクトリーを使ったコードを生成
+	if (methodRuleCode) {
+		await fsp.writeFile(rulePath, methodRuleCode, "utf8");
+		console.log(
+			`Method rule for ${ruleName} generated using factory at ${rulePath}`,
+		);
+	} else {
+		// それ以外の場合は通常のルールテンプレートを使用
+		await fsp.writeFile(rulePath, codeForBuiltins, "utf8");
+		console.log(`Rule ${ruleName} scaffold generated at ${rulePath}`);
+	}
+
 	await fsp.writeFile(testPath, testTemplate, "utf8");
-	console.log(`Rule ${ruleName} scaffold generated at ${rulePath}`);
 	console.log(`Test for ${ruleName} generated at ${testPath}`);
 }
