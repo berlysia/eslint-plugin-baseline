@@ -35,6 +35,7 @@ import js$builtin$Array$reduce from "./javascript.builtins.Array.reduce.ts";
 import js$builtin$Array$reduceRight from "./javascript.builtins.Array.reduceRight.ts";
 import js$builtin$Array$reverse from "./javascript.builtins.Array.reverse.ts";
 import js$builtin$Array$shift from "./javascript.builtins.Array.shift.ts";
+import js$builtin$Array$some from "./javascript.builtins.Array.some.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -76,6 +77,7 @@ const rules = {
 	"javascript.builtins.Array.reduceRight": js$builtin$Array$reduceRight,
 	"javascript.builtins.Array.reverse": js$builtin$Array$reverse,
 	"javascript.builtins.Array.shift": js$builtin$Array$shift,
+	"javascript.builtins.Array.some": js$builtin$Array$some,
 };
 
 export default rules;
