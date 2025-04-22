@@ -11,12 +11,26 @@ const { values: args } = parseArgs({
 			type: "string",
 			short: "r",
 		},
+		methodKind: {
+			type: "string",
+			short: "k",
+		},
 	},
 });
 const ruleName = args.ruleName;
 if (!ruleName) {
 	throw new Error("Rule name is required");
 }
+if (
+	!args.methodKind ||
+	!Object.values(METHOD_TYPE).includes(args.methodKind as any)
+) {
+	throw new Error(
+		"Method kind is required and must be one of: Instance, Static",
+	);
+}
+const methodKind = args.methodKind as MethodType;
+
 const ruleDir = path.join(process.cwd(), "./src/rules");
 const seedDir = path.join(process.cwd(), "./src/generated");
 const testDir = path.join(process.cwd(), "./test/rules");
@@ -78,10 +92,9 @@ const generateMethodRuleCode = (ruleName: string, seed: any) => {
 	const { objectType, methodName, methodType } = parsedInfo;
 
 	// 対応するファクトリ関数を選択
-	const factoryFunction = getFactoryFunctionName(methodType);
+	const factoryFunction = getFactoryFunctionName(methodKind);
 	if (!factoryFunction) {
-		// 対応するファクトリ関数がない場合はnullを返す
-		return null;
+		throw new Error(`No factory function found for method type: ${methodKind}`);
 	}
 
 	return `
