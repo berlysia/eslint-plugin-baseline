@@ -37,6 +37,7 @@ import js$builtin$Array$reverse from "./javascript.builtins.Array.reverse.ts";
 import js$builtin$Array$shift from "./javascript.builtins.Array.shift.ts";
 import js$builtin$Array$slice from "./javascript.builtins.Array.slice.ts";
 import js$builtin$Array$some from "./javascript.builtins.Array.some.ts";
+import js$builtin$Array$sort from "./javascript.builtins.Array.sort.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -80,6 +81,7 @@ const rules = {
 	"javascript.builtins.Array.shift": js$builtin$Array$shift,
 	"javascript.builtins.Array.slice": js$builtin$Array$slice,
 	"javascript.builtins.Array.some": js$builtin$Array$some,
+	"javascript.builtins.Array.sort": js$builtin$Array$sort,
 };
 
 export default rules;
