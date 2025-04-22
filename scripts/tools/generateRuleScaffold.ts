@@ -85,7 +85,7 @@ const generateMethodRuleCode = (ruleName: string, seed: any) => {
 	}
 
 	return `
-import { ${factoryFunction} } from "../utils/createObjectMethodRule";
+import { ${factoryFunction} } from "../utils/createObjectMethodRule.ts";
 
 export const { seed, rule } = ${factoryFunction}({
   objectTypeName: "${objectType}",
