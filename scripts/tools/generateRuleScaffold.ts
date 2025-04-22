@@ -65,7 +65,7 @@ function parseRuleName(ruleName: string) {
 		objectType,
 		methodName,
 		methodType,
-		compatKeyPrefix: parts.slice(0, -1).join("."),
+		compatKey: ruleName,
 	};
 }
 
@@ -103,7 +103,7 @@ import { ${factoryFunction} } from "../utils/createObjectMethodRule.ts";
 export const { seed, rule } = ${factoryFunction}({
   objectTypeName: "${objectType}",
   methodName: ${JSON.stringify(methodName)},
-  compatKeyPrefix: "${parsedInfo.compatKeyPrefix}",
+  compatKey: "${parsedInfo.compatKey}",
   concern: "${objectType}${methodType === METHOD_TYPE.Instance ? ".prototype" : ""}.${methodName}",
   mdnUrl: ${JSON.stringify(seed.mdn_url)},
   specUrl: ${JSON.stringify(seed.bcd.spec_url)},

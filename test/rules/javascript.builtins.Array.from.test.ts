@@ -1,4 +1,4 @@
-import "./init.ts";
+import "./utils/init.ts";
 import { RuleTester } from "@typescript-eslint/rule-tester";
 import rule, { seed } from "../../src/rules/javascript.builtins.Array.from.ts";
 import { createMessageData } from "../../src/utils/ruleFactory.ts";

@@ -26,7 +26,7 @@ function parseRuleName(ruleName: string) {
 		objectType,
 		methodName,
 		methodType,
-		compatKeyPrefix: parts.slice(0, -1).join("."),
+		compatKey: ruleName,
 	};
 }
 
@@ -196,7 +196,7 @@ async function migrateRuleFile(rulePath: string) {
 
 	// 新しいコードを生成
 	const parts = path.basename(rulePath).split(".");
-	const compatKeyPrefix = parts.slice(0, -2).join(".");
+	const compatKey = parts.slice(0, -1).join(".");
 	const concern = `${objectType}${methodType === METHOD_TYPE.Instance ? ".prototype" : ""}.${methodName}`;
 
 	const newCode = `
@@ -205,7 +205,7 @@ import { ${factoryFunction} } from "../utils/createObjectMethodRule.ts";
 export const { seed, rule } = ${factoryFunction}({
   objectTypeName: "${objectType}",
   methodName: "${methodName}",
-  compatKeyPrefix: "${compatKeyPrefix}",
+  compatKey: "${compatKey}",
   concern: "${concern}",
   mdnUrl: ${metadata.mdnUrl ? `"${metadata.mdnUrl}"` : "undefined"},
   specUrl: ${metadata.specUrl ? `"${metadata.specUrl}"` : "undefined"},
@@ -418,7 +418,7 @@ import { ${factoryFunction} } from "../utils/createObjectMethodRule";
 export const { seed, rule } = ${factoryFunction}({
   objectTypeName: "${objectType}",
   methodName: "${methodName}",
-  compatKeyPrefix: "${parsedInfo.compatKeyPrefix}",
+  compatKey: "${parsedInfo.compatKey}",
   concern: "${concern}",
   mdnUrl: ${seed.mdn_url ? `"${seed.mdn_url}"` : "undefined"},
   specUrl: ${seed.bcd.spec_url ? `"${seed.bcd.spec_url}"` : "undefined"},

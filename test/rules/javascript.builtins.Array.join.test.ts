@@ -1,8 +1,6 @@
-import "./init.ts";
+import "./utils/init.ts";
 import { RuleTester } from "@typescript-eslint/rule-tester";
-import rule, {
-	seed,
-} from "../../src/rules/javascript.builtins.Array.join.ts";
+import rule, { seed } from "../../src/rules/javascript.builtins.Array.join.ts";
 import { createMessageData } from "../../src/utils/ruleFactory.ts";
 
 const tester = new RuleTester({
@@ -23,7 +21,7 @@ tester.run(seed.concern, rule, {
 			options: [{ asOf: "2025-01-01", support: "widely" }],
 		},
 		{
-			code: "function formatArray() { return ['a', 'b', 'c'].join('-'); }",
+			code: "['a', 'b', 'c'].join('-');",
 			options: [{ asOf: "2025-01-01", support: "widely" }],
 		},
 	],
@@ -35,7 +33,7 @@ tester.run(seed.concern, rule, {
 				{
 					messageId: "notAvailable",
 					data: createMessageData(seed, {
-						asOf: "2017-01-01", 
+						asOf: "2017-01-01",
 						support: "widely",
 					}).notAvailable,
 				},

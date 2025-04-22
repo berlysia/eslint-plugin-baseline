@@ -22,14 +22,13 @@ export function createIsTargetType(
 		if (symbol === targetSymbol) return true;
 
 		// Union型のチェック
-		if (type.isUnion()) {
-			return type.types.some((t) => isTargetType(t));
+		if (type.isUnion() && type.types.some((t) => isTargetType(t))) {
+			return true;
 		}
 
 		// 継承チェック
-		const baseTypes = type.getBaseTypes();
-		if (baseTypes) {
-			return baseTypes.some((t) => isTargetType(t));
+		if (type.getBaseTypes()?.some((t) => isTargetType(t))) {
+			return true;
 		}
 
 		// 代入可能性のチェック

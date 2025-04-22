@@ -30,7 +30,7 @@ export interface ObjectMethodRuleConfig {
 	/**
 	 * プロパティパスのプレフィックス（たとえば "javascript.builtins.Array" など）
 	 */
-	compatKeyPrefix: string;
+	compatKey: string;
 	/**
 	 * 完全なメソッド名（例："Array.prototype.map"または"Array.from"）
 	 */
@@ -56,10 +56,15 @@ export interface ObjectMethodRuleConfig {
 /**
  * インスタンスメソッド（例：Array.prototype.map）用のルールを作成する関数
  */
-export function createInstanceMethodRule(config: ObjectMethodRuleConfig) {
+export function createInstanceMethodRule(
+	config: ObjectMethodRuleConfig & { objectTypeConstructorName?: string },
+) {
+	const objectTypeConstructorName =
+		config.objectTypeConstructorName ?? `${config.objectTypeName}Constructor`;
+
 	const seed = createSeed({
 		concern: config.concern,
-		compatKeys: [`${config.compatKeyPrefix}.${config.methodName}`],
+		compatKeys: [`${config.compatKey}`],
 		mdnUrl: config.mdnUrl,
 		specUrl: config.specUrl,
 		newlyAvailableAt: config.newlyAvailableAt,
@@ -84,32 +89,54 @@ export function createInstanceMethodRule(config: ObjectMethodRuleConfig) {
 				typeChecker,
 				config.objectTypeName,
 			);
+			const isTargetConstructorType = createIsTargetType(
+				typeChecker,
+				objectTypeConstructorName,
+			);
 
 			return {
-				// インスタンスメソッド呼び出しのチェック
-				CallExpression(node) {
-					if (node.callee.type === "MemberExpression") {
-						const property = node.callee.property;
-						if (
-							property.type === "Identifier" &&
-							property.name === config.methodName
-						) {
-							const objectTsNode = services.esTreeNodeToTSNodeMap.get(
-								node.callee.object,
-							);
-							const objectType = typeChecker.getTypeAtLocation(objectTsNode);
+				// インスタンスメソッド呼び出しとアクセスのチェック
+				MemberExpression(node) {
+					if (
+						node.property.type === "Identifier" &&
+						node.property.name === config.methodName && // Check if it's a normal instance type
+						isTargetType(
+							typeChecker.getTypeAtLocation(
+								services.esTreeNodeToTSNodeMap.get(node.object),
+							),
+						)
+					) {
+						const isAvailable = checkIsAvailable(ruleConfig, baseline);
 
-							if (isTargetType(objectType)) {
-								const isAvailable = checkIsAvailable(ruleConfig, baseline);
+						if (!isAvailable) {
+							context.report({
+								messageId: "notAvailable",
+								node,
+								data: createMessageData(seed, ruleConfig).notAvailable,
+							});
+						}
+					} else if (
+						// ${ConstructorName}.prototype.${method}() のようなアクセスパターンをチェック
+						node.object.type === "MemberExpression" &&
+						isTargetConstructorType(
+							typeChecker.getTypeAtLocation(
+								services.esTreeNodeToTSNodeMap.get(node.object.object),
+							),
+						) &&
+						node.object.property.type === "Identifier" &&
+						node.object.property.name === "prototype" &&
+						node.property.type === "Identifier" &&
+						node.property.name === config.methodName
+					) {
+						// Check for ObjectType.prototype access pattern
+						const isAvailable = checkIsAvailable(ruleConfig, baseline);
 
-								if (!isAvailable) {
-									context.report({
-										messageId: "notAvailable",
-										node,
-										data: createMessageData(seed, ruleConfig).notAvailable,
-									});
-								}
-							}
+						if (!isAvailable) {
+							context.report({
+								messageId: "notAvailable",
+								node,
+								data: createMessageData(seed, ruleConfig).notAvailable,
+							});
 						}
 					}
 				},
@@ -126,7 +153,7 @@ export function createInstanceMethodRule(config: ObjectMethodRuleConfig) {
 export function createStaticMethodRule(config: ObjectMethodRuleConfig) {
 	const seed = createSeed({
 		concern: config.concern,
-		compatKeys: [`${config.compatKeyPrefix}.${config.methodName}`],
+		compatKeys: [`${config.compatKey}`],
 		mdnUrl: config.mdnUrl,
 		specUrl: config.specUrl,
 		newlyAvailableAt: config.newlyAvailableAt,
@@ -161,21 +188,21 @@ export function createStaticMethodRule(config: ObjectMethodRuleConfig) {
 
 						if (
 							property.type === "Identifier" &&
-							property.name === config.methodName
+							property.name === config.methodName &&
+							isTargetType(
+								typeChecker.getTypeAtLocation(
+									services.esTreeNodeToTSNodeMap.get(object),
+								),
+							)
 						) {
-							const objectTsNode = services.esTreeNodeToTSNodeMap.get(object);
-							const objectType = typeChecker.getTypeAtLocation(objectTsNode);
+							const isAvailable = checkIsAvailable(ruleConfig, baseline);
 
-							if (isTargetType(objectType)) {
-								const isAvailable = checkIsAvailable(ruleConfig, baseline);
-
-								if (!isAvailable) {
-									context.report({
-										messageId: "notAvailable",
-										node,
-										data: createMessageData(seed, ruleConfig).notAvailable,
-									});
-								}
+							if (!isAvailable) {
+								context.report({
+									messageId: "notAvailable",
+									node,
+									data: createMessageData(seed, ruleConfig).notAvailable,
+								});
 							}
 						}
 					}

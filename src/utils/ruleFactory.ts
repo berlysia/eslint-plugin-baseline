@@ -1,11 +1,12 @@
 import { ESLintUtils } from "@typescript-eslint/utils";
 import type {
 	NamedCreateRuleMeta,
+	RuleModule,
 	RuleWithMetaAndName,
 } from "@typescript-eslint/utils/eslint-utils";
 import { defaultConfig } from "../config.ts";
 
-type RuleModuleSeed = {
+export type RuleModuleSeed = {
 	concern: string;
 	compatKeys: [string, ...string[]];
 	mdnUrl?: string;
@@ -25,6 +26,8 @@ export function createSeed(args: RuleModuleSeed): RuleModuleSeed {
 
 export type RuleOptions = [{ asOf: string; support: "widely" | "newly" }];
 export type MessageIds = "notAvailable";
+
+export type Rule = RuleModule<MessageIds, RuleOptions, Docs>;
 
 export function createMeta(params: RuleModuleSeed) {
 	return {

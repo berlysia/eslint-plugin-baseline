@@ -1,4 +1,4 @@
-import "./init.ts";
+import "./utils/init.ts";
 import { RuleTester } from "@typescript-eslint/rule-tester";
 import rule, {
 	seed,

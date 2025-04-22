@@ -1,9 +1,6 @@
-
-import "./init.ts";
+import "./utils/init.ts";
 import { RuleTester } from "@typescript-eslint/rule-tester";
-import rule, {
-	seed,
-} from "../../src/rules/javascript.builtins.Array.flat.ts";
+import rule, { seed } from "../../src/rules/javascript.builtins.Array.flat.ts";
 import { createMessageData } from "../../src/utils/ruleFactory.ts";
 
 const tester = new RuleTester({
@@ -44,7 +41,7 @@ tester.run(seed.concern, rule, {
 				{
 					messageId: "notAvailable",
 					data: createMessageData(seed, {
-						asOf: "2020-02-01", 
+						asOf: "2020-02-01",
 						support: "widely",
 					}).notAvailable,
 				},

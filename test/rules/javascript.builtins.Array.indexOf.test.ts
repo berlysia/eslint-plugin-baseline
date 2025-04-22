@@ -1,5 +1,4 @@
-
-import "./init.ts";
+import "./utils/init.ts";
 import { RuleTester } from "@typescript-eslint/rule-tester";
 import rule, {
 	seed,
@@ -42,7 +41,7 @@ tester.run(seed.concern, rule, {
 	],
 	invalid: [
 		{
-			// Array.indexOf is not widely available as of 2016-01-01 
+			// Array.indexOf is not widely available as of 2016-01-01
 			// (before 2018-01-29 widely available date)
 			code: "[1, 2, 3].indexOf(2);",
 			options: [{ asOf: "2016-01-01", support: "widely" }],
@@ -50,7 +49,7 @@ tester.run(seed.concern, rule, {
 				{
 					messageId: "notAvailable",
 					data: createMessageData(seed, {
-						asOf: "2016-01-01", 
+						asOf: "2016-01-01",
 						support: "widely",
 					}).notAvailable,
 				},
