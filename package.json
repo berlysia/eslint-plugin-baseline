@@ -8,6 +8,7 @@
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
+		"format": "prettier --write .",
 		"generateSeeds": "node scripts/generateSeeds.ts",
 		"agent:ast:acorn": "node scripts/tools/getAstByAcorn.ts",
 		"agent:ast:typescript": "node scripts/tools/getAstByTsParser.ts",

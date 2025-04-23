@@ -13,6 +13,8 @@ export default function createSimpleRuleTest(option: {
 	codes: string[];
 	validOption: RuleOptions[0];
 	invalidOption: RuleOptions[0];
+	validOnlyCodes?: string[];
+	invalidOnlyCodes?: string[];
 }) {
 	const tester = new RuleTester({
 		languageOptions: {
@@ -26,20 +28,22 @@ export default function createSimpleRuleTest(option: {
 	});
 
 	tester.run(option.seed.concern, option.rule, {
-		valid: option.codes.map((code) => ({
+		valid: [...option.codes, ...(option.validOnlyCodes ?? [])].map((code) => ({
 			options: [option.validOption],
 			code,
 		})),
-		invalid: option.codes.map((code) => ({
-			options: [option.invalidOption],
-			code,
-			errors: [
-				{
-					messageId: "notAvailable",
-					data: createMessageData(option.seed, option.invalidOption)
-						.notAvailable,
-				},
-			],
-		})),
+		invalid: [...option.codes, ...(option.invalidOnlyCodes ?? [])].map(
+			(code) => ({
+				options: [option.invalidOption],
+				code,
+				errors: [
+					{
+						messageId: "notAvailable",
+						data: createMessageData(option.seed, option.invalidOption)
+							.notAvailable,
+					},
+				],
+			}),
+		),
 	});
 }

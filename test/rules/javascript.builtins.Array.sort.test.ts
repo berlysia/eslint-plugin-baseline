@@ -9,6 +9,7 @@ createSimpleRuleTest({
 		"[5, 1, 4, 2, 3].sort((a, b) => a - b);",
 		"const sortedArray = [1, 2, 3].filter(x => x > 0).sort();",
 		"new Array(5).fill(0).sort();",
+		"Array.prototype.sort.call([3, 1, 2]);",
 	],
 	validOption: {
 		asOf: "2025-01-01",

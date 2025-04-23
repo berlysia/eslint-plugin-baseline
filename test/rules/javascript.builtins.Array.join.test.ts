@@ -1,56 +1,20 @@
-import "./utils/init.ts";
-import { RuleTester } from "@typescript-eslint/rule-tester";
 import rule, { seed } from "../../src/rules/javascript.builtins.Array.join.ts";
-import { createMessageData } from "../../src/utils/ruleFactory.ts";
+import createSimpleRuleTest from "./utils/createSimpleRuleTest.ts";
 
-const tester = new RuleTester({
-	languageOptions: {
-		parserOptions: {
-			projectService: {
-				allowDefaultProject: ["*.ts*"],
-			},
-			tsconfigRootDir: process.cwd(),
-		},
+createSimpleRuleTest({
+	rule,
+	seed,
+	codes: [
+		`const arr = [1, 2, 3]; arr.join(',');`,
+		`['a', 'b', 'c'].join('-');`,
+		"Array.prototype.join.call(['a', 'b', 'c'], '-');",
+	],
+	validOption: {
+		asOf: "2025-01-01",
+		support: "widely",
 	},
-});
-
-tester.run(seed.concern, rule, {
-	valid: [
-		{
-			code: "const arr = [1, 2, 3]; arr.join(',');",
-			options: [{ asOf: "2025-01-01", support: "widely" }],
-		},
-		{
-			code: "['a', 'b', 'c'].join('-');",
-			options: [{ asOf: "2025-01-01", support: "widely" }],
-		},
-	],
-	invalid: [
-		{
-			code: "const arr = [1, 2, 3]; arr.join(',');",
-			options: [{ asOf: "2017-01-01", support: "widely" }],
-			errors: [
-				{
-					messageId: "notAvailable",
-					data: createMessageData(seed, {
-						asOf: "2017-01-01",
-						support: "widely",
-					}).notAvailable,
-				},
-			],
-		},
-		{
-			code: "['a', 'b', 'c'].join('-');",
-			options: [{ asOf: "2017-01-01", support: "widely" }],
-			errors: [
-				{
-					messageId: "notAvailable",
-					data: createMessageData(seed, {
-						asOf: "2017-01-01",
-						support: "widely",
-					}).notAvailable,
-				},
-			],
-		},
-	],
+	invalidOption: {
+		asOf: "2017-01-01",
+		support: "widely",
+	},
 });

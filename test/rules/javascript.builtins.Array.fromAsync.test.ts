@@ -1,45 +1,18 @@
-import "./utils/init.ts";
-import { RuleTester } from "@typescript-eslint/rule-tester";
 import rule, {
 	seed,
 } from "../../src/rules/javascript.builtins.Array.fromAsync.ts";
-import { createMessageData } from "../../src/utils/ruleFactory.ts";
+import createSimpleRuleTest from "./utils/createSimpleRuleTest.ts";
 
-const tester = new RuleTester({
-	languageOptions: {
-		parserOptions: {
-			projectService: {
-				allowDefaultProject: ["*.ts*"],
-			},
-			tsconfigRootDir: process.cwd(),
-		},
+createSimpleRuleTest({
+	rule,
+	seed,
+	codes: [`const result = Array.fromAsync(asyncIterable);`],
+	validOption: {
+		asOf: "2025-01-01",
+		support: "newly",
 	},
-});
-
-tester.run(seed.concern, rule, {
-	valid: [
-		{
-			code: "const result = Array.from(asyncIterable);",
-			options: [{ asOf: "2017-01-01", support: "widely" }],
-		},
-		{
-			code: "const result = Array.fromAsync(asyncIterable);",
-			options: [{ asOf: "2025-01-01", support: "newly" }],
-		},
-	],
-	invalid: [
-		{
-			code: "const result = Array.fromAsync(asyncIterable);",
-			options: [{ asOf: "2023-01-01", support: "widely" }],
-			errors: [
-				{
-					messageId: "notAvailable",
-					data: createMessageData(seed, {
-						asOf: "2023-01-01",
-						support: "widely",
-					}).notAvailable,
-				},
-			],
-		},
-	],
+	invalidOption: {
+		asOf: "2017-01-01",
+		support: "widely",
+	},
 });

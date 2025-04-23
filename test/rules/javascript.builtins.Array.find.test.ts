@@ -1,60 +1,19 @@
-import "./utils/init.ts";
-import { RuleTester } from "@typescript-eslint/rule-tester";
 import rule, { seed } from "../../src/rules/javascript.builtins.Array.find.ts";
-import { createMessageData } from "../../src/utils/ruleFactory.ts";
+import createSimpleRuleTest from "./utils/createSimpleRuleTest.ts";
 
-const tester = new RuleTester({
-	languageOptions: {
-		parserOptions: {
-			projectService: {
-				allowDefaultProject: ["*.ts*"],
-			},
-			tsconfigRootDir: process.cwd(),
-		},
+createSimpleRuleTest({
+	rule,
+	seed,
+	codes: [
+		`const arr = [1, 2, 3]; const found = arr.find(num => num > 1);`,
+		"Array.prototype.find.call([1, 2, 3], num => num > 1);",
+	],
+	validOption: {
+		asOf: "2020-01-01",
+		support: "widely",
 	},
-});
-
-tester.run(seed.concern, rule, {
-	valid: [
-		{
-			code: "const arr = [1, 2, 3]; const found = arr.find(num => num > 1);",
-			options: [{ asOf: "2020-01-01", support: "widely" }],
-		},
-		{
-			code: "const users = [{id: 1, name: 'Alice'}, {id: 2, name: 'Bob'}]; const user = users.find(u => u.id === 2);",
-			options: [{ asOf: "2019-01-01", support: "widely" }],
-		},
-		{
-			code: "function findInArray(arr, predicate) { return arr.find(predicate); }",
-			options: [{ asOf: "2019-01-01", support: "widely" }],
-		},
-	],
-	invalid: [
-		{
-			code: "const arr = [1, 2, 3]; const found = arr.find(num => num > 1);",
-			options: [{ asOf: "2017-01-01", support: "widely" }],
-			errors: [
-				{
-					messageId: "notAvailable",
-					data: createMessageData(seed, {
-						asOf: "2017-01-01",
-						support: "widely",
-					}).notAvailable,
-				},
-			],
-		},
-		{
-			code: "const users = [{id: 1, name: 'Alice'}, {id: 2, name: 'Bob'}]; const user = users.find(u => u.id === 2);",
-			options: [{ asOf: "2017-01-01", support: "widely" }],
-			errors: [
-				{
-					messageId: "notAvailable",
-					data: createMessageData(seed, {
-						asOf: "2017-01-01",
-						support: "widely",
-					}).notAvailable,
-				},
-			],
-		},
-	],
+	invalidOption: {
+		asOf: "2017-01-01",
+		support: "widely",
+	},
 });

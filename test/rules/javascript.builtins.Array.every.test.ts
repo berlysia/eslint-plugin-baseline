@@ -1,64 +1,24 @@
-import "./utils/init.ts";
-import { RuleTester } from "@typescript-eslint/rule-tester";
 import rule, { seed } from "../../src/rules/javascript.builtins.Array.every.ts";
-import { createMessageData } from "../../src/utils/ruleFactory.ts";
+import createSimpleRuleTest from "./utils/createSimpleRuleTest.ts";
 
-const tester = new RuleTester({
-	languageOptions: {
-		parserOptions: {
-			projectService: {
-				allowDefaultProject: ["*.ts*"],
-			},
-			tsconfigRootDir: process.cwd(),
-		},
+createSimpleRuleTest({
+	rule,
+	seed,
+	codes: [
+		`const arr = [1, 2, 3]; const allPositive = arr.every(num => num > 0);`,
+		`
+		function validateAllItems(items: number[]) {
+			return items.every(item => item > 0);
+		}
+			`,
+		"Array.prototype.every.call([1, 2, 3], num => num > 0);",
+	],
+	validOption: {
+		asOf: "2025-01-01",
+		support: "widely",
 	},
-});
-
-tester.run(seed.concern, rule, {
-	valid: [
-		{
-			code: "const arr = [1, 2, 3]; const allPositive = arr.every(num => num > 0);",
-			options: [{ asOf: "2025-01-01", support: "widely" }],
-		},
-		{
-			code: `
-				function checkAllItems(collection) {
-					return collection.every(item => item.isValid());
-				}
-			`,
-			options: [{ asOf: "2025-01-01", support: "widely" }],
-		},
-	],
-	invalid: [
-		{
-			code: "const arr = [1, 2, 3]; const allPositive = arr.every(num => num > 0);",
-			options: [{ asOf: "2017-01-01", support: "widely" }],
-			errors: [
-				{
-					messageId: "notAvailable",
-					data: createMessageData(seed, {
-						asOf: "2017-01-01",
-						support: "widely",
-					}).notAvailable,
-				},
-			],
-		},
-		{
-			code: `
-				function validateAllItems(items: number[]) {
-					return items.every(item => item > 0);
-				}
-			`,
-			options: [{ asOf: "2017-01-01", support: "widely" }],
-			errors: [
-				{
-					messageId: "notAvailable",
-					data: createMessageData(seed, {
-						asOf: "2017-01-01",
-						support: "widely",
-					}).notAvailable,
-				},
-			],
-		},
-	],
+	invalidOption: {
+		asOf: "2017-01-01",
+		support: "widely",
+	},
 });

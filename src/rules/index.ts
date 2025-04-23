@@ -83,7 +83,8 @@ const rules = {
 	"javascript.builtins.Array.slice": js$builtin$Array$slice,
 	"javascript.builtins.Array.some": js$builtin$Array$some,
 	"javascript.builtins.Array.sort": js$builtin$Array$sort,
-	"javascript.builtins.Array.sort.stable_sorting": js$builtin$Array$sort$stable_sorting,
+	"javascript.builtins.Array.sort.stable_sorting":
+		js$builtin$Array$sort$stable_sorting,
 };
 
 export default rules;

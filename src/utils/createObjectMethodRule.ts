@@ -53,6 +53,28 @@ export interface ObjectMethodRuleConfig {
 	widelyAvailableAt?: string;
 }
 
+export function createNoopRule(
+	config: ObjectMethodRuleConfig & { objectTypeConstructorName?: string },
+) {
+	const seed = createSeed({
+		concern: config.concern,
+		compatKeys: [`${config.compatKey}`],
+		mdnUrl: config.mdnUrl,
+		specUrl: config.specUrl,
+		newlyAvailableAt: config.newlyAvailableAt,
+		widelyAvailableAt: config.widelyAvailableAt,
+	});
+
+	return {
+		seed,
+		rule: createRule(seed, {
+			create(_context) {
+				return {};
+			},
+		}),
+	};
+}
+
 /**
  * インスタンスメソッド（例：Array.prototype.map）用のルールを作成する関数
  */
@@ -181,29 +203,27 @@ export function createStaticMethodRule(config: ObjectMethodRuleConfig) {
 
 			return {
 				// スタティックメソッド呼び出しのチェック
-				CallExpression(node) {
-					if (node.callee.type === "MemberExpression") {
-						const object = node.callee.object;
-						const property = node.callee.property;
+				MemberExpression(node) {
+					const object = node.object;
+					const property = node.property;
 
-						if (
-							property.type === "Identifier" &&
-							property.name === config.methodName &&
-							isTargetType(
-								typeChecker.getTypeAtLocation(
-									services.esTreeNodeToTSNodeMap.get(object),
-								),
-							)
-						) {
-							const isAvailable = checkIsAvailable(ruleConfig, baseline);
+					if (
+						property.type === "Identifier" &&
+						property.name === config.methodName &&
+						isTargetType(
+							typeChecker.getTypeAtLocation(
+								services.esTreeNodeToTSNodeMap.get(object),
+							),
+						)
+					) {
+						const isAvailable = checkIsAvailable(ruleConfig, baseline);
 
-							if (!isAvailable) {
-								context.report({
-									messageId: "notAvailable",
-									node,
-									data: createMessageData(seed, ruleConfig).notAvailable,
-								});
-							}
+						if (!isAvailable) {
+							context.report({
+								messageId: "notAvailable",
+								node,
+								data: createMessageData(seed, ruleConfig).notAvailable,
+							});
 						}
 					}
 				},
