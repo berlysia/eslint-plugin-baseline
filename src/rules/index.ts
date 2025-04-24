@@ -39,6 +39,7 @@ import js$builtin$Array$slice from "./javascript.builtins.Array.slice.ts";
 import js$builtin$Array$some from "./javascript.builtins.Array.some.ts";
 import js$builtin$Array$sort from "./javascript.builtins.Array.sort.ts";
 import js$builtin$Array$sort$stable_sorting from "./javascript.builtins.Array.sort.stable_sorting.ts";
+import js$builtin$Array$splice from "./javascript.builtins.Array.splice.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -85,6 +86,7 @@ const rules = {
 	"javascript.builtins.Array.sort": js$builtin$Array$sort,
 	"javascript.builtins.Array.sort.stable_sorting":
 		js$builtin$Array$sort$stable_sorting,
+	"javascript.builtins.Array.splice": js$builtin$Array$splice,
 };
 
 export default rules;
