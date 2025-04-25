@@ -50,6 +50,7 @@ import js$builtin$Array$toString from "./javascript.builtins.Array.toString.ts";
 import js$builtin$Array$unshift from "./javascript.builtins.Array.unshift.ts";
 import js$javascript$builtins$Array$values from "./javascript.builtins.Array.values.ts";
 import js$javascript$builtins$Array$with from "./javascript.builtins.Array.with.ts";
+import js$javascript$builtins$ArrayBuffer$symbolSpecies from "./javascript.builtins.ArrayBuffer.symbolSpecies.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -107,6 +108,7 @@ const rules = {
 	"javascript.builtins.Array.unshift": js$builtin$Array$unshift,
 	"javascript.builtins.Array.values": js$javascript$builtins$Array$values,
 	"javascript.builtins.Array.with": js$javascript$builtins$Array$with,
+	"javascript.builtins.ArrayBuffer.@@species": js$javascript$builtins$ArrayBuffer$symbolSpecies,
 };
 
 export default rules;
