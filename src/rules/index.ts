@@ -41,6 +41,7 @@ import js$builtin$Array$sort from "./javascript.builtins.Array.sort.ts";
 import js$builtin$Array$sort$stable_sorting from "./javascript.builtins.Array.sort.stable_sorting.ts";
 import js$builtin$Array$splice from "./javascript.builtins.Array.splice.ts";
 import js$builtin$Array$toLocaleString from "./javascript.builtins.Array.toLocaleString.ts";
+import js$builtin$Array$toLocaleString$locales_parameter from "./javascript.builtins.Array.toLocaleString.locales_parameter.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -89,6 +90,7 @@ const rules = {
 		js$builtin$Array$sort$stable_sorting,
 	"javascript.builtins.Array.splice": js$builtin$Array$splice,
 	"javascript.builtins.Array.toLocaleString": js$builtin$Array$toLocaleString,
+	"javascript.builtins.Array.toLocaleString.locales_parameter": js$builtin$Array$toLocaleString$locales_parameter,
 };
 
 export default rules;
