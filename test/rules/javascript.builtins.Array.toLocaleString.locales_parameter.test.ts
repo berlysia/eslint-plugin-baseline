@@ -1,88 +1,29 @@
-
 import "./utils/init.ts";
-import { RuleTester } from "@typescript-eslint/rule-tester";
 import rule, {
   seed,
 } from "../../src/rules/javascript.builtins.Array.toLocaleString.locales_parameter.ts";
-import { createMessageData } from "../../src/utils/ruleFactory.ts";
+import createSimpleRuleTest from "./utils/createSimpleRuleTest.ts";
 
-const tester = new RuleTester({
-  languageOptions: {
-    parserOptions: {
-      projectService: {
-        allowDefaultProject: ["*.ts*"],
-      },
-      tsconfigRootDir: process.cwd(),
-    },
+createSimpleRuleTest({
+  rule,
+  seed,
+  codes: [
+    "const arr = [1, 2, 3]; arr.toLocaleString('en-US');", // 基本的な使用方法（ロケールを指定）
+    "const arr = [1, 2, 3]; arr.toLocaleString(['en-US', 'ja-JP']);", // ロケール配列を指定
+    "const prices = [7, 500, 8123, 12]; prices.toLocaleString('ja-JP', { style: 'currency', currency: 'JPY' });", // オプション付き
+    "Array.prototype.toLocaleString.call([1, 2, 3], 'en-US');", // 明示的なメソッド呼び出し（ロケール指定）
+  ],
+  validOnlyCodes: [
+    "const arr = [1, 2, 3]; arr.toLocaleString();", // localesパラメータなし - このルールの対象外
+    "const obj = { toLocaleString: (locale) => 'value' }; obj.toLocaleString('en-US');", // Arrayではないオブジェクトのメソッド
+    "Array.prototype.toLocaleString.call([1, 2, 3]);", // パラメータなしの明示的呼び出し
+  ],
+  validOption: {
+    asOf: "2022-08-01", // widelyAvailableAtの日付より後（2022-07-15）
+    support: "widely",
   },
-});
-
-tester.run(seed.concern, rule, {
-  valid: [
-    {
-      code: "const arr = [1, 2, 3]; arr.toLocaleString('en-US');",
-      options: [{ asOf: "2025-01-01", support: "widely" }],
-    },
-    {
-      code: "const arr = [1, 2, 3]; arr.toLocaleString(['en-US', 'ja-JP']);",
-      options: [{ asOf: "2025-01-01", support: "widely" }],
-    },
-    {
-      code: "const myArray = new Array(10); myArray.toLocaleString('en-US');",
-      options: [{ asOf: "2025-01-01", support: "widely" }],
-    },
-    {
-      code: "Array.prototype.toLocaleString.call([1, 2, 3], 'en-US');",
-      options: [{ asOf: "2025-01-01", support: "widely" }],
-    },
-    {
-      code: "const arr = [1, 2, 3]; arr.toLocaleString();", // without locales parameter - should be valid
-      options: [{ asOf: "2017-01-01", support: "widely" }],
-    },
-    {
-      code: "const obj = { toLocaleString: (locale) => 'value' }; obj.toLocaleString('en-US');", // not an Array
-      options: [{ asOf: "2017-01-01", support: "widely" }],
-    },
-  ],
-  invalid: [
-    {
-      code: "const arr = [1, 2, 3]; arr.toLocaleString('en-US');",
-      options: [{ asOf: "2017-01-01", support: "widely" }],
-      errors: [
-        {
-          messageId: "notAvailable",
-          data: createMessageData(seed, {
-            asOf: "2017-01-01", 
-            support: "widely",
-          }).notAvailable,
-        },
-      ],
-    },
-    {
-      code: "const arr = [1, 2, 3]; arr.toLocaleString(['en-US', 'ja-JP']);",
-      options: [{ asOf: "2017-01-01", support: "widely" }],
-      errors: [
-        {
-          messageId: "notAvailable",
-          data: createMessageData(seed, {
-            asOf: "2017-01-01",
-            support: "widely",
-          }).notAvailable,
-        },
-      ],
-    },
-    {
-      code: "const prices = [7, 500, 8123, 12]; prices.toLocaleString('ja-JP', { style: 'currency', currency: 'JPY' });",
-      options: [{ asOf: "2017-01-01", support: "widely" }],
-      errors: [
-        {
-          messageId: "notAvailable",
-          data: createMessageData(seed, {
-            asOf: "2017-01-01", 
-            support: "widely",
-          }).notAvailable,
-        },
-      ],
-    },
-  ],
+  invalidOption: {
+    asOf: "2019-01-01", // newlyAvailableAtの日付より前（2020-01-15）
+    support: "widely",
+  },
 });

@@ -8,13 +8,13 @@ createSimpleRuleTest({
 	rule,
 	seed,
 	codes: [
-		"const arr = [1, 2, 3]; const result = arr.toLocaleString();", // 基本的な使用方法
-		"const arr = [1, 2, 3]; const result = arr.toLocaleString('ja-JP');", // ロケールを指定
-		"const arr = [1, 2, 3]; const result = arr.toLocaleString('en-US', { style: 'currency', currency: 'USD' });", // オプション付き
-		"Array.prototype.toLocaleString.call([1, 2, 3]);", // 明示的なメソッド呼び出し
+		"const arr = [1, 2, 3]; const result = arr.toLocaleString();", // 基本的な使用方法（パラメータなし）
+		"const numArr = new Array(10).fill(42); numArr.toLocaleString();", // 別の配列生成方法
+		"Array.prototype.toLocaleString.call([1, 2, 3]);", // 明示的なメソッド呼び出し（パラメータなし）
 	],
 	validOnlyCodes: [
 		"const obj = { toLocaleString: () => 'value' }; obj.toLocaleString();", // ArrayではないオブジェクトのtoLocaleStringメソッド
+		"const str = '123'; str.toLocaleString();", // 文字列のtoLocaleStringメソッド
 	],
 	validOption: {
 		asOf: "2020-01-01",
