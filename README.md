@@ -60,13 +60,14 @@
      - 同じノードに対して複数回のエラー報告を避ける
      - 複雑なロジックは共通の関数に抽出し、可読性を高める
    - ASTの構造を理解し、最も効率的な検出方法を選択する:
-     - メソッド呼び出しは基本的に`CallExpression`で捕捉できる
+     - メソッドの参照は基本的に`MemberExpression`で捕捉できる
+     - メソッド呼び出し自体や引数は基本的に`CallExpression`で捕捉できる
      - 抽象度の高い検出（例: 特定のパターン）ではなく、具体的な構文要素で検出する
 
 4. 実装上の制約
 
    - seedPathのファイルへの参照をルール内に持つことは禁止
-   - seedの内容を的確に反映しなければならない。 `widelyAvaliableAt` `newlyAvailableAt` の欠落にも意味がある。
+   - `createInstanceMethodRule` や `createStaticMethodRule` の引数は変更禁止
 
 5. 実装フロー
 
@@ -155,7 +156,11 @@
      - `validOnlyCodes`: 常に適切と判断されるコード例（オプション）
      - `invalidOnlyCodes`: 常に不適切と判断されるコード例（オプション）
      - `validOption`: 全てのコードが適切になる設定（例：新しい日付設定）
+       - `support`: `widely` または `newly` のいずれか。 seedに対応する値が入っているほうを使わなければならないので、 `widely` が使えない場合もあることに注意する。
+       - `asOf`: 日付を指定する。 `support` に対応する日付よりも後の日付を指定すること。
      - `invalidOption`: `codes` 内のコードが不適切になる設定（例：古い日付設定）
+       - `support`: `widely` または `newly` のいずれか。
+       - `asOf`: 日付を指定する。 `support` に対応する日付よりも前の日付を指定すること。
 
 2. **テストケースの選定基準**
 
