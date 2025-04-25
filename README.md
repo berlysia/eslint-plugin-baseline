@@ -29,6 +29,8 @@
     - ruleNameに注目する
     - `npm run agent:rules:scaffold -- --ruleName "<ルール名>" --methodKind <instance|static>` でルールの雛形を生成、ルールを実装する。
       - ルール名はエスケープされている場合があるが、元の名前を指定する。
+    - 実装後、`npm run agent:rules:add <compatKey>` を実行してsrc/rules/index.tsにルールを登録する
+      - これにより、ルールのインポートと登録が自動的に行われます
 
 #### ルール開発のガイドライン
 

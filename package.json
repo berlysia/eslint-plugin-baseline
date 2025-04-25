@@ -14,6 +14,7 @@
 		"agent:ast:typescript": "node scripts/tools/getAstByTsParser.ts",
 		"agent:rules:scaffold": "node scripts/tools/generateRuleScaffold.ts",
 		"agent:rules:next": "node scripts/tools/getUnimplementedRuleName.ts",
+		"agent:rules:add": "node scripts/tools/addRuleToIndex.ts",
 		"agent:check": "node scripts/tools/check.ts"
 	},
 	"keywords": [],
