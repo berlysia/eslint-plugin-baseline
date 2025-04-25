@@ -48,6 +48,7 @@ import js$builtin$Array$toSorted from "./javascript.builtins.Array.toSorted.ts";
 import js$builtin$Array$toSpliced from "./javascript.builtins.Array.toSpliced.ts";
 import js$builtin$Array$toString from "./javascript.builtins.Array.toString.ts";
 import js$builtin$Array$unshift from "./javascript.builtins.Array.unshift.ts";
+import js$javascript$builtins$Array$values from "./javascript.builtins.Array.values.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -103,6 +104,7 @@ const rules = {
 	"javascript.builtins.Array.toSpliced": js$builtin$Array$toSpliced,
 	"javascript.builtins.Array.toString": js$builtin$Array$toString,
 	"javascript.builtins.Array.unshift": js$builtin$Array$unshift,
+	"javascript.builtins.Array.values": js$javascript$builtins$Array$values,
 };
 
 export default rules;
