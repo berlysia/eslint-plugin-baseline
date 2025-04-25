@@ -3,6 +3,7 @@ import path from "node:path";
 import { parseArgs } from "node:util";
 import { METHOD_TYPE } from "../../src/utils/createObjectMethodRule.ts";
 import type { MethodType } from "../../src/utils/createObjectMethodRule.ts";
+import parseYYYYMMDD from "../../src/utils/parseYYYYMMDD.ts";
 import { transformRuleName } from "./utils.ts";
 
 const { values: args } = parseArgs({
@@ -116,7 +117,7 @@ export default rule;
 };
 
 // カスタムルールのコード生成
-const codeForBuiltins = `
+const ruleCodeBase = `
 import { computeBaseline } from "compute-baseline";
 import type { TSESTree } from "@typescript-eslint/typescript-estree";
 import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
@@ -153,7 +154,12 @@ const rule = createRule(seed, {
     const typeChecker = services.program.getTypeChecker();
 
     // FIXME: 適切なターゲットタイプ名に変更してください
-    const isTargetType = createIsTargetType(typeChecker, "FIXME");
+    const isTargetType = createIsTargetType(typeChecker, "FIXME_OBJECT_TYPE");
+    const isTargetConstructorType = createIsTargetType(
+      typeChecker,
+      "FIXME_CONSTCRUCTOR_TYPE",
+      true,
+    );
 
     return {
       // 例: コンストラクタ利用のチェック
@@ -196,6 +202,52 @@ const rule = createRule(seed, {
         }
       },
       
+      // 例: メソッドへの参照のチェック
+      MemberExpression(node) {
+        if (
+          node.property.type === "Identifier" &&
+          node.property.name === FIXME_METHOD_NAME && // Check if it's a normal instance type
+          isTargetType(
+            typeChecker.getTypeAtLocation(
+              services.esTreeNodeToTSNodeMap.get(node.object),
+            ),
+          )
+        ) {
+          const isAvailable = checkIsAvailable(ruleConfig, baseline);
+
+          if (!isAvailable) {
+            context.report({
+              messageId: "notAvailable",
+              node,
+              data: createMessageData(seed, ruleConfig).notAvailable,
+            });
+          }
+        } else if (
+          // \${ConstructorName}.prototype.\${method}() のようなアクセスパターンをチェック
+          node.object.type === "MemberExpression" &&
+          isTargetConstructorType(
+            typeChecker.getTypeAtLocation(
+              services.esTreeNodeToTSNodeMap.get(node.object.object),
+            ),
+          ) &&
+          node.object.property.type === "Identifier" &&
+          node.object.property.name === "prototype" &&
+          node.property.type === "Identifier" &&
+          node.property.name === FIXME_METHOD_NAME
+        ) {
+          // Check for ObjectType.prototype access pattern
+          const isAvailable = checkIsAvailable(ruleConfig, baseline);
+
+          if (!isAvailable) {
+            context.report({
+              messageId: "notAvailable",
+              node,
+              data: createMessageData(seed, ruleConfig).notAvailable,
+            });
+          }
+        }
+      },
+      
       // 例: メソッド呼び出しのチェック
       CallExpression(node) {
         if (node.callee.type === "MemberExpression") {
@@ -226,66 +278,52 @@ export default rule;
 `;
 
 // テストファイルのひな形生成
-const testTemplate = `
-import "./init.ts";
-import { RuleTester } from "@typescript-eslint/rule-tester";
+function generateTestTemplate(ruleName: string, seed: any) {
+	const parsedInfo = parseRuleName(ruleName);
+	if (!parsedInfo) {
+		return null;
+	}
+
+	// objectTypeName: "${objectType}",
+	// methodName: ${JSON.stringify(methodName)},
+	// compatKey: "${parsedInfo.compatKey}",
+	// concern: "${objectType}${methodType === METHOD_TYPE.Instance ? ".prototype" : ""}.${methodName}",
+	// mdnUrl: ${JSON.stringify(seed.mdn_url)},
+	// specUrl: ${JSON.stringify(seed.bcd.spec_url)},
+	// newlyAvailableAt: ${JSON.stringify(seed.baseline.baseline_low_date)},
+	// widelyAvailableAt: ${JSON.stringify(seed.baseline.baseline_high_date)},
+
+	const isWidelyAvailable = seed.baseline.baseline_high_date !== null;
+	const baseDate = parseYYYYMMDD(
+		isWidelyAvailable
+			? seed.baseline.baseline_high_date
+			: seed.baseline.baseline_low_date,
+	);
+	const validDate = baseDate.nextDay().toString();
+	const invalidDate = baseDate.prevDay().toString();
+
+	return `
 import rule, {
   seed,
-} from "../../src/rules/${transformedRuleName}.ts";
-import { createMessageData } from "../../src/utils/ruleFactory.ts";
+} from "../../src/rules/${parsedInfo.compatKey}.ts";
+import createSimpleRuleTest from "./utils/createSimpleRuleTest.ts";
 
-const tester = new RuleTester({
-  languageOptions: {
-    parserOptions: {
-      projectService: {
-        allowDefaultProject: ["*.ts*"],
-      },
-      tsconfigRootDir: process.cwd(),
-    },
+createSimpleRuleTest({
+  rule,
+  seed,
+  codes: [
+  ],
+  validOption: {
+    asOf: "${validDate}",
+    support: "${isWidelyAvailable ? "widely" : "newly"}",
+  },
+  invalidOption: {
+    asOf: "${invalidDate}",
+    support: "${isWidelyAvailable ? "widely" : "newly"}",
   },
 });
-
-tester.run(seed.concern, rule, {
-  valid: [
-    {
-      code: "// FIXME: 有効なコード例",
-      options: [{ asOf: "2025-01-01", support: "widely" }],
-    },
-    {
-      code: "// FIXME: 有効なコード例2",
-      options: [{ asOf: "2025-01-01", support: "widely" }],
-    },
-  ],
-  invalid: [
-    {
-      code: "// FIXME: 無効なコード例",
-      options: [{ asOf: "2017-01-01", support: "widely" }],
-      errors: [
-        {
-          messageId: "notAvailable",
-          data: createMessageData(seed, {
-            asOf: "2017-01-01", 
-            support: "widely",
-          }).notAvailable,
-        },
-      ],
-    },
-    {
-      code: "// FIXME: 無効なコード例2",
-      options: [{ asOf: "2017-01-01", support: "widely" }],
-      errors: [
-        {
-          messageId: "notAvailable",
-          data: createMessageData(seed, {
-            asOf: "2017-01-01",
-            support: "widely",
-          }).notAvailable,
-        },
-      ],
-    },
-  ],
-});
 `;
+}
 
 if (ruleName.startsWith("javascript.builtins.")) {
 	// ファクトリー関数を使ったコードの生成を試みる
@@ -299,10 +337,14 @@ if (ruleName.startsWith("javascript.builtins.")) {
 		);
 	} else {
 		// それ以外の場合は通常のルールテンプレートを使用
-		await fsp.writeFile(rulePath, codeForBuiltins, "utf8");
+		await fsp.writeFile(rulePath, ruleCodeBase, "utf8");
 		console.log(`Rule ${ruleName} scaffold generated at ${rulePath}`);
 	}
 
-	await fsp.writeFile(testPath, testTemplate, "utf8");
-	console.log(`Test for ${ruleName} generated at ${testPath}`);
+	const testCode = generateTestTemplate(ruleName, seed);
+
+	if (testCode) {
+		await fsp.writeFile(testPath, testCode, "utf8");
+		console.log(`Test for ${ruleName} generated at ${testPath}`);
+	}
 }
