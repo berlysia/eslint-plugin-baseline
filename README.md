@@ -66,6 +66,7 @@
 4. 実装上の制約
 
    - seedPathのファイルへの参照をルール内に持つことは禁止
+   - seedの内容を的確に反映しなければならない。 `widelyAvaliableAt` `newlyAvailableAt` の欠落にも意味がある。
 
 5. 実装フロー
 
@@ -86,27 +87,28 @@
    **注意**: コミットを忘れると作業内容が保存されません。実装完了後は必ずコミットしましょう。
 
 6. **基本機能と拡張機能の分割ルール**
-   
+
    - 基本機能（例：`Array.prototype.toLocaleString`、`AggregateError`）とその拡張機能（例：`Array.prototype.toLocaleString.locales_parameter`、`AggregateError.serializable_object`）が別々のルールとして実装される場合は、以下のガイドラインに従ってください：
-     
+
      - 基本機能のルール：機能の基本的な振る舞いのみをテスト。拡張機能や特殊パラメータを使用しないテストケースのみを含める。
      - 拡張機能のルール：特定の拡張機能（特殊パラメータや追加プロパティなど）を使用するケースのみをテスト。基本機能のテストと重複しないようにする。
      - 関連ルール間でのテストの重複を避ける。各ルールは明確な責任領域を持つべき。
 
    - テストケースの作成時の注意点：
+
      ```javascript
      // 基本機能のテスト（Array.toLocaleString）
-     "const arr = [1, 2, 3]; arr.toLocaleString();"  // 拡張パラメータなし
-     
+     "const arr = [1, 2, 3]; arr.toLocaleString();"; // 拡張パラメータなし
+
      // 基本機能のテスト（AggregateError）
-     "new AggregateError([new Error('エラー1')]);"  // 基本的な使用方法
-     
+     "new AggregateError([new Error('エラー1')]);"; // 基本的な使用方法
+
      // 拡張機能のテスト（Array.toLocaleString.locales_parameter）
-     "const arr = [1, 2, 3]; arr.toLocaleString('en-US');"  // ロケールパラメータを使用
-     
+     "const arr = [1, 2, 3]; arr.toLocaleString('en-US');"; // ロケールパラメータを使用
+
      // 拡張機能のテスト（AggregateError.serializable_object）
-     "const err = new AggregateError([new Error('エラー')], 'メッセージ');"
-     "JSON.stringify(err);"  // AggregateErrorオブジェクトのシリアライズ
+     "const err = new AggregateError([new Error('エラー')], 'メッセージ');";
+     "JSON.stringify(err);"; // AggregateErrorオブジェクトのシリアライズ
      ```
 
    - 拡張機能のルールのテストでは、拡張機能を使用しないケースは `validOnlyCodes` に含め、常に有効とマークする。

@@ -43,6 +43,7 @@ import js$builtin$Array$splice from "./javascript.builtins.Array.splice.ts";
 import js$builtin$Array$toLocaleString from "./javascript.builtins.Array.toLocaleString.ts";
 import js$builtin$Array$toLocaleString$locales_parameter from "./javascript.builtins.Array.toLocaleString.locales_parameter.ts";
 import js$builtin$Array$toLocaleString$options_parameter from "./javascript.builtins.Array.toLocaleString.options_parameter.ts";
+import js$builtin$Array$toReversed from "./javascript.builtins.Array.toReversed.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -93,6 +94,7 @@ const rules = {
 	"javascript.builtins.Array.toLocaleString": js$builtin$Array$toLocaleString,
 	"javascript.builtins.Array.toLocaleString.locales_parameter": js$builtin$Array$toLocaleString$locales_parameter,
 	"javascript.builtins.Array.toLocaleString.options_parameter": js$builtin$Array$toLocaleString$options_parameter,
+	"javascript.builtins.Array.toReversed": js$builtin$Array$toReversed,
 };
 
 export default rules;
