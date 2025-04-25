@@ -1,4 +1,5 @@
 import { computeBaseline } from "compute-baseline";
+import type { TSESTree } from "@typescript-eslint/typescript-estree";
 import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
 import { ensureConfig } from "../config.ts";
 import type { BaselineRuleConfig } from "../types.ts";
@@ -8,9 +9,10 @@ import {
 	createRule,
 	createSeed,
 } from "../utils/ruleFactory.ts";
+import { createIsTargetType } from "../utils/createIsTargetType.ts";
 
 export const seed = createSeed({
-	concern: "ArrayBuffer.ArrayBuffer",
+	concern: "ArrayBuffer constructor",
 	compatKeys: ["javascript.builtins.ArrayBuffer.ArrayBuffer"],
 	mdnUrl:
 		"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer/ArrayBuffer",
@@ -33,54 +35,44 @@ export const rule = createRule(seed, {
 		const services = getParserServices(context);
 		const typeChecker = services.program.getTypeChecker();
 
+		// チェック用の共通関数
+		function checkArrayBufferConstructorAvailability(node: TSESTree.Node) {
+			const isAvailable = checkIsAvailable(ruleConfig, baseline);
+			if (!isAvailable) {
+				context.report({
+					messageId: "notAvailable",
+					node,
+					data: createMessageData(seed, ruleConfig).notAvailable,
+				});
+			}
+		}
+
+		// ArrayBuffer コンストラクタを検知するための型チェック
+		const isArrayBufferType = createIsTargetType(typeChecker, "ArrayBufferConstructor");
+
 		return {
-			// ArrayBufferコンストラクタのチェック
+			// セレクタで直接的なArrayBuffer使用をチェック
+			"NewExpression[callee.name='ArrayBuffer']"(node: TSESTree.NewExpression) {
+				checkArrayBufferConstructorAvailability(node);
+			},
+
+			// 型チェックで間接的なArrayBuffer使用もカバー（変数に代入されたケースなど）
 			NewExpression(node) {
-				const callee = node.callee;
-
-				// 直接ArrayBufferを使用するケース
-				if (callee.type === "Identifier" && callee.name === "ArrayBuffer") {
-					const isAvailable = checkIsAvailable(ruleConfig, baseline);
-					if (!isAvailable) {
-						context.report({
-							messageId: "notAvailable",
-							node,
-							data: createMessageData(seed, ruleConfig).notAvailable,
-						});
-					}
-					// 変数に代入したArrayBufferを使用するケース
-				} else if (callee.type === "Identifier") {
-					const tsNode = services.esTreeNodeToTSNodeMap.get(callee);
+				// セレクタでカバーされていない場合のみチェック
+				if (node.callee.type !== "Identifier" || node.callee.name !== "ArrayBuffer") {
+					const tsNode = services.esTreeNodeToTSNodeMap.get(node.callee);
 					const type = typeChecker.getTypeAtLocation(tsNode);
-					const symbol = type.getSymbol();
 
-					if (symbol && symbol.getName() === "ArrayBuffer") {
-						const isAvailable = checkIsAvailable(ruleConfig, baseline);
-						if (!isAvailable) {
-							context.report({
-								messageId: "notAvailable",
-								node,
-								data: createMessageData(seed, ruleConfig).notAvailable,
-							});
-						}
+					if (isArrayBufferType(type)) {
+						checkArrayBufferConstructorAvailability(node);
 					}
 				}
 			},
-			// MemberExpressionもチェックする（例: ArrayBuffer.name など）
-			MemberExpression(node) {
-				const object = node.object;
-
-				if (object.type === "Identifier" && object.name === "ArrayBuffer") {
-					const isAvailable = checkIsAvailable(ruleConfig, baseline);
-					if (!isAvailable) {
-						context.report({
-							messageId: "notAvailable",
-							node,
-							data: createMessageData(seed, ruleConfig).notAvailable,
-						});
-					}
-				}
-			},
+			
+			// ArrayBuffer 関連のプロパティアクセスをチェック
+			"MemberExpression[object.name='ArrayBuffer']"(node: TSESTree.MemberExpression) {
+				checkArrayBufferConstructorAvailability(node);
+			}
 		};
 	},
 });
