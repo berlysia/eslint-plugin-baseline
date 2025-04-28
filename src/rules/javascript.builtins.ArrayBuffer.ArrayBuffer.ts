@@ -48,7 +48,10 @@ export const rule = createRule(seed, {
 		}
 
 		// ArrayBuffer コンストラクタを検知するための型チェック
-		const isArrayBufferType = createIsTargetType(typeChecker, "ArrayBufferConstructor");
+		const isArrayBufferType = createIsTargetType(
+			typeChecker,
+			"ArrayBufferConstructor",
+		);
 
 		return {
 			// セレクタで直接的なArrayBuffer使用をチェック
@@ -59,7 +62,10 @@ export const rule = createRule(seed, {
 			// 型チェックで間接的なArrayBuffer使用もカバー（変数に代入されたケースなど）
 			NewExpression(node) {
 				// セレクタでカバーされていない場合のみチェック
-				if (node.callee.type !== "Identifier" || node.callee.name !== "ArrayBuffer") {
+				if (
+					node.callee.type !== "Identifier" ||
+					node.callee.name !== "ArrayBuffer"
+				) {
 					const tsNode = services.esTreeNodeToTSNodeMap.get(node.callee);
 					const type = typeChecker.getTypeAtLocation(tsNode);
 
@@ -68,11 +74,13 @@ export const rule = createRule(seed, {
 					}
 				}
 			},
-			
+
 			// ArrayBuffer 関連のプロパティアクセスをチェック
-			"MemberExpression[object.name='ArrayBuffer']"(node: TSESTree.MemberExpression) {
+			"MemberExpression[object.name='ArrayBuffer']"(
+				node: TSESTree.MemberExpression,
+			) {
 				checkArrayBufferConstructorAvailability(node);
-			}
+			},
 		};
 	},
 });
