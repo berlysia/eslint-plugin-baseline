@@ -2,6 +2,10 @@
 
 ブラウザの機能サポート状況に基づいて、コードがユーザーの期待するBaselineを満たしているかを検証するESLintプラグイン。
 
+## 開発ステータス
+
+本プラグインは現在開発中です。最新の実装状況については [実装状況とガイドライン](./devDocs/03-implementation.md) を参照してください。
+
 ## 概要
 
 このプラグインは、[compute-baseline](https://www.npmjs.com/package/compute-baseline)を利用して、コードで使用されている機能が指定された基準日時点で十分にサポートされているかをチェックします。
@@ -34,17 +38,15 @@ npm install eslint-plugin-baseline --save-dev
 ## 基本的な使用方法
 
 ```javascript
-// .eslintrc.js
-const { createConfig } = require('eslint-plugin-baseline');
+// eslint.config.js
+import { createConfig } from "eslint-plugin-baseline";
 
-module.exports = {
-  extends: [
-    ...createConfig({
-      asOf: new Date("2025-01-01"),
-      support: "widely",
-    }),
-  ],
-};
+export default [
+	...createConfig({
+		asOf: new Date("2025-01-01"),
+		support: "widely",
+	}),
+];
 ```
 
 ## 詳細ドキュメント
@@ -57,10 +59,6 @@ module.exports = {
 - [実装状況とガイドライン](./devDocs/03-implementation.md)
 - [テストケースのガイドライン](./devDocs/04-testing-guidelines.md)
 - [開発ツール](./devDocs/05-development-tools.md)
-
-## 開発ステータス
-
-本プラグインは現在開発中です。最新の実装状況については [実装状況とガイドライン](./devDocs/03-implementation.md) を参照してください。
 
 ## ライセンス
 
