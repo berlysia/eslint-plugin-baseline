@@ -1,4 +1,4 @@
-import { createArgumentPropertyValidator } from "./createTypePropertyValidator.ts";
+import { createConstructorArgumentPropertyValidator } from "./createTypePropertyValidator.ts";
 import { createSeed, createRuleV2 } from "./ruleFactory.ts";
 
 export interface ArgumentPropertyRuleConfig {
@@ -59,7 +59,7 @@ export function createConstructorArgumentPropertyRule(
 		widelyAvailableAt: config.widelyAvailableAt,
 	});
 
-	const createValidator = createArgumentPropertyValidator({
+	const createValidator = createConstructorArgumentPropertyValidator({
 		typeName: config.objectTypeName,
 		constructorTypeName: objectTypeConstructorName,
 		argumentIndex: config.argumentIndex,

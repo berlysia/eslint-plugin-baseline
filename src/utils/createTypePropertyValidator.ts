@@ -1,34 +1,12 @@
+/* eslint-disable no-bitwise -- for TypeScript flag calcuration */
 import type { TSESTree } from "@typescript-eslint/typescript-estree";
 import type { RuleContext, Scope } from "@typescript-eslint/utils/ts-eslint";
 import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
-import type ts from "typescript";
+import ts from "typescript";
 import type { BaselineRuleConfig } from "../types.ts";
 import { createIsTargetType } from "./createIsTargetType.ts";
 import { createMessageData } from "./ruleFactory.ts";
 import type { RuleModuleSeed } from "./ruleFactory.ts";
-
-export type ValidatorOptions =
-	| {
-			type: "ArgumentProperty";
-			argumentIndex: number;
-			optionProperty: string;
-	  }
-	| {
-			type: "StaticMethod";
-			methodName: string;
-	  }
-	| {
-			type: "InstanceMethod";
-			methodName: string;
-	  }
-	| {
-			type: "InstanceProperty";
-			propertyName: string;
-	  }
-	| {
-			type: "StaticProperty";
-			propertyName: string;
-	  };
 
 /**
  * 呼び出し式の親クラス定義を見つける
@@ -293,6 +271,231 @@ function createSharedValidator<
 		return hasTargetPropertyInType(elementType, optionProperty);
 	}
 
+	/**
+	 * 引数が存在するかをチェック
+	 */
+	function argumentExists(
+		args: readonly TSESTree.CallExpressionArgument[],
+		argumentIndex: number,
+	): boolean {
+		const spreadIndex = args.findIndex((arg) => arg.type === "SpreadElement");
+
+		// スプレッド引数がない場合は単純に長さをチェック
+		if (spreadIndex === -1) {
+			return args.length > argumentIndex;
+		}
+
+		// スプレッド前に既に十分な引数がある場合
+		if (spreadIndex > argumentIndex) {
+			return true;
+		}
+
+		// スプレッド要素の中身を検証する必要がある
+		const targetIndexInSpread = argumentIndex - spreadIndex;
+		const spreadArg = (args[spreadIndex] as TSESTree.SpreadElement).argument;
+
+		// 型情報を取得
+		const tsNode = services.esTreeNodeToTSNodeMap.get(spreadArg);
+		if (!tsNode) return false;
+
+		const type = typeChecker.getTypeAtLocation(tsNode);
+		if (!type) return false;
+
+		// タプル型の場合は要素数をチェック
+		if (typeChecker.isTupleType(type)) {
+			const typeArguments = typeChecker.getTypeArguments(
+				type as ts.TypeReference,
+			);
+			return typeArguments.length > targetIndexInSpread;
+		}
+
+		// 配列型の場合は長さを確定できないため、存在する可能性があるものとして扱う
+		return true;
+	}
+
+	/**
+	 * 引数の型をチェック
+	 */
+	function isArgumentOfType(
+		args: readonly TSESTree.CallExpressionArgument[],
+		argumentIndex: number,
+		expectedType: string,
+	): boolean {
+		if (!argumentExists(args, argumentIndex)) {
+			return false;
+		}
+
+		const spreadIndex = args.findIndex((arg) => arg.type === "SpreadElement");
+
+		// スプレッド引数がない、またはスプレッド前に目的の引数がある場合
+		if (spreadIndex === -1 || spreadIndex > argumentIndex) {
+			const arg = args[argumentIndex] as TSESTree.Expression;
+			return checkNodeType(arg, expectedType);
+		}
+
+		// スプレッド要素内の引数を検証
+		const targetIndexInSpread = argumentIndex - spreadIndex;
+		const spreadArg = (args[spreadIndex] as TSESTree.SpreadElement).argument;
+
+		// 型情報を取得
+		const tsNode = services.esTreeNodeToTSNodeMap.get(spreadArg);
+		if (!tsNode) return false;
+
+		const type = typeChecker.getTypeAtLocation(tsNode);
+		if (!type) return false;
+
+		// タプル型の場合は特定の要素の型をチェック
+		if (typeChecker.isTupleType(type)) {
+			const typeArguments = typeChecker.getTypeArguments(
+				type as ts.TypeReference,
+			);
+			if (typeArguments.length <= targetIndexInSpread) {
+				return false;
+			}
+
+			const elementType = typeArguments[targetIndexInSpread];
+			return checkTSType(elementType, expectedType);
+		}
+
+		return false;
+	}
+
+	/**
+	 * 引数が特定のパターンにマッチするかチェック
+	 */
+	function isArgumentMatchPattern(
+		args: readonly TSESTree.CallExpressionArgument[],
+		argumentIndex: number,
+		pattern: RegExp | string,
+	): boolean {
+		if (!argumentExists(args, argumentIndex)) {
+			return false;
+		}
+
+		const spreadIndex = args.findIndex((arg) => arg.type === "SpreadElement");
+
+		// スプレッド引数がない、またはスプレッド前に目的の引数がある場合
+		if (spreadIndex === -1 || spreadIndex > argumentIndex) {
+			const arg = args[argumentIndex] as TSESTree.Expression;
+
+			// 文字列リテラルの場合はパターンマッチを実行
+			if (arg.type === "Literal" && typeof arg.value === "string") {
+				const regex = pattern instanceof RegExp ? pattern : new RegExp(pattern);
+				return regex.test(arg.value);
+			}
+
+			// テンプレートリテラルの場合
+			if (arg.type === "TemplateLiteral" && arg.quasis.length === 1) {
+				const value = arg.quasis[0].value.raw;
+				const regex = pattern instanceof RegExp ? pattern : new RegExp(pattern);
+				return regex.test(value);
+			}
+		}
+
+		// 現時点ではスプレッド引数内の文字列パターンマッチはサポートしない
+		return false;
+	}
+
+	/**
+	 * ノードの型をチェック
+	 */
+	function checkNodeType(
+		node: TSESTree.Expression,
+		expectedType: string,
+	): boolean {
+		// リテラルの直接チェック
+		if (
+			expectedType === "string" &&
+			node.type === "Literal" &&
+			typeof node.value === "string"
+		) {
+			return true;
+		}
+		if (
+			expectedType === "number" &&
+			node.type === "Literal" &&
+			typeof node.value === "number"
+		) {
+			return true;
+		}
+		if (
+			expectedType === "boolean" &&
+			node.type === "Literal" &&
+			typeof node.value === "boolean"
+		) {
+			return true;
+		}
+		if (
+			expectedType === "regexp" &&
+			node.type === "Literal" &&
+			node.value instanceof RegExp
+		) {
+			return true;
+		}
+		if (expectedType === "object" && node.type === "ObjectExpression") {
+			return true;
+		}
+		if (expectedType === "array" && node.type === "ArrayExpression") {
+			return true;
+		}
+		if (
+			expectedType === "function" &&
+			(node.type === "ArrowFunctionExpression" ||
+				node.type === "FunctionExpression")
+		) {
+			return true;
+		}
+
+		// TypeScriptの型情報を使用して詳細なチェック
+		const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+		if (!tsNode) return false;
+
+		const type = typeChecker.getTypeAtLocation(tsNode);
+		return checkTSType(type, expectedType);
+	}
+
+	/**
+	 * TypeScriptの型をチェック
+	 */
+	function checkTSType(type: ts.Type, expectedType: string): boolean {
+		if (!type) return false;
+
+		if (expectedType === "string") {
+			return typeChecker.isTypeAssignableTo(type, typeChecker.getStringType());
+		}
+		if (expectedType === "number") {
+			return typeChecker.isTypeAssignableTo(type, typeChecker.getNumberType());
+		}
+		if (expectedType === "boolean") {
+			return typeChecker.isTypeAssignableTo(type, typeChecker.getBooleanType());
+		}
+		if (expectedType === "object") {
+			return (
+				(type.flags & ts.TypeFlags.Object) !== 0 &&
+				!typeChecker.isArrayLikeType(type)
+			);
+		}
+		if (expectedType === "array") {
+			return typeChecker.isArrayLikeType(type);
+		}
+		if (expectedType === "function") {
+			return (
+				(type.flags & ts.TypeFlags.Object) !== 0 &&
+				((type as ts.ObjectType).objectFlags & ts.ObjectFlags.Anonymous) !==
+					0 &&
+				type.getCallSignatures().length > 0
+			);
+		}
+		if (expectedType === "regexp") {
+			return Boolean(
+				(type.flags & ts.TypeFlags.Object) !== 0 &&
+					type.symbol?.name === "RegExp",
+			);
+		}
+
+		return false;
+	}
+
 	return {
 		services,
 		typeChecker,
@@ -303,10 +506,16 @@ function createSharedValidator<
 		isArgumentHasTheProperty,
 		findParentClass,
 		report,
+		isArgumentOfType,
+		isArgumentMatchPattern,
+		argumentExists,
+		hasTargetProperty,
+		checkNodeType,
+		checkTSType,
 	};
 }
 
-export function createArgumentPropertyValidator({
+export function createConstructorArgumentPropertyValidator({
 	typeName,
 	constructorTypeName,
 	argumentIndex,
@@ -360,6 +569,191 @@ export function createArgumentPropertyValidator({
 						node.arguments,
 						argumentIndex,
 						optionProperty,
+					) &&
+					(sharedValidator.isGlobalType(classNode.superClass) ||
+						sharedValidator.validateConstructorType(classNode.superClass))
+				) {
+					sharedValidator.report(node);
+				}
+			},
+		};
+	};
+}
+
+export function createConstructorArgumentExistsValidator({
+	typeName,
+	constructorTypeName,
+	argumentIndex,
+}: {
+	typeName: string;
+	constructorTypeName: string;
+	argumentIndex: number;
+}) {
+	return function create<
+		MessageIds extends string,
+		Options extends readonly unknown[],
+	>(
+		context: RuleContext<MessageIds, Options>,
+		seed: RuleModuleSeed,
+		config: BaselineRuleConfig,
+	) {
+		const sharedValidator = createSharedValidator(
+			typeName,
+			constructorTypeName,
+			context,
+			seed,
+			config,
+		);
+
+		return {
+			NewExpression(node: TSESTree.NewExpression) {
+				if (
+					sharedValidator.argumentExists(node.arguments, argumentIndex) &&
+					(sharedValidator.isGlobalType(node.callee) ||
+						sharedValidator.validateConstructorType(node.callee) ||
+						sharedValidator.validateInstanceType(node))
+				) {
+					sharedValidator.report(node);
+				}
+			},
+
+			"CallExpression[callee.type='Super']"(node: TSESTree.CallExpression) {
+				const classNode = findParentClass(node);
+				if (!classNode?.superClass) {
+					throw new TypeError("invariant: classNode.superClass is null");
+				}
+
+				if (
+					sharedValidator.argumentExists(node.arguments, argumentIndex) &&
+					(sharedValidator.isGlobalType(classNode.superClass) ||
+						sharedValidator.validateConstructorType(classNode.superClass))
+				) {
+					sharedValidator.report(node);
+				}
+			},
+		};
+	};
+}
+
+export function createConstructorArgumentTypeValidator({
+	typeName,
+	constructorTypeName,
+	argumentIndex,
+	expectedType,
+}: {
+	typeName: string;
+	constructorTypeName: string;
+	argumentIndex: number;
+	expectedType: string;
+}) {
+	return function create<
+		MessageIds extends string,
+		Options extends readonly unknown[],
+	>(
+		context: RuleContext<MessageIds, Options>,
+		seed: RuleModuleSeed,
+		config: BaselineRuleConfig,
+	) {
+		const sharedValidator = createSharedValidator(
+			typeName,
+			constructorTypeName,
+			context,
+			seed,
+			config,
+		);
+
+		return {
+			NewExpression(node: TSESTree.NewExpression) {
+				if (
+					sharedValidator.isArgumentOfType(
+						node.arguments,
+						argumentIndex,
+						expectedType,
+					) &&
+					(sharedValidator.isGlobalType(node.callee) ||
+						sharedValidator.validateConstructorType(node.callee) ||
+						sharedValidator.validateInstanceType(node))
+				) {
+					sharedValidator.report(node);
+				}
+			},
+
+			"CallExpression[callee.type='Super']"(node: TSESTree.CallExpression) {
+				const classNode = findParentClass(node);
+				if (!classNode?.superClass) {
+					throw new TypeError("invariant: classNode.superClass is null");
+				}
+
+				if (
+					sharedValidator.isArgumentOfType(
+						node.arguments,
+						argumentIndex,
+						expectedType,
+					) &&
+					(sharedValidator.isGlobalType(classNode.superClass) ||
+						sharedValidator.validateConstructorType(classNode.superClass))
+				) {
+					sharedValidator.report(node);
+				}
+			},
+		};
+	};
+}
+
+export function createConstructorArgumentPatternValidator({
+	typeName,
+	constructorTypeName,
+	argumentIndex,
+	pattern,
+}: {
+	typeName: string;
+	constructorTypeName: string;
+	argumentIndex: number;
+	pattern: RegExp | string;
+}) {
+	return function create<
+		MessageIds extends string,
+		Options extends readonly unknown[],
+	>(
+		context: RuleContext<MessageIds, Options>,
+		seed: RuleModuleSeed,
+		config: BaselineRuleConfig,
+	) {
+		const sharedValidator = createSharedValidator(
+			typeName,
+			constructorTypeName,
+			context,
+			seed,
+			config,
+		);
+
+		return {
+			NewExpression(node: TSESTree.NewExpression) {
+				if (
+					sharedValidator.isArgumentMatchPattern(
+						node.arguments,
+						argumentIndex,
+						pattern,
+					) &&
+					(sharedValidator.isGlobalType(node.callee) ||
+						sharedValidator.validateConstructorType(node.callee) ||
+						sharedValidator.validateInstanceType(node))
+				) {
+					sharedValidator.report(node);
+				}
+			},
+
+			"CallExpression[callee.type='Super']"(node: TSESTree.CallExpression) {
+				const classNode = findParentClass(node);
+				if (!classNode?.superClass) {
+					throw new TypeError("invariant: classNode.superClass is null");
+				}
+
+				if (
+					sharedValidator.isArgumentMatchPattern(
+						node.arguments,
+						argumentIndex,
+						pattern,
 					) &&
 					(sharedValidator.isGlobalType(classNode.superClass) ||
 						sharedValidator.validateConstructorType(classNode.superClass))
