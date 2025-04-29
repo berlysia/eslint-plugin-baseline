@@ -512,5 +512,27 @@ export function createSharedValidator<
 		hasTargetProperty,
 		checkNodeType,
 		checkTSType,
+		/**
+		 * コンストラクタ/関数の直接呼び出しをチェック
+		 * @param node 検証するノード (NewExpressionまたはCallExpression)
+		 * @returns 対象の型のコンストラクタ/関数であればtrue
+		 */
+		isTargetConstructor(
+			node: TSESTree.NewExpression | TSESTree.CallExpression,
+		): boolean {
+			// 直接名前で呼び出しをチェック
+			if (
+				node.callee.type === "Identifier" &&
+				(node.callee.name === typeName ||
+					node.callee.name === constructorTypeName)
+			) {
+				return true;
+			}
+
+			// 型情報を使った間接的な呼び出しもチェック
+			return node.callee.type === "Identifier"
+				? isGlobalType(node.callee) || validateConstructorType(node.callee)
+				: validateConstructorType(node.callee);
+		},
 	};
 }
