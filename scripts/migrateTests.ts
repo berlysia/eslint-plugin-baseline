@@ -314,8 +314,7 @@ async function main() {
 			}
 
 			// コードパターンを抽出
-			const { validCodes, validOnlyCodes } =
-				extractCodePatterns(content);
+			const { validCodes, validOnlyCodes } = extractCodePatterns(content);
 
 			if (validCodes.length === 0) {
 				console.log(
@@ -350,13 +349,9 @@ createSimpleRuleTest({
 \tcodes: [
 ${validCodes.map((code) => `\t\t\`${code.replaceAll("`", "\\`")}\``).join(",\n")}
 \t],
-${validOnlyCodes.length > 0 ? `\tvalidOnlyCodes: [\n${validOnlyCodes.map((code) => `\t\t\`${code.replaceAll("`", "\\`")}\``).join(",\n")}\n\t],\n` : ""}${invalidOnlyCodes.length > 0 ? `\tvalidOption: {
+${validOnlyCodes.length > 0 ? `\tvalidOnlyCodes: [\n${validOnlyCodes.map((code) => `\t\t\`${code.replaceAll("`", "\\`")}\``).join(",\n")}\n\t],\n` : ""}\tvalidOption: {
 \t\tasOf: "${options.validOption.asOf}",
 \t\tsupport: "${options.validOption.support}",
-\t},
-\tinvalidOption: {
-\t\tasOf: "${options.invalidOption.asOf}",
-\t\tsupport: "${options.invalidOption.support}",
 \t},
 });`;
 
