@@ -1,7 +1,7 @@
 import { createStaticMethodRule } from "../utils/createObjectMethodRule.ts";
 
 export const { seed, rule } = createStaticMethodRule({
-	objectTypeName: "ArrayConstructor",
+	objectTypeName: "Array",
 	methodName: "isArray",
 	compatKey: "javascript.builtins.Array.isArray",
 	concern: "ArrayConstructor.isArray",

@@ -4,7 +4,14 @@ import type {
 	RuleModule,
 	RuleWithMetaAndName,
 } from "@typescript-eslint/utils/eslint-utils";
-import { defaultConfig } from "../config.ts";
+import type {
+	RuleContext,
+	RuleListener,
+} from "@typescript-eslint/utils/ts-eslint";
+import { computeBaseline } from "compute-baseline";
+import { defaultConfig, ensureConfig } from "../config.ts";
+import type { BaselineRuleConfig } from "../types.ts";
+import checkIsAvailable from "./checkIsAvailable.ts";
 
 export type RuleModuleSeed = {
 	concern: string;
@@ -95,5 +102,41 @@ export function createRule(
 		defaultOptions: [defaultConfig],
 		meta: createMeta(seed),
 		...args,
+	});
+}
+
+export function createRuleV2(
+	seed: RuleModuleSeed,
+	createValidator: <
+		MessageIds extends string,
+		Options extends readonly unknown[],
+	>(
+		context: RuleContext<MessageIds, Options>,
+		seed: RuleModuleSeed,
+		config: BaselineRuleConfig,
+	) => RuleListener,
+) {
+	return privateCreateRule<RuleOptions, MessageIds>({
+		name: seed.concern,
+		defaultOptions: [defaultConfig],
+		meta: createMeta(seed),
+		create(context) {
+			const options = context.options[0] || {};
+			const config: BaselineRuleConfig = ensureConfig(options);
+
+			const baseline = computeBaseline({
+				compatKeys: seed.compatKeys,
+				checkAncestors: true,
+			});
+
+			// 設定に基づいて利用可能かどうかを判定
+			const isAvailable = checkIsAvailable(config, baseline);
+
+			if (isAvailable) {
+				return {};
+			}
+
+			return createValidator(context, seed, config);
+		},
 	});
 }
