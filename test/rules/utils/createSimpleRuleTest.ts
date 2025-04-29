@@ -28,10 +28,16 @@ export default function createSimpleRuleTest(option: {
 	});
 
 	tester.run(option.seed.concern, option.rule, {
-		valid: [...option.codes, ...(option.validOnlyCodes ?? [])].map((code) => ({
-			options: [option.validOption],
-			code,
-		})),
+		valid: [
+			...option.codes.map((code) => ({
+				options: [option.validOption] as const,
+				code,
+			})),
+			...(option.validOnlyCodes ?? []).map((code) => ({
+				options: [option.invalidOption] as const,
+				code,
+			})),
+		],
 		invalid: [...option.codes, ...(option.invalidOnlyCodes ?? [])].map(
 			(code) => ({
 				options: [option.invalidOption],

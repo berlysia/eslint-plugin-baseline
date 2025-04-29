@@ -42,7 +42,6 @@ function extractCodePatterns(content: string) {
 	// 正規表現を複数用意して、様々なパターンに対応する
 	const validCodes = new Set<string>(); // 重複を排除するためにSetを使用
 	const validOnlyCodes = new Set<string>(); // validOnly用のコードパターン
-	const invalidOnlyCodes = new Set<string>(); // invalidOnly用のコードパターン
 
 	// パターン1: validブロック内のコードを抽出
 	const validBlockRegex = /valid:\s*\[\s*{([\S\s]*?)}\s*]/g;
@@ -113,9 +112,7 @@ function extractCodePatterns(content: string) {
 					return invalidBlockStart > validBlockStart;
 				})();
 
-				if (isInInvalidBlock) {
-					invalidOnlyCodes.add(code);
-				} else {
+				if (!isInInvalidBlock) {
 					validOnlyCodes.add(code);
 				}
 			} else {
@@ -134,31 +131,11 @@ function extractCodePatterns(content: string) {
 		const codeRegex =
 			/code:\s*["'`]([^]*?)["'`](?=,\s*(?:options|output|errors|only|skip):|,\s*}|}\s*[,\]])/g;
 		const codes = [...blockContent.matchAll(codeRegex)];
-
-		for (const codeMatch of codes) {
-			const code = codeMatch[1]
-				.trim()
-				.replaceAll(String.raw`\"`, '"')
-				.replaceAll(String.raw`\'`, "'")
-				.replaceAll(String.raw`\n`, "\n");
-
-			// コードが有効なJavaScriptに見えるかをチェック
-			if (
-				isValidCode(code) && // onlyフラグがある場合はinvalidOnlyにする
-				(blockContent.includes("only: true") ||
-					blockContent.includes('"only": true') ||
-					blockContent.includes("'only': true"))
-			) {
-				invalidOnlyCodes.add(code);
-			}
-			// invalidOnly指定がなければ何もしない（通常のケースはすでに有効コードとして処理済み）
-		}
 	}
 
 	return {
 		validCodes: [...validCodes], // Setを配列に変換して返す
 		validOnlyCodes: [...validOnlyCodes],
-		invalidOnlyCodes: [...invalidOnlyCodes],
 	};
 }
 
@@ -337,7 +314,7 @@ async function main() {
 			}
 
 			// コードパターンを抽出
-			const { validCodes, validOnlyCodes, invalidOnlyCodes } =
+			const { validCodes, validOnlyCodes } =
 				extractCodePatterns(content);
 
 			if (validCodes.length === 0) {
@@ -373,7 +350,7 @@ createSimpleRuleTest({
 \tcodes: [
 ${validCodes.map((code) => `\t\t\`${code.replaceAll("`", "\\`")}\``).join(",\n")}
 \t],
-${validOnlyCodes.length > 0 ? `\tvalidOnlyCodes: [\n${validOnlyCodes.map((code) => `\t\t\`${code.replaceAll("`", "\\`")}\``).join(",\n")}\n\t],\n` : ""}${invalidOnlyCodes.length > 0 ? `\tinvalidOnlyCodes: [\n${invalidOnlyCodes.map((code) => `\t\t\`${code.replaceAll("`", "\\`")}\``).join(",\n")}\n\t],\n` : ""}\tvalidOption: {
+${validOnlyCodes.length > 0 ? `\tvalidOnlyCodes: [\n${validOnlyCodes.map((code) => `\t\t\`${code.replaceAll("`", "\\`")}\``).join(",\n")}\n\t],\n` : ""}${invalidOnlyCodes.length > 0 ? `\tvalidOption: {
 \t\tasOf: "${options.validOption.asOf}",
 \t\tsupport: "${options.validOption.support}",
 \t},
@@ -388,9 +365,6 @@ ${validOnlyCodes.length > 0 ? `\tvalidOnlyCodes: [\n${validOnlyCodes.map((code) 
 			console.log(`  通常コード数: ${validCodes.length}`);
 			if (validOnlyCodes.length > 0) {
 				console.log(`  有効のみコード数: ${validOnlyCodes.length}`);
-			}
-			if (invalidOnlyCodes.length > 0) {
-				console.log(`  無効のみコード数: ${invalidOnlyCodes.length}`);
 			}
 			console.log(
 				`  validOption: asOf=${options.validOption.asOf}, support=${options.validOption.support}`,
