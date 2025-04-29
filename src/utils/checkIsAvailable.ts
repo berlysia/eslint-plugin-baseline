@@ -15,5 +15,5 @@ export default function checkIsAvailable(
 				? featureSupport.baseline_high_date
 				: featureSupport.baseline_low_date,
 		);
-	return isAvailable;
+	return Boolean(isAvailable);
 }
