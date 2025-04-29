@@ -1,4 +1,4 @@
-import { createConstructorArgumentPropertyRule } from "../utils/ArgumentPropertyRuleConfig.ts";
+import { createConstructorArgumentPropertyRule } from "../utils/rules/ArgumentPropertyRuleConfig.ts";
 
 const { seed, rule } = createConstructorArgumentPropertyRule({
 	compatKey: "javascript.builtins.ArrayBuffer.ArrayBuffer.maxByteLength_option",

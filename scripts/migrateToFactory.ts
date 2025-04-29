@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { glob } from "glob";
-import { METHOD_TYPE } from "../src/utils/createObjectMethodRule.ts";
-import type { MethodType } from "../src/utils/createObjectMethodRule.ts";
+import { METHOD_TYPE } from "../src/utils/ruleFactories/createMethodExistenceRule.ts";
+import type { MethodType } from "../src/utils/ruleFactories/createMethodExistenceRule.ts";
 
 const RULES_DIR = path.join(process.cwd(), "src/rules");
 
@@ -132,9 +132,9 @@ function determineObjectType(rulePath: string, methodType: MethodType) {
 function getFactoryFunctionName(methodType: MethodType): string | null {
 	// 型別ファクトリ関数を削除し、一般的なファクトリ関数に置き換え
 	if (methodType === METHOD_TYPE.Instance) {
-		return "createInstanceMethodRule";
+		return "createInstanceMethodExistenceRule";
 	}
-	return "createStaticMethodRule";
+	return "createStaticMethodExistenceRule";
 }
 
 /**

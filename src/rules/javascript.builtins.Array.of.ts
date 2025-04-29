@@ -1,6 +1,6 @@
-import { createStaticMethodRule } from "../utils/createObjectMethodRule.ts";
+import { createStaticMethodExistenceRule } from "../utils/ruleFactories/createMethodExistenceRule.ts";
 
-export const { seed, rule } = createStaticMethodRule({
+export const { seed, rule } = createStaticMethodExistenceRule({
 	objectTypeName: "Array",
 	methodName: "of",
 	compatKey: "javascript.builtins.Array.of",

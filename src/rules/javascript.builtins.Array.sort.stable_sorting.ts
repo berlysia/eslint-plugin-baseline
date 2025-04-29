@@ -1,4 +1,4 @@
-import { createNoopRule } from "../utils/createObjectMethodRule.ts";
+import { createNoopRule } from "../utils/ruleFactories/createNoopRule.ts";
 
 export const { seed, rule } = createNoopRule({
 	objectTypeName: "Array",

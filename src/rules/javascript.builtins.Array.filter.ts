@@ -1,6 +1,6 @@
-import { createInstanceMethodRule } from "../utils/createObjectMethodRule.ts";
+import { createInstanceMethodExistenceRule } from "../utils/ruleFactories/createMethodExistenceRule.ts";
 
-export const { seed, rule } = createInstanceMethodRule({
+export const { seed, rule } = createInstanceMethodExistenceRule({
 	objectTypeName: "Array",
 	methodName: "filter",
 	compatKey: "javascript.builtins.Array.filter",

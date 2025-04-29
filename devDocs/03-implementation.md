@@ -78,7 +78,7 @@
 ### 4. 実装上の制約
 
 - seedPathのファイルへの参照をルール内に持つことは禁止
-- `createInstanceMethodRule` や `createStaticMethodRule` の引数は変更禁止
+- `createInstanceMethodExistenceRule` や `createStaticMethodExistenceRule` の引数は変更禁止
 - 特定のテストケースのシンボル名やコードに直接依存した実装は禁止
   - それぞれのテストケースが示す代表的な例から、真にマッチすべきASTのパターンや、プローブとすべき型の判定を使い、ルールを実装しなければならない
 - エラー処理目的での広範囲にわたるtry-catchの利用は禁止

@@ -1,8 +1,8 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { METHOD_TYPE } from "../../src/utils/createObjectMethodRule.ts";
-import type { MethodType } from "../../src/utils/createObjectMethodRule.ts";
+import { METHOD_TYPE } from "../../src/utils/ruleFactories/createMethodExistenceRule.ts";
+import type { MethodType } from "../../src/utils/ruleFactories/createMethodExistenceRule.ts";
 import parseYYYYMMDD from "../../src/utils/parseYYYYMMDD.ts";
 import { transformRuleName } from "./utils.ts";
 
@@ -76,9 +76,9 @@ function parseRuleName(ruleName: string) {
 function getFactoryFunctionName(methodType: MethodType): string | null {
 	// 型別ファクトリ関数を削除し、一般的なファクトリ関数に置き換え
 	if (methodType === METHOD_TYPE.Instance) {
-		return "createInstanceMethodRule";
+		return "createInstanceMethodExistenceRule";
 	}
-	return "createStaticMethodRule";
+	return "createStaticMethodExistenceRule";
 }
 
 /**
