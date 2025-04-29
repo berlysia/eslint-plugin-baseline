@@ -52,6 +52,7 @@ import js$javascript$builtins$Array$values from "./javascript.builtins.Array.val
 import js$javascript$builtins$Array$with from "./javascript.builtins.Array.with.ts";
 import js$javascript$builtins$ArrayBuffer$symbolSpecies from "./javascript.builtins.ArrayBuffer.symbolSpecies.ts";
 import js$javascript$builtins$ArrayBuffer$ArrayBuffer from "./javascript.builtins.ArrayBuffer.ArrayBuffer.ts";
+import js$javascript$builtins$ArrayBuffer$ArrayBuffer$maxByteLength_option from "./javascript.builtins.ArrayBuffer.ArrayBuffer.maxByteLength_option.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -111,6 +112,7 @@ const rules = {
 	"javascript.builtins.Array.with": js$javascript$builtins$Array$with,
 	"javascript.builtins.ArrayBuffer.@@species": js$javascript$builtins$ArrayBuffer$symbolSpecies,
 	"javascript.builtins.ArrayBuffer.ArrayBuffer": js$javascript$builtins$ArrayBuffer$ArrayBuffer,
+	"javascript.builtins.ArrayBuffer.ArrayBuffer.maxByteLength_option": js$javascript$builtins$ArrayBuffer$ArrayBuffer$maxByteLength_option,
 };
 
 export default rules;
