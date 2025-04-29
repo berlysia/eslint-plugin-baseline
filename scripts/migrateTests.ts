@@ -121,18 +121,6 @@ function extractCodePatterns(content: string) {
 		}
 	}
 
-	// パターン3: invalidOnlyのケースを探す（invalidブロック内で特別にマークされたもの）
-	const invalidBlockRegex = /invalid:\s*\[\s*{([\S\s]*?)}\s*]/g;
-	const invalidBlocks = [...content.matchAll(invalidBlockRegex)];
-
-	for (const block of invalidBlocks) {
-		const blockContent = block[1];
-		// 各ブロック内でcode: '...' パターンを探す
-		const codeRegex =
-			/code:\s*["'`]([^]*?)["'`](?=,\s*(?:options|output|errors|only|skip):|,\s*}|}\s*[,\]])/g;
-		const codes = [...blockContent.matchAll(codeRegex)];
-	}
-
 	return {
 		validCodes: [...validCodes], // Setを配列に変換して返す
 		validOnlyCodes: [...validOnlyCodes],
