@@ -42,8 +42,9 @@ async function main() {
 	// バリデータファイルの検索
 	const validatorFiles = await simpleGlob("src/utils/validators/*.ts");
 
-	// 結果を格納するオブジェクト
-	const validators: Record<
+	// 既存のvalidators.jsonを読み込む
+	const outputPath = path.join(rootDir, "scripts/tools/validators.json");
+	let existingValidators: Record<
 		string,
 		{
 			file: string;
@@ -51,6 +52,17 @@ async function main() {
 			description: string;
 		}
 	> = {};
+
+	try {
+		const existingContent = await fsp.readFile(outputPath, "utf8");
+		existingValidators = JSON.parse(existingContent);
+		console.log(`既存のvalidators.jsonから${Object.keys(existingValidators).length}個のバリデータを読み込みました`);
+	} catch (error) {
+		console.log("既存のvalidators.jsonが見つからないか、解析できませんでした。新しく作成します。");
+	}
+
+	// 結果を格納するオブジェクト（既存のものをベースに）
+	const validators = { ...existingValidators };
 
 	// 各ファイルからエクスポートされた関数を抽出
 	for (const file of validatorFiles) {
@@ -67,28 +79,35 @@ async function main() {
 			const fileName = path.basename(file);
 			const importPath = `../utils/validators/${fileName}`;
 
-			// バリデータタイプと対象の推測
-			let description: string;
-
-			if (fn.includes("Constructor")) {
-				description = "コンストラクタの使用を検証するバリデータ";
-			} else if (fn.includes("Static") && fn.includes("Method")) {
-				description = "静的メソッドの使用を検証するバリデータ";
-			} else if (fn.includes("Instance") && fn.includes("Method")) {
-				description = "インスタンスメソッドの使用を検証するバリデータ";
-			} else if (fn.includes("Static") && fn.includes("Property")) {
-				description = "静的プロパティの使用を検証するバリデータ";
-			} else if (fn.includes("Instance") && fn.includes("Property")) {
-				description = "インスタンスプロパティの使用を検証するバリデータ";
+			// 既存のエントリーを確認
+			if (validators[fn]) {
+				// ファイルパスだけ更新（説明文は保持）
+				validators[fn].file = fileName;
+				validators[fn].path = importPath;
 			} else {
-				description = "検証バリデータ";
-			}
+				// 新規エントリの場合はデフォルトの説明文を設定
+				let description: string;
 
-			validators[fn] = {
-				file: fileName,
-				path: importPath,
-				description,
-			};
+				if (fn.includes("Constructor")) {
+					description = "コンストラクタの使用を検証するバリデータ";
+				} else if (fn.includes("Static") && fn.includes("Method")) {
+					description = "静的メソッドの使用を検証するバリデータ";
+				} else if (fn.includes("Instance") && fn.includes("Method")) {
+					description = "インスタンスメソッドの使用を検証するバリデータ";
+				} else if (fn.includes("Static") && fn.includes("Property")) {
+					description = "静的プロパティの使用を検証するバリデータ";
+				} else if (fn.includes("Instance") && fn.includes("Property")) {
+					description = "インスタンスプロパティの使用を検証するバリデータ";
+				} else {
+					description = "検証バリデータ";
+				}
+
+				validators[fn] = {
+					file: fileName,
+					path: importPath,
+					description,
+				};
+			}
 		}
 	}
 
@@ -120,11 +139,34 @@ async function main() {
 		console.log(`| ${key} | ${description} | ${file} |`);
 	}
 
+	// 消えたバリデータがないかチェック
+	const currentValidatorFunctions = new Set<string>();
+	for (const file of validatorFiles) {
+		const functions = await extractExportedFunctions(file);
+		for (const fn of functions) {
+			if (fn.match(/^create.*Validator$/)) {
+				currentValidatorFunctions.add(fn);
+			}
+		}
+	}
+
+	// コードベースに存在しないバリデータを削除
+	const toBeRemoved: string[] = [];
+	for (const validatorName of Object.keys(validators)) {
+		if (!currentValidatorFunctions.has(validatorName)) {
+			console.log(`${validatorName} はコードベースに存在しないため削除します`);
+			toBeRemoved.push(validatorName);
+		}
+	}
+	
+	for (const validatorName of toBeRemoved) {
+		delete validators[validatorName];
+	}
+
 	// JSONとして出力
-	const outputPath = path.join(rootDir, "scripts/tools/validators.json");
 	await fsp.writeFile(outputPath, JSON.stringify(validators, null, 2));
 
-	console.log(`\nバリデータ情報を ${outputPath} に保存しました`);
+	console.log(`\nバリデータ情報を ${outputPath} に保存しました。${Object.keys(validators).length}個のバリデータが登録されています。`);
 }
 
 await main();
