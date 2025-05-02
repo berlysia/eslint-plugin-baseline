@@ -139,7 +139,6 @@ export class RuleScaffoldGenerator {
 
 		// パース結果に基づいてプロパティタイプ（Static/Instance）を取得
 		// 明示的に指定されたバリデータがある場合はそれを優先、なければruleName解析結果を使用
-		const propertyAccessType = methodType; // detectPropertyTypeの結果から取得したメソッドタイプ
 
 		if (validatorName) {
 			// 明示的に指定されたバリデータを使用
@@ -162,12 +161,10 @@ export class RuleScaffoldGenerator {
 				: "Property";
 			// 重要: ここでpropertyAccessTypeを使用して適切なバリデータを選択
 			const validatorType =
-				propertyAccessType === PROPERTY_ACCESS_TYPE.Static
-					? "Static"
-					: "Instance";
+				methodType === PROPERTY_ACCESS_TYPE.Static ? "Static" : "Instance";
 
 			console.log(
-				`プロパティタイプ: ${validatorType}${isMethodOrProperty}, ${propertyAccessType}`,
+				`プロパティタイプ: ${validatorType}${isMethodOrProperty}, ${methodType}`,
 			);
 
 			selectedValidatorName = `create${validatorType}${isMethodOrProperty}Validator`;
