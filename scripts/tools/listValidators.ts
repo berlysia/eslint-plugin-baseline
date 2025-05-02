@@ -54,11 +54,15 @@ async function main() {
 	> = {};
 
 	try {
-		const existingContent = await fsp.readFile(outputPath, "utf8");
-		existingValidators = JSON.parse(existingContent);
-		console.log(`既存のvalidators.jsonから${Object.keys(existingValidators).length}個のバリデータを読み込みました`);
-	} catch (error) {
-		console.log("既存のvalidators.jsonが見つからないか、解析できませんでした。新しく作成します。");
+		const existingContent = await fsp.readFile(outputPath);
+		existingValidators = JSON.parse(existingContent as unknown as string);
+		console.log(
+			`既存のvalidators.jsonから${Object.keys(existingValidators).length}個のバリデータを読み込みました`,
+		);
+	} catch {
+		console.log(
+			"既存のvalidators.jsonが見つからないか、解析できませんでした。新しく作成します。",
+		);
 	}
 
 	// 結果を格納するオブジェクト（既存のものをベースに）
@@ -144,7 +148,7 @@ async function main() {
 	for (const file of validatorFiles) {
 		const functions = await extractExportedFunctions(file);
 		for (const fn of functions) {
-			if (fn.match(/^create.*Validator$/)) {
+			if (/^create.*Validator$/.test(fn)) {
 				currentValidatorFunctions.add(fn);
 			}
 		}
@@ -158,7 +162,7 @@ async function main() {
 			toBeRemoved.push(validatorName);
 		}
 	}
-	
+
 	for (const validatorName of toBeRemoved) {
 		delete validators[validatorName];
 	}
@@ -166,7 +170,9 @@ async function main() {
 	// JSONとして出力
 	await fsp.writeFile(outputPath, JSON.stringify(validators, null, 2));
 
-	console.log(`\nバリデータ情報を ${outputPath} に保存しました。${Object.keys(validators).length}個のバリデータが登録されています。`);
+	console.log(
+		`\nバリデータ情報を ${outputPath} に保存しました。${Object.keys(validators).length}個のバリデータが登録されています。`,
+	);
 }
 
 await main();
