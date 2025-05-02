@@ -92,7 +92,7 @@ npm run agent:rules:next
 ### ルールの雛形生成
 
 ```bash
-npm run agent:rules:scaffold -- --ruleName "Array.prototype.at" --methodKind "instance"
+npm run agent:rules:scaffold -- --ruleName "Array.prototype.at"
 ```
 
 このコマンドは、指定されたルール名で新しいルールの雛形を生成します。
@@ -100,7 +100,6 @@ npm run agent:rules:scaffold -- --ruleName "Array.prototype.at" --methodKind "in
 #### オプション
 
 - `--ruleName "<ルール名>"` - 実装するルール名を指定します
-- `--methodKind <instance|static>` - メソッドの種類を指定します
   - `instance`: インスタンスメソッド（例: `Array.prototype.at`）
   - `static`: 静的メソッド（例: `Array.of`）
 

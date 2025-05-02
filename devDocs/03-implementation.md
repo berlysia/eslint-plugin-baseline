@@ -173,11 +173,11 @@
 
 ```json
 {
-  "javascript.builtins.ArrayBuffer.detached": {
-    "propertyType": "instance",
-    "concern": "ArrayBuffer.prototype.detached",
-    "notes": "ruleName内に'prototype'がなくてもインスタンスプロパティ"
-  }
+	"javascript.builtins.ArrayBuffer.detached": {
+		"propertyType": "instance",
+		"concern": "ArrayBuffer.prototype.detached",
+		"notes": "ruleName内に'prototype'がなくてもインスタンスプロパティ"
+	}
 }
 ```
 
@@ -186,6 +186,7 @@
 MDN URLと仕様URLのパターンを分析してプロパティタイプを推論します：
 
 - MDN URLの例：
+
   - `/prototype/` が含まれる場合 → インスタンスプロパティ/メソッド
   - `/constructor/` が含まれる場合 → 静的プロパティ/メソッド
 
@@ -205,6 +206,7 @@ node scripts/tools/analyzeUrlForPropertyType.ts --mdnUrl <MDN URL> --specUrl <SP
 内容解析では以下のパターンを検出します：
 
 - MDN文書内の特徴的なテキスト：
+
   - 「instance property」「prototype method」→ インスタンスプロパティ/メソッド
   - 「static property」「class method」→ 静的プロパティ/メソッド
   - 構文例に `prototype` または `new` がある → インスタンスプロパティ/メソッド
@@ -260,12 +262,12 @@ node scripts/tools/analyzeUrlForPropertyType.ts --mdnUrl <MDN URL> --specUrl <SP
 - `npm run agent:rules:scaffold` - 指定されたルール名で新しいルールの雛形を生成
 
   - `--ruleName "<ルール名>"` ルール名を指定
-  - `--methodKind <instance|static>` メソッドの種類を指定
   - 生成されるファイル:
     - `src/rules/<ルール名>.ts`: ルールの実装
     - `test/rules/<ルール名>.test.ts`: テストファイル
 
 - `npm run agent:rules:add <compatKey>` - src/rules/index.tsにルールを登録
+
   - これにより、ルールのインポートと登録が自動的に行われます
 
 - `node scripts/tools/analyzeUrlForPropertyType.ts` - URLからプロパティタイプを判定

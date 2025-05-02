@@ -67,10 +67,10 @@ export default [
 npm run agent:rules:next
 
 # 静的メソッド/プロパティのルールスカフォールドを生成
-npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.fromAsync --methodKind static
+npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.fromAsync
 
 # インスタンスメソッド/プロパティのルールスカフォールドを生成
-npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.at --methodKind instance
+npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.at
 
 # ルールをインデックスファイルに追加
 npm run agent:rules:add javascript.builtins.Array.fromAsync
