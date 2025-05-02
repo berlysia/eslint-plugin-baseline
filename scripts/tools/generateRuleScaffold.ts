@@ -70,16 +70,7 @@ function parseRuleName(ruleName: string) {
 	};
 }
 
-/**
- * 適切なファクトリ関数名を取得
- */
-function getFactoryFunctionName(methodType: PropertyAccessType): string | null {
-	// 型別ファクトリ関数を削除し、一般的なファクトリ関数に置き換え
-	if (methodType === PROPERTY_ACCESS_TYPE.Instance) {
-		return "createInstanceMethodExistenceRule";
-	}
-	return "createStaticMethodExistenceRule";
-}
+// この関数は新しい実装では不要なので削除
 
 /**
  * オブジェクトメソッドのルールのコード生成（インスタンス/スタティックを区別した版）
@@ -90,27 +81,36 @@ const generateMethodRuleCode = (ruleName: string, seed: any) => {
 		return null;
 	}
 
-	const { objectType, methodName, methodType } = parsedInfo;
-
-	// 対応するファクトリ関数を選択
-	const factoryFunction = getFactoryFunctionName(methodKind);
-	if (!factoryFunction) {
-		throw new Error(`No factory function found for method type: ${methodKind}`);
+	const { objectType, methodName, methodType } = parsedInfo || { objectType: "", methodName: "", methodType: PROPERTY_ACCESS_TYPE.Static };
+	if (!objectType || !methodName) {
+		return null;
 	}
 
-	return `
-import { ${factoryFunction} } from "../utils/createObjectMethodRule.ts";
+	// 判定方法によってインポート先を変える
+	const isMethodOrProperty = methodName.includes("(") ? "Method" : "Property";
+	const validatorType = methodKind === PROPERTY_ACCESS_TYPE.Static ? "Static" : "Instance";
+	const validatorName = `create${validatorType}${isMethodOrProperty}Validator`;
+	
+	return `import { createRuleV2, createSeed } from "../utils/ruleFactory.ts";
+import { ${validatorName} } from "../utils/validators/create${validatorType}${isMethodOrProperty}Validator.ts";
 
-export const { seed, rule } = ${factoryFunction}({
-  objectTypeName: "${objectType}",
-  methodName: ${JSON.stringify(methodName)},
-  compatKey: "${parsedInfo.compatKey}",
+export const seed = createSeed({
   concern: "${objectType}${methodType === PROPERTY_ACCESS_TYPE.Instance ? ".prototype" : ""}.${methodName}",
-  mdnUrl: ${JSON.stringify(seed.mdn_url)},
-  specUrl: ${JSON.stringify(seed.bcd.spec_url)},
+  compatKeys: ["${parsedInfo.compatKey}"],
+  mdnUrl: ${JSON.stringify(seed.bcd?.mdn_url)},
+  specUrl: ${JSON.stringify(seed.bcd?.spec_url)},
   newlyAvailableAt: ${JSON.stringify(seed.baseline.baseline_low_date)},
   widelyAvailableAt: ${JSON.stringify(seed.baseline.baseline_high_date)},
 });
+
+const rule = createRuleV2(
+  seed,
+  ${validatorName}({
+    typeName: "${objectType}",
+    constructorTypeName: "${objectType}Constructor",
+    ${isMethodOrProperty === "Method" ? "methodName" : "propertyName"}: ${JSON.stringify(methodName)},
+  }),
+);
 
 export default rule;
 `;
@@ -284,14 +284,53 @@ function generateTestTemplate(ruleName: string, seed: any) {
 		return null;
 	}
 
-	// objectTypeName: "${objectType}",
-	// methodName: ${JSON.stringify(methodName)},
-	// compatKey: "${parsedInfo.compatKey}",
-	// concern: "${objectType}${methodType === METHOD_TYPE.Instance ? ".prototype" : ""}.${methodName}",
-	// mdnUrl: ${JSON.stringify(seed.mdn_url)},
-	// specUrl: ${JSON.stringify(seed.bcd.spec_url)},
-	// newlyAvailableAt: ${JSON.stringify(seed.baseline.baseline_low_date)},
-	// widelyAvailableAt: ${JSON.stringify(seed.baseline.baseline_high_date)},
+	const { objectType, methodName } = parsedInfo || { objectType: "", methodName: "" };
+	if (!objectType || !methodName) {
+		return null;
+	}
+	const isProperty = !methodName.includes("(");
+	let testCases = "";
+
+	// StaticPropertyの場合のサンプルコードを生成
+	if (methodKind === PROPERTY_ACCESS_TYPE.Static && isProperty) {
+		testCases = `
+    // 基本的な静的プロパティアクセス
+    "${objectType}.${methodName};",
+    // 計算プロパティによるアクセス
+    "${objectType}['${methodName}'];",
+    // 変数経由のアクセス
+    "const obj = ${objectType}; obj.${methodName};",`;
+	}
+	// StaticMethodの場合のサンプルコードを生成
+	else if (methodKind === PROPERTY_ACCESS_TYPE.Static && !isProperty) {
+		testCases = `
+    // 基本的な静的メソッド呼び出し
+    "${objectType}.${methodName.replace("()", "")}();",
+    // 引数ありのメソッド呼び出し
+    "${objectType}.${methodName.replace("()", "")}(1, 2);",
+    // 変数経由の呼び出し
+    "const cls = ${objectType}; cls.${methodName.replace("()", "")}();",`;
+	}
+	// InstancePropertyの場合のサンプルコードを生成
+	else if (methodKind === PROPERTY_ACCESS_TYPE.Instance && isProperty) {
+		testCases = `
+    // 基本的なインスタンスプロパティアクセス
+    "new ${objectType}().${methodName};",
+    // 計算プロパティによるアクセス
+    "new ${objectType}()['${methodName}'];",
+    // 変数経由のアクセス
+    "const obj = new ${objectType}(); obj.${methodName};",`;
+	}
+	// InstanceMethodの場合のサンプルコードを生成
+	else if (methodKind === PROPERTY_ACCESS_TYPE.Instance && !isProperty) {
+		testCases = `
+    // 基本的なインスタンスメソッド呼び出し
+    "new ${objectType}().${methodName.replace("()", "")}();",
+    // 引数ありのメソッド呼び出し
+    "new ${objectType}().${methodName.replace("()", "")}(1, 2);",
+    // 変数経由の呼び出し
+    "const obj = new ${objectType}(); obj.${methodName.replace("()", "")}();",`;
+	}
 
 	const isWidelyAvailable = seed.baseline.baseline_high_date !== null;
 	const baseDate = parseYYYYMMDD(
@@ -302,16 +341,17 @@ function generateTestTemplate(ruleName: string, seed: any) {
 	const validDate = baseDate.nextDay().toString();
 	const invalidDate = baseDate.prevDay().toString();
 
-	return `
-import rule, {
-  seed,
-} from "../../src/rules/${parsedInfo.compatKey}.ts";
+	// transformedRuleNameを使用してインポートを正しく行う
+	const importPath = transformRuleName(ruleName);
+
+	return `import "./utils/init.ts";
+import rule, { seed } from "../../src/rules/${importPath}.ts";
 import createSimpleRuleTest from "./utils/createSimpleRuleTest.ts";
 
 createSimpleRuleTest({
   rule,
   seed,
-  codes: [
+  codes: [${testCases}
   ],
   validOption: {
     asOf: "${validDate}",
