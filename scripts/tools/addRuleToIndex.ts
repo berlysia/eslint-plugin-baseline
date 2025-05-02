@@ -85,11 +85,28 @@ async function addRuleToIndex(compatKey: string) {
 			},
 		);
 
-		// ルールエントリを追加（最後のルールの後に）
-		updatedContent = updatedContent.replace(
-			/(\t".+": .+,)\n(};)/,
-			`$1\n${ruleEntry}$2`,
-		);
+		// マーカーコメントを使用してルールエントリを追加
+		const markerComment = "/* add new rules here */";
+
+		if (updatedContent.includes(markerComment)) {
+			// マーカーコメントを見つけた場合、その前にルールを挿入
+			updatedContent = updatedContent.replace(
+				markerComment,
+				`${ruleEntry}\t${markerComment}`,
+			);
+			console.log(
+				`マーカーコメントを使用してルール "${compatKey}" を追加しました。`,
+			);
+		} else {
+			// マーカーコメントが見つからない場合のフォールバック処理
+			console.warn(
+				`警告: マーカーコメント "${markerComment}" が見つかりませんでした。フォールバック方式で追加します。`,
+			);
+			updatedContent = updatedContent.replace(
+				/(\t".+": .+,)\n(};)/,
+				`$1\n${ruleEntry}$2`,
+			);
+		}
 
 		// ファイルを更新
 		await fs.writeFile(indexPath, updatedContent, "utf8");

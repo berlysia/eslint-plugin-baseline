@@ -124,6 +124,7 @@ const rules = {
 		js$javascript$builtins$ArrayBuffer$byteLength,
 	"javascript.builtins.ArrayBuffer.detached":
 		js$javascript$builtins$ArrayBuffer$detached,
+	/* add new rules here */
 };
 
 export default rules;
