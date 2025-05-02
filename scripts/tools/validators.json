@@ -2,91 +2,91 @@
 	"createConstructorArgumentPropertyValidator": {
 		"file": "createConstructorValidator.ts",
 		"path": "../utils/validators/createConstructorValidator.ts",
-		"description": "コンストラクタの使用を検証するバリデータ"
+		"description": "コンストラクタ引数のプロパティ値を検証するバリデータ（例: new X({ prop: value }）"
 	},
 	"createConstructorArgumentExistsValidator": {
 		"file": "createConstructorValidator.ts",
 		"path": "../utils/validators/createConstructorValidator.ts",
-		"description": "コンストラクタの使用を検証するバリデータ"
+		"description": "特定のコンストラクタ引数が存在するかを検証するバリデータ"
 	},
 	"createConstructorArgumentTypeValidator": {
 		"file": "createConstructorValidator.ts",
 		"path": "../utils/validators/createConstructorValidator.ts",
-		"description": "コンストラクタの使用を検証するバリデータ"
+		"description": "コンストラクタ引数の型を検証するバリデータ"
 	},
 	"createConstructorArgumentPatternValidator": {
 		"file": "createConstructorValidator.ts",
 		"path": "../utils/validators/createConstructorValidator.ts",
-		"description": "コンストラクタの使用を検証するバリデータ"
+		"description": "コンストラクタ引数が特定のパターンに一致するか検証するバリデータ"
 	},
 	"createConstructorUsageValidator": {
 		"file": "createConstructorValidator.ts",
 		"path": "../utils/validators/createConstructorValidator.ts",
-		"description": "コンストラクタの使用を検証するバリデータ"
+		"description": "コンストラクタの基本的な使用を検証するバリデータ（例: new X()）"
 	},
 	"createInstanceMethodArgumentPropertyValidator": {
 		"file": "createInstanceMethodValidator.ts",
 		"path": "../utils/validators/createInstanceMethodValidator.ts",
-		"description": "インスタンスメソッドの使用を検証するバリデータ"
+		"description": "インスタンスメソッド引数のプロパティ値を検証するバリデータ（例: obj.method({ prop: value })）"
 	},
 	"createInstanceMethodArgumentTypeValidator": {
 		"file": "createInstanceMethodValidator.ts",
 		"path": "../utils/validators/createInstanceMethodValidator.ts",
-		"description": "インスタンスメソッドの使用を検証するバリデータ"
+		"description": "インスタンスメソッド引数の型を検証するバリデータ"
 	},
 	"createInstanceMethodArgumentPatternValidator": {
 		"file": "createInstanceMethodValidator.ts",
 		"path": "../utils/validators/createInstanceMethodValidator.ts",
-		"description": "インスタンスメソッドの使用を検証するバリデータ"
+		"description": "インスタンスメソッド引数が特定のパターンに一致するか検証するバリデータ"
 	},
 	"createInstanceMethodValidator": {
 		"file": "createInstanceMethodValidator.ts",
 		"path": "../utils/validators/createInstanceMethodValidator.ts",
-		"description": "インスタンスメソッドの使用を検証するバリデータ"
+		"description": "インスタンスメソッドの基本的な使用を検証するバリデータ（例: obj.method()）"
 	},
 	"createInstancePropertyValidator": {
 		"file": "createPropertyValidator.ts",
 		"path": "../utils/validators/createPropertyValidator.ts",
-		"description": "インスタンスプロパティの使用を検証するバリデータ"
+		"description": "インスタンスプロパティのアクセスを検証するバリデータ（例: obj.prop, obj['prop']）"
 	},
 	"createInstanceMethodArgumentExistsValidator": {
 		"file": "createInstanceMethodValidator.ts",
 		"path": "../utils/validators/createInstanceMethodValidator.ts",
-		"description": "インスタンスメソッドの使用を検証するバリデータ"
+		"description": "特定のインスタンスメソッド引数が存在するかを検証するバリデータ"
 	},
 	"createStaticPropertyValidator": {
 		"file": "createPropertyValidator.ts",
 		"path": "../utils/validators/createPropertyValidator.ts",
-		"description": "静的プロパティの使用を検証するバリデータ"
+		"description": "静的プロパティのアクセスを検証するバリデータ（例: Class.prop, Class['prop']）"
 	},
 	"createStaticMethodValidator": {
 		"file": "createStaticMethodValidator.ts",
 		"path": "../utils/validators/createStaticMethodValidator.ts",
-		"description": "静的メソッドの使用を検証するバリデータ"
+		"description": "静的メソッドの基本的な使用を検証するバリデータ（例: Class.method()）"
 	},
 	"createStaticMethodArgumentPropertyValidator": {
 		"file": "createStaticMethodValidator.ts",
 		"path": "../utils/validators/createStaticMethodValidator.ts",
-		"description": "静的メソッドの使用を検証するバリデータ"
+		"description": "静的メソッド引数のプロパティ値を検証するバリデータ（例: Class.method({ prop: value })）"
 	},
 	"createStaticMethodArgumentTypeValidator": {
 		"file": "createStaticMethodValidator.ts",
 		"path": "../utils/validators/createStaticMethodValidator.ts",
-		"description": "静的メソッドの使用を検証するバリデータ"
+		"description": "静的メソッド引数の型を検証するバリデータ"
 	},
 	"createStaticMethodArgumentPatternValidator": {
 		"file": "createStaticMethodValidator.ts",
 		"path": "../utils/validators/createStaticMethodValidator.ts",
-		"description": "静的メソッドの使用を検証するバリデータ"
+		"description": "静的メソッド引数が特定のパターンに一致するか検証するバリデータ"
 	},
 	"createStaticMethodArgumentExistsValidator": {
 		"file": "createStaticMethodValidator.ts",
 		"path": "../utils/validators/createStaticMethodValidator.ts",
-		"description": "静的メソッドの使用を検証するバリデータ"
+		"description": "特定の静的メソッド引数が存在するかを検証するバリデータ"
 	},
 	"createSharedValidator": {
 		"file": "sharedValidator.ts",
 		"path": "../utils/validators/sharedValidator.ts",
-		"description": "検証バリデータ"
+		"description": "他のバリデータで共有される共通の検証機能を提供する基本バリデータ"
 	}
 }
