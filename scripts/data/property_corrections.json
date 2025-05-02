@@ -1,0 +1,22 @@
+{
+	"javascript.builtins.ArrayBuffer.detached": {
+		"propertyType": "instance",
+		"concern": "ArrayBuffer.prototype.detached",
+		"notes": "This is an instance property despite not having 'prototype' in the rule name"
+	},
+	"javascript.builtins.ArrayBuffer.byteLength": {
+		"propertyType": "instance",
+		"concern": "ArrayBuffer.prototype.byteLength",
+		"notes": "This is an instance property despite not having 'prototype' in the rule name"
+	},
+	"javascript.builtins.ArrayBuffer.maxByteLength": {
+		"propertyType": "instance",
+		"concern": "ArrayBuffer.prototype.maxByteLength",
+		"notes": "This is an instance property despite not having 'prototype' in the rule name"
+	},
+	"javascript.builtins.ArrayBuffer.resizable": {
+		"propertyType": "instance",
+		"concern": "ArrayBuffer.prototype.resizable",
+		"notes": "This is an instance property despite not having 'prototype' in the rule name"
+	}
+}

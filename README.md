@@ -60,6 +60,52 @@ export default [
 - [テストケースのガイドライン](./devDocs/04-testing-guidelines.md)
 - [開発ツール](./devDocs/05-development-tools.md)
 
+## 開発コマンド
+
+```bash
+# 次に実装すべきルールを検索
+npm run agent:rules:next
+
+# 静的メソッド/プロパティのルールスカフォールドを生成
+npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.fromAsync --methodKind static
+
+# インスタンスメソッド/プロパティのルールスカフォールドを生成
+npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.at --methodKind instance
+
+# ルールをインデックスファイルに追加
+npm run agent:rules:add javascript.builtins.Array.fromAsync
+
+# バリデータ情報の生成（スカフォールド生成に必要）
+npm run agent:rules:validators
+```
+
+## 特殊なケースの処理
+
+一部のプロパティやメソッドは典型的な命名規則に従わず、インスタンスメンバーなのかstaticメンバーなのかを自動で判別することが難しい場合があります。これらの特殊なケースについては、`scripts/data/property_corrections.json`のメタデータファイルを使用して対応しています。
+
+例:
+
+```json
+{
+	"javascript.builtins.ArrayBuffer.detached": {
+		"propertyType": "instance",
+		"concern": "ArrayBuffer.prototype.detached",
+		"notes": "ruleName内に'prototype'がなくてもインスタンスプロパティ"
+	},
+	"javascript.builtins.ArrayBuffer.byteLength": {
+		"propertyType": "instance",
+		"concern": "ArrayBuffer.prototype.byteLength",
+		"notes": "ruleName内に'prototype'がなくてもインスタンスプロパティ"
+	}
+}
+```
+
+プロパティタイプの判定には、以下の3つの戦略が順番に使用されます:
+
+1. 既知の特殊ケースについてはメタデータファイルをチェック
+2. MDN URLと仕様URLを分析してプロパティタイプを推論
+3. ルール名分析（パス内の"prototype"の有無をチェック）にフォールバック
+
 ## ライセンス
 
 MIT

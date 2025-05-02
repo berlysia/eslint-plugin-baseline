@@ -1,0 +1,92 @@
+{
+	"createConstructorArgumentPropertyValidator": {
+		"file": "createConstructorValidator.ts",
+		"path": "../utils/validators/createConstructorValidator.ts",
+		"description": "コンストラクタの使用を検証するバリデータ"
+	},
+	"createConstructorArgumentExistsValidator": {
+		"file": "createConstructorValidator.ts",
+		"path": "../utils/validators/createConstructorValidator.ts",
+		"description": "コンストラクタの使用を検証するバリデータ"
+	},
+	"createConstructorArgumentTypeValidator": {
+		"file": "createConstructorValidator.ts",
+		"path": "../utils/validators/createConstructorValidator.ts",
+		"description": "コンストラクタの使用を検証するバリデータ"
+	},
+	"createConstructorArgumentPatternValidator": {
+		"file": "createConstructorValidator.ts",
+		"path": "../utils/validators/createConstructorValidator.ts",
+		"description": "コンストラクタの使用を検証するバリデータ"
+	},
+	"createConstructorUsageValidator": {
+		"file": "createConstructorValidator.ts",
+		"path": "../utils/validators/createConstructorValidator.ts",
+		"description": "コンストラクタの使用を検証するバリデータ"
+	},
+	"createInstanceMethodArgumentPropertyValidator": {
+		"file": "createInstanceMethodValidator.ts",
+		"path": "../utils/validators/createInstanceMethodValidator.ts",
+		"description": "インスタンスメソッドの使用を検証するバリデータ"
+	},
+	"createInstanceMethodArgumentTypeValidator": {
+		"file": "createInstanceMethodValidator.ts",
+		"path": "../utils/validators/createInstanceMethodValidator.ts",
+		"description": "インスタンスメソッドの使用を検証するバリデータ"
+	},
+	"createInstanceMethodArgumentPatternValidator": {
+		"file": "createInstanceMethodValidator.ts",
+		"path": "../utils/validators/createInstanceMethodValidator.ts",
+		"description": "インスタンスメソッドの使用を検証するバリデータ"
+	},
+	"createInstanceMethodValidator": {
+		"file": "createInstanceMethodValidator.ts",
+		"path": "../utils/validators/createInstanceMethodValidator.ts",
+		"description": "インスタンスメソッドの使用を検証するバリデータ"
+	},
+	"createInstancePropertyValidator": {
+		"file": "createPropertyValidator.ts",
+		"path": "../utils/validators/createPropertyValidator.ts",
+		"description": "インスタンスプロパティの使用を検証するバリデータ"
+	},
+	"createInstanceMethodArgumentExistsValidator": {
+		"file": "createInstanceMethodValidator.ts",
+		"path": "../utils/validators/createInstanceMethodValidator.ts",
+		"description": "インスタンスメソッドの使用を検証するバリデータ"
+	},
+	"createStaticPropertyValidator": {
+		"file": "createPropertyValidator.ts",
+		"path": "../utils/validators/createPropertyValidator.ts",
+		"description": "静的プロパティの使用を検証するバリデータ"
+	},
+	"createStaticMethodValidator": {
+		"file": "createStaticMethodValidator.ts",
+		"path": "../utils/validators/createStaticMethodValidator.ts",
+		"description": "静的メソッドの使用を検証するバリデータ"
+	},
+	"createStaticMethodArgumentPropertyValidator": {
+		"file": "createStaticMethodValidator.ts",
+		"path": "../utils/validators/createStaticMethodValidator.ts",
+		"description": "静的メソッドの使用を検証するバリデータ"
+	},
+	"createStaticMethodArgumentTypeValidator": {
+		"file": "createStaticMethodValidator.ts",
+		"path": "../utils/validators/createStaticMethodValidator.ts",
+		"description": "静的メソッドの使用を検証するバリデータ"
+	},
+	"createStaticMethodArgumentPatternValidator": {
+		"file": "createStaticMethodValidator.ts",
+		"path": "../utils/validators/createStaticMethodValidator.ts",
+		"description": "静的メソッドの使用を検証するバリデータ"
+	},
+	"createStaticMethodArgumentExistsValidator": {
+		"file": "createStaticMethodValidator.ts",
+		"path": "../utils/validators/createStaticMethodValidator.ts",
+		"description": "静的メソッドの使用を検証するバリデータ"
+	},
+	"createSharedValidator": {
+		"file": "sharedValidator.ts",
+		"path": "../utils/validators/sharedValidator.ts",
+		"description": "検証バリデータ"
+	}
+}

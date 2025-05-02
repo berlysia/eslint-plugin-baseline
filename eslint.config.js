@@ -11,6 +11,9 @@ export default berlysia(
 		},
 		rules: {
 			"max-depth": "off",
+			"no-lonely-if": "off",
+			"@typescript-eslint/class-methods-use-this": "off",
+			"@typescript-eslint/init-declarations": "off",
 		},
 	},
 	globalIgnores([".tshy-build"]),

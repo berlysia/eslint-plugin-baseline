@@ -161,6 +161,37 @@
   - プロジェクト全体のコードスタイルを統一するために使用します
   - コミット前に実行することを推奨します
 
+### 特殊なケースの処理
+
+一部のプロパティやメソッドは典型的な命名規則に従わず、インスタンスメンバーなのかstaticメンバーなのかを自動で判別することが難しい場合があります。例えば、`ArrayBuffer.prototype.detached` や `ArrayBuffer.prototype.byteLength` はインスタンスプロパティですが、ルール名に「prototype」が含まれていません。
+
+これらの特殊ケースを対処するには以下の3つの戦略を使用しています：
+
+1. **メタデータファイルによる明示的な修正**：
+
+   - `scripts/data/property_corrections.json` ファイルに特殊ケースの修正情報を記録
+   - このファイルは以下の形式でプロパティ情報を定義します：
+
+   ```json
+   {
+   	"javascript.builtins.ArrayBuffer.detached": {
+   		"propertyType": "instance",
+   		"concern": "ArrayBuffer.prototype.detached",
+   		"notes": "ruleName内に'prototype'がなくてもインスタンスプロパティ"
+   	}
+   }
+   ```
+
+2. **URLからの推論**：
+   - MDN URLと仕様URLからプロパティタイプを推論
+   - 例えば、URLに「prototype」が含まれている場合はインスタンスプロパティと判断
+   - 仕様URLに「sec-get」や「sec-set」が含まれている場合はインスタンスプロパティと判断
+3. **ルール名による判断（フォールバック）**：
+   - ルール名の中に「prototype」が含まれている場合はインスタンスプロパティと判断
+   - それ以外の場合は静的プロパティと判断
+
+これらの戦略を組み合わせることで、ルール生成時に正確なバリデータタイプを選択できるようになっています。特殊なケースを発見した場合は、メタデータファイルに追加することで対応できます。
+
 ### ASTの解析
 
 - `npm run agent:ast:acorn` - Acornを使用してASTを生成

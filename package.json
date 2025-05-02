@@ -16,6 +16,7 @@
 		"agent:rules:scaffold": "node scripts/tools/generateRuleScaffold.ts",
 		"agent:rules:next": "node scripts/tools/getUnimplementedRuleName.ts",
 		"agent:rules:add": "node scripts/tools/addRuleToIndex.ts",
+		"agent:rules:validators": "node scripts/tools/listValidators.ts",
 		"agent:check": "node scripts/tools/check.ts"
 	},
 	"keywords": [],
