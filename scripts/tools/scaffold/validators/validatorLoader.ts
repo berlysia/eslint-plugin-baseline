@@ -104,10 +104,9 @@ export class ValidatorLoader {
 		if (!isMethod) {
 			// プロパティバリデータはcreatePropertyValidator.tsにある
 			return "../utils/validators/createPropertyValidator.ts";
-		} else {
-			// メソッドバリデータは専用のファイルにある
-			return `../utils/validators/create${typePrefix}${isMethod ? "Method" : "Property"}Validator.ts`;
 		}
+		// メソッドバリデータは専用のファイルにある
+		return `../utils/validators/create${typePrefix}${isMethod ? "Method" : "Property"}Validator.ts`;
 	}
 }
 

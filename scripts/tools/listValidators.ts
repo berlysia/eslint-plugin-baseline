@@ -20,7 +20,7 @@ async function extractExportedFunctions(filePath: string): Promise<string[]> {
 }
 
 // 自前のシンプルなglobパターンマッチング関数
-async function simpleGlob(pattern: string): Promise<string[]> {
+async function simpleGlob(_unused: string): Promise<string[]> {
 	const validatorsDirPath = path.join(rootDir, "src/utils/validators");
 
 	try {

@@ -316,13 +316,13 @@ export default rule;
 		invalidDate: string | undefined;
 		isWidelyAvailable: boolean;
 	} {
-		const isWidelyAvailable = seed.baseline?.baseline_high_date !== null;
+		const isWidelyAvailable = Boolean(seed.baseline?.baseline_high_date);
 
 		let validDate: string | undefined;
 		let invalidDate: string | undefined;
 
 		try {
-			const rawBaseDate = isWidelyAvailable
+			const rawBaseDate: string = isWidelyAvailable
 				? seed.baseline?.baseline_high_date
 				: seed.baseline?.baseline_low_date;
 
