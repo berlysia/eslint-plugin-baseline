@@ -77,6 +77,9 @@ npm run agent:rules:add javascript.builtins.Array.fromAsync
 
 # バリデータ情報の生成（スカフォールド生成に必要）
 npm run agent:rules:validators
+
+# URLからプロパティタイプを解析
+node scripts/tools/analyzeUrlForPropertyType.ts --mdnUrl <MDN URL> --specUrl <SPEC URL>
 ```
 
 ## 特殊なケースの処理

@@ -165,32 +165,74 @@
 
 一部のプロパティやメソッドは典型的な命名規則に従わず、インスタンスメンバーなのかstaticメンバーなのかを自動で判別することが難しい場合があります。例えば、`ArrayBuffer.prototype.detached` や `ArrayBuffer.prototype.byteLength` はインスタンスプロパティですが、ルール名に「prototype」が含まれていません。
 
-これらの特殊ケースを対処するには以下の3つの戦略を使用しています：
+これらの特殊ケースを対処するには以下の複数の戦略を使用しています：
 
-1. **メタデータファイルによる明示的な修正**：
+#### 1. メタデータファイルによる明示的な修正
 
-   - `scripts/data/property_corrections.json` ファイルに特殊ケースの修正情報を記録
-   - このファイルは以下の形式でプロパティ情報を定義します：
+`scripts/data/property_corrections.json` ファイルに特殊ケースの修正情報を記録します。このファイルは最も優先度が高く、これにエントリがあればそのプロパティタイプが常に適用されます。
 
-   ```json
-   {
-   	"javascript.builtins.ArrayBuffer.detached": {
-   		"propertyType": "instance",
-   		"concern": "ArrayBuffer.prototype.detached",
-   		"notes": "ruleName内に'prototype'がなくてもインスタンスプロパティ"
-   	}
-   }
-   ```
+```json
+{
+  "javascript.builtins.ArrayBuffer.detached": {
+    "propertyType": "instance",
+    "concern": "ArrayBuffer.prototype.detached",
+    "notes": "ruleName内に'prototype'がなくてもインスタンスプロパティ"
+  }
+}
+```
 
-2. **URLからの推論**：
-   - MDN URLと仕様URLからプロパティタイプを推論
-   - 例えば、URLに「prototype」が含まれている場合はインスタンスプロパティと判断
-   - 仕様URLに「sec-get」や「sec-set」が含まれている場合はインスタンスプロパティと判断
-3. **ルール名による判断（フォールバック）**：
-   - ルール名の中に「prototype」が含まれている場合はインスタンスプロパティと判断
-   - それ以外の場合は静的プロパティと判断
+#### 2. URLパターンからの推論
 
-これらの戦略を組み合わせることで、ルール生成時に正確なバリデータタイプを選択できるようになっています。特殊なケースを発見した場合は、メタデータファイルに追加することで対応できます。
+MDN URLと仕様URLのパターンを分析してプロパティタイプを推論します：
+
+- MDN URLの例：
+  - `/prototype/` が含まれる場合 → インスタンスプロパティ/メソッド
+  - `/constructor/` が含まれる場合 → 静的プロパティ/メソッド
+
+- 仕様URLの例：
+  - `sec-get-` や `sec-set-` を含む → インスタンスプロパティ（アクセサ）
+  - `prototype` を含む → インスタンスプロパティ/メソッド
+
+#### 3. URL内容の解析
+
+より高度な分析が必要な場合、`@mizchi/readability`を使用してURLの内容を解析し、プロパティタイプを判断します。
+
+```bash
+# URL内容解析ツールの使用例
+node scripts/tools/analyzeUrlForPropertyType.ts --mdnUrl <MDN URL> --specUrl <SPEC URL>
+```
+
+内容解析では以下のパターンを検出します：
+
+- MDN文書内の特徴的なテキスト：
+  - 「instance property」「prototype method」→ インスタンスプロパティ/メソッド
+  - 「static property」「class method」→ 静的プロパティ/メソッド
+  - 構文例に `prototype` または `new` がある → インスタンスプロパティ/メソッド
+
+- 仕様書内の特徴的なテキスト：
+  - `getownproperty`、`get`/`set` → インスタンスプロパティ
+  - `prototype.`、`instance:` → インスタンスプロパティ/メソッド
+  - `constructor function`、`class:` → 静的プロパティ/メソッド
+
+#### 4. ルール名による判断（フォールバック）
+
+上記の方法でも判断できない場合、最終的にルール名のパターンで判断します：
+
+- ルール名に `prototype` が含まれる → インスタンスプロパティ/メソッド
+- それ以外 → 静的プロパティ/メソッド（デフォルト）
+
+#### プロパティタイプ判定の流れ
+
+1. `property_corrections.json` をチェック → あれば、そのプロパティタイプを使用
+2. 該当がなければ、URLパターンから推論
+3. URLパターンからも判断できなければ、URL内容解析ツールを使用
+4. 最終的にはルール名パターンにフォールバック
+
+これらの多層的なアプローチにより、より正確なバリデータ選択が可能になります。新しい特殊ケースが見つかった場合は、以下のステップで対応します：
+
+1. URL内容解析ツールでプロパティタイプを判定
+2. `property_corrections.json` に新しいエントリを追加
+3. 該当するルールを再生成して検証
 
 ### ASTの解析
 
@@ -225,3 +267,9 @@
 
 - `npm run agent:rules:add <compatKey>` - src/rules/index.tsにルールを登録
   - これにより、ルールのインポートと登録が自動的に行われます
+
+- `node scripts/tools/analyzeUrlForPropertyType.ts` - URLからプロパティタイプを判定
+  - `--mdnUrl <MDN URL>` MDNのURLを指定
+  - `--specUrl <SPEC URL>` TC39仕様書のURLを指定
+  - 出力: プロパティタイプ（instance/static）と判定根拠
+  - 使用例: 特殊ケースのプロパティタイプを判定し、property_corrections.jsonに追加する際に使用
