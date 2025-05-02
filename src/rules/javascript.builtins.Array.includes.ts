@@ -1,10 +1,9 @@
-import { createInstanceMethodExistenceRule } from "../utils/ruleFactories/createMethodExistenceRule.ts";
+import { createRuleV2, createSeed } from "../utils/ruleFactory.ts";
+import { createInstanceMethodValidator } from "../utils/validators/createInstanceMethodValidator.ts";
 
-export const { seed, rule } = createInstanceMethodExistenceRule({
-	objectTypeName: "Array",
-	methodName: "includes",
-	compatKey: "javascript.builtins.Array.includes",
+export const seed = createSeed({
 	concern: "Array.prototype.includes",
+	compatKeys: ["javascript.builtins.Array.includes"],
 	mdnUrl:
 		"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/includes",
 	specUrl:
@@ -12,5 +11,14 @@ export const { seed, rule } = createInstanceMethodExistenceRule({
 	newlyAvailableAt: "2016-08-02",
 	widelyAvailableAt: "2019-02-02",
 });
+
+const rule = createRuleV2(
+	seed,
+	createInstanceMethodValidator({
+		typeName: "Array",
+		constructorTypeName: "ArrayConstructor",
+		methodName: "includes",
+	}),
+);
 
 export default rule;

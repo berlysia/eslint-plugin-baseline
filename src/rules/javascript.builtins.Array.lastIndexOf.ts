@@ -1,10 +1,9 @@
-import { createInstanceMethodExistenceRule } from "../utils/ruleFactories/createMethodExistenceRule.ts";
+import { createRuleV2, createSeed } from "../utils/ruleFactory.ts";
+import { createInstanceMethodValidator } from "../utils/validators/createInstanceMethodValidator.ts";
 
-export const { seed, rule } = createInstanceMethodExistenceRule({
-	objectTypeName: "Array",
-	methodName: "lastIndexOf",
-	compatKey: "javascript.builtins.Array.lastIndexOf",
+export const seed = createSeed({
 	concern: "Array.prototype.lastIndexOf",
+	compatKeys: ["javascript.builtins.Array.lastIndexOf"],
 	mdnUrl:
 		"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/lastIndexOf",
 	specUrl:
@@ -12,5 +11,14 @@ export const { seed, rule } = createInstanceMethodExistenceRule({
 	newlyAvailableAt: "2015-07-29",
 	widelyAvailableAt: "2018-01-29",
 });
+
+const rule = createRuleV2(
+	seed,
+	createInstanceMethodValidator({
+		typeName: "Array",
+		constructorTypeName: "ArrayConstructor",
+		methodName: "lastIndexOf",
+	}),
+);
 
 export default rule;

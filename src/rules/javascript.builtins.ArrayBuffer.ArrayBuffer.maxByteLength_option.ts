@@ -1,12 +1,11 @@
-import { createConstructorArgumentPropertyRule } from "../utils/rules/ArgumentPropertyRuleConfig.ts";
+import { createRuleV2, createSeed } from "../utils/ruleFactory.ts";
+import { createConstructorArgumentPropertyValidator } from "../utils/validators/createConstructorValidator.ts";
 
-const { seed, rule } = createConstructorArgumentPropertyRule({
-	compatKey: "javascript.builtins.ArrayBuffer.ArrayBuffer.maxByteLength_option",
+export const seed = createSeed({
 	concern: "ArrayBuffer.maxByteLength_option",
-	objectTypeName: "ArrayBuffer",
-	objectTypeConstructorName: "ArrayBufferConstructor",
-	argumentIndex: 1,
-	propertyName: "maxByteLength",
+	compatKeys: [
+		"javascript.builtins.ArrayBuffer.ArrayBuffer.maxByteLength_option",
+	],
 	mdnUrl: undefined,
 	specUrl:
 		"https://tc39.es/ecma262/multipage/structured-data.html#sec-arraybuffer-constructor",
@@ -14,6 +13,14 @@ const { seed, rule } = createConstructorArgumentPropertyRule({
 	widelyAvailableAt: undefined,
 });
 
-export { seed };
+const rule = createRuleV2(
+	seed,
+	createConstructorArgumentPropertyValidator({
+		typeName: "ArrayBuffer",
+		constructorTypeName: "ArrayBufferConstructor",
+		argumentIndex: 1,
+		optionProperty: "maxByteLength",
+	}),
+);
 
 export default rule;

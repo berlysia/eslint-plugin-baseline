@@ -101,8 +101,10 @@ const rules = {
 		js$builtin$Array$sort$stable_sorting,
 	"javascript.builtins.Array.splice": js$builtin$Array$splice,
 	"javascript.builtins.Array.toLocaleString": js$builtin$Array$toLocaleString,
-	"javascript.builtins.Array.toLocaleString.locales_parameter": js$builtin$Array$toLocaleString$locales_parameter,
-	"javascript.builtins.Array.toLocaleString.options_parameter": js$builtin$Array$toLocaleString$options_parameter,
+	"javascript.builtins.Array.toLocaleString.locales_parameter":
+		js$builtin$Array$toLocaleString$locales_parameter,
+	"javascript.builtins.Array.toLocaleString.options_parameter":
+		js$builtin$Array$toLocaleString$options_parameter,
 	"javascript.builtins.Array.toReversed": js$builtin$Array$toReversed,
 	"javascript.builtins.Array.toSorted": js$builtin$Array$toSorted,
 	"javascript.builtins.Array.toSpliced": js$builtin$Array$toSpliced,
@@ -110,9 +112,12 @@ const rules = {
 	"javascript.builtins.Array.unshift": js$builtin$Array$unshift,
 	"javascript.builtins.Array.values": js$javascript$builtins$Array$values,
 	"javascript.builtins.Array.with": js$javascript$builtins$Array$with,
-	"javascript.builtins.ArrayBuffer.@@species": js$javascript$builtins$ArrayBuffer$symbolSpecies,
-	"javascript.builtins.ArrayBuffer.ArrayBuffer": js$javascript$builtins$ArrayBuffer$ArrayBuffer,
-	"javascript.builtins.ArrayBuffer.ArrayBuffer.maxByteLength_option": js$javascript$builtins$ArrayBuffer$ArrayBuffer$maxByteLength_option,
+	"javascript.builtins.ArrayBuffer.@@species":
+		js$javascript$builtins$ArrayBuffer$symbolSpecies,
+	"javascript.builtins.ArrayBuffer.ArrayBuffer":
+		js$javascript$builtins$ArrayBuffer$ArrayBuffer,
+	"javascript.builtins.ArrayBuffer.ArrayBuffer.maxByteLength_option":
+		js$javascript$builtins$ArrayBuffer$ArrayBuffer$maxByteLength_option,
 };
 
 export default rules;

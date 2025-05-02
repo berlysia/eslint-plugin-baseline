@@ -330,7 +330,7 @@ export function createSharedValidator<
 		// スプレッド引数がない、またはスプレッド前に目的の引数がある場合
 		if (spreadIndex === -1 || spreadIndex > argumentIndex) {
 			const arg = args[argumentIndex] as TSESTree.Expression;
-			return checkNodeType(arg, expectedType);
+			return isNodeType(arg, expectedType);
 		}
 
 		// スプレッド要素内の引数を検証
@@ -399,7 +399,7 @@ export function createSharedValidator<
 	/**
 	 * ノードの型をチェック
 	 */
-	function checkNodeType(
+	function isNodeType(
 		node: TSESTree.Expression,
 		expectedType: string,
 	): boolean {
@@ -496,6 +496,53 @@ export function createSharedValidator<
 		return false;
 	}
 
+	function isSpecificLiteral(
+		node: TSESTree.Expression,
+		literalValue: string | number,
+	) {
+		const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+		if (!tsNode) return false;
+
+		const type = typeChecker.getTypeAtLocation(tsNode);
+
+		if (!type) return false;
+
+		if (type.isStringLiteral() && typeof literalValue === "string") {
+			return type.value === literalValue;
+		}
+		if (type.isNumberLiteral() && typeof literalValue === "number") {
+			return type.value === literalValue;
+		}
+
+		return false;
+	}
+
+	/**
+	 * コンストラクタ/関数の直接呼び出しをチェック
+	 * @param node 検証するノード (NewExpressionまたはCallExpression)
+	 * @returns 対象の型のコンストラクタ/関数であればtrue
+	 */
+	function isTargetConstructor(
+		node: TSESTree.NewExpression | TSESTree.CallExpression,
+	): boolean {
+		// 型情報を使った間接的な呼び出しでチェック
+		return node.callee.type === "Identifier"
+			? isGlobalType(node.callee) || validateConstructorType(node.callee)
+			: validateConstructorType(node.callee);
+	}
+
+	function checkInstancePropertyAccess(
+		memberExpression: TSESTree.MemberExpression,
+	) {
+		return validateInstanceType(memberExpression.object);
+	}
+
+	function checkStaticPropertyAccess(
+		memberExpression: TSESTree.MemberExpression,
+	) {
+		return validateConstructorType(memberExpression.object);
+	}
+
 	return {
 		services,
 		typeChecker,
@@ -510,29 +557,11 @@ export function createSharedValidator<
 		isArgumentMatchPattern,
 		argumentExists,
 		hasTargetProperty,
-		checkNodeType,
+		checkNodeType: isNodeType,
 		checkTSType,
-		/**
-		 * コンストラクタ/関数の直接呼び出しをチェック
-		 * @param node 検証するノード (NewExpressionまたはCallExpression)
-		 * @returns 対象の型のコンストラクタ/関数であればtrue
-		 */
-		isTargetConstructor(
-			node: TSESTree.NewExpression | TSESTree.CallExpression,
-		): boolean {
-			// 直接名前で呼び出しをチェック
-			if (
-				node.callee.type === "Identifier" &&
-				(node.callee.name === typeName ||
-					node.callee.name === constructorTypeName)
-			) {
-				return true;
-			}
-
-			// 型情報を使った間接的な呼び出しもチェック
-			return node.callee.type === "Identifier"
-				? isGlobalType(node.callee) || validateConstructorType(node.callee)
-				: validateConstructorType(node.callee);
-		},
+		isTargetConstructor,
+		checkInstancePropertyAccess,
+		checkStaticPropertyAccess,
+		checkIsSpecificLiteral: isSpecificLiteral,
 	};
 }

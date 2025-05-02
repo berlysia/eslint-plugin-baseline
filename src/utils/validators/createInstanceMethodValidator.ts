@@ -185,11 +185,15 @@ export function createInstanceMethodArgumentPatternValidator({
 	};
 }
 
-export function createInstanceMethodValidator(
-	typeName: string,
-	constructorTypeName: string,
-	methodName: string,
-) {
+export function createInstanceMethodValidator({
+	typeName,
+	constructorTypeName,
+	methodName,
+}: {
+	typeName: string;
+	constructorTypeName: string;
+	methodName: string;
+}) {
 	return function create<
 		MessageIds extends string,
 		Options extends readonly unknown[],
@@ -224,11 +228,15 @@ export function createInstanceMethodValidator(
 	};
 }
 
-export function createInstancePropertyValidator(
-	typeName: string,
-	constructorTypeName: string,
-	propertyName: string,
-) {
+export function createInstancePropertyValidator({
+	typeName,
+	constructorTypeName,
+	propertyName,
+}: {
+	typeName: string;
+	constructorTypeName: string;
+	propertyName: string;
+}) {
 	return function create<
 		MessageIds extends string,
 		Options extends readonly unknown[],
@@ -296,15 +304,31 @@ export function createInstanceMethodArgumentExistsValidator({
 				},
 			) {
 				const { callee } = node;
+				// ${instance}.${methodName}(...args)
 				if (
 					callee.property.type === "Identifier" &&
 					callee.property.name === methodName &&
-					(sharedValidator.validateInstanceType(callee.object) ||
-						(callee.object.type === "MemberExpression" &&
-							callee.object.property.type === "Identifier" &&
-							callee.object.property.name === "prototype" &&
-							sharedValidator.validateConstructorType(callee.object.object))) &&
+					sharedValidator.validateInstanceType(callee.object) &&
 					sharedValidator.argumentExists(node.arguments, argumentIndex)
+				) {
+					sharedValidator.report(node);
+				}
+
+				// ${Constructor}.prototype.${methodName}.[call|apply](...args)
+				if (
+					callee.property.type === "Identifier" &&
+					(callee.property.name === "call" ||
+						callee.property.name === "apply") &&
+					callee.object.type === "MemberExpression" &&
+					callee.object.property.type === "Identifier" &&
+					callee.object.property.name === methodName &&
+					callee.object.object.type === "MemberExpression" &&
+					callee.object.object.property.type === "Identifier" &&
+					callee.object.object.property.name === "prototype" &&
+					sharedValidator.validateConstructorType(
+						callee.object.object.object,
+					) &&
+					sharedValidator.argumentExists(node.arguments, argumentIndex + 1)
 				) {
 					sharedValidator.report(node);
 				}

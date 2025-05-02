@@ -1,10 +1,9 @@
-import { createStaticMethodExistenceRule } from "../utils/ruleFactories/createMethodExistenceRule.ts";
+import { createRuleV2, createSeed } from "../utils/ruleFactory.ts";
+import { createStaticMethodValidator } from "../utils/validators/createStaticMethodValidator.ts";
 
-export const { seed, rule } = createStaticMethodExistenceRule({
-	objectTypeName: "Array",
-	methodName: "from",
-	compatKey: "javascript.builtins.Array.from",
+export const seed = createSeed({
 	concern: "ArrayConstructor.from",
+	compatKeys: ["javascript.builtins.Array.from"],
 	mdnUrl:
 		"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/from",
 	specUrl:
@@ -12,5 +11,14 @@ export const { seed, rule } = createStaticMethodExistenceRule({
 	newlyAvailableAt: "2015-09-30",
 	widelyAvailableAt: "2018-03-30",
 });
+
+const rule = createRuleV2(
+	seed,
+	createStaticMethodValidator({
+		typeName: "Array",
+		constructorTypeName: "ArrayConstructor",
+		methodName: "from",
+	}),
+);
 
 export default rule;

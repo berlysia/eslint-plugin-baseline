@@ -1,10 +1,9 @@
-import { createInstanceMethodExistenceRule } from "../utils/ruleFactories/createMethodExistenceRule.ts";
+import { createRuleV2, createSeed } from "../utils/ruleFactory.ts";
+import { createInstanceMethodValidator } from "../utils/validators/createInstanceMethodValidator.ts";
 
-export const { seed, rule } = createInstanceMethodExistenceRule({
-	objectTypeName: "Array",
-	methodName: "findLastIndex",
-	compatKey: "javascript.builtins.Array.findLastIndex",
+export const seed = createSeed({
 	concern: "Array.prototype.findLastIndex",
+	compatKeys: ["javascript.builtins.Array.findLastIndex"],
 	mdnUrl:
 		"https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/findLastIndex",
 	specUrl:
@@ -12,5 +11,14 @@ export const { seed, rule } = createInstanceMethodExistenceRule({
 	newlyAvailableAt: "2022-08-23",
 	widelyAvailableAt: "2025-02-23",
 });
+
+const rule = createRuleV2(
+	seed,
+	createInstanceMethodValidator({
+		typeName: "Array",
+		constructorTypeName: "ArrayConstructor",
+		methodName: "findLastIndex",
+	}),
+);
 
 export default rule;

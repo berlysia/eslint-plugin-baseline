@@ -1,10 +1,9 @@
-import { createInstanceMethodExistenceRule } from "../utils/ruleFactories/createMethodExistenceRule.ts";
+import { createRuleV2, createSeed } from "../utils/ruleFactory.ts";
+import { createInstanceMethodValidator } from "../utils/validators/createInstanceMethodValidator.ts";
 
-export const { seed, rule } = createInstanceMethodExistenceRule({
-	objectTypeName: "Array",
-	methodName: "shift",
-	compatKey: "javascript.builtins.Array.shift",
+export const seed = createSeed({
 	concern: "Array.prototype.shift",
+	compatKeys: ["javascript.builtins.Array.shift"],
 	mdnUrl:
 		"https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array/shift",
 	specUrl:
@@ -12,5 +11,14 @@ export const { seed, rule } = createInstanceMethodExistenceRule({
 	newlyAvailableAt: "2015-07-29",
 	widelyAvailableAt: "2018-01-29",
 });
+
+const rule = createRuleV2(
+	seed,
+	createInstanceMethodValidator({
+		typeName: "Array",
+		constructorTypeName: "ArrayConstructor",
+		methodName: "shift",
+	}),
+);
 
 export default rule;

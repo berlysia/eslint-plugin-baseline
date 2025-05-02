@@ -4,7 +4,8 @@
 	"scripts": {
 		"build": "tshy && vite build",
 		"prepare": "tshy",
-		"test": "node --test-reporter=dot --test test/**/*.test.ts ",
+		"test": "node --test test/**/*.test.ts ",
+		"test:dot": "node --test-reporter=dot --test test/**/*.test.ts ",
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",

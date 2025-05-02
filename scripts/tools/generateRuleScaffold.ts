@@ -1,8 +1,8 @@
 import fsp from "node:fs/promises";
 import path from "node:path";
 import { parseArgs } from "node:util";
-import { METHOD_TYPE } from "../../src/utils/ruleFactories/createMethodExistenceRule.ts";
-import type { MethodType } from "../../src/utils/ruleFactories/createMethodExistenceRule.ts";
+import { PROPERTY_ACCESS_TYPE } from "../../src/utils/validators/createPropertyValidator.ts";
+import type { PropertyAccessType } from "../../src/utils/validators/createPropertyValidator.ts";
 import parseYYYYMMDD from "../../src/utils/parseYYYYMMDD.ts";
 import { transformRuleName } from "./utils.ts";
 
@@ -24,13 +24,13 @@ if (!ruleName) {
 }
 if (
 	!args.methodKind ||
-	!Object.values(METHOD_TYPE).includes(args.methodKind as any)
+	!Object.values(PROPERTY_ACCESS_TYPE).includes(args.methodKind as any)
 ) {
 	throw new Error(
 		"Method kind is required and must be one of: Instance, Static",
 	);
 }
-const methodKind = args.methodKind as MethodType;
+const methodKind = args.methodKind as PropertyAccessType;
 
 const ruleDir = path.join(process.cwd(), "./src/rules");
 const seedDir = path.join(process.cwd(), "./src/generated");
@@ -59,8 +59,8 @@ function parseRuleName(ruleName: string) {
 	// メソッドタイプを判定する
 	// prototypeが含まれている場合はインスタンスメソッド
 	const methodType = parts.includes("prototype")
-		? METHOD_TYPE.Instance
-		: METHOD_TYPE.Static;
+		? PROPERTY_ACCESS_TYPE.Instance
+		: PROPERTY_ACCESS_TYPE.Static;
 
 	return {
 		objectType,
@@ -73,9 +73,9 @@ function parseRuleName(ruleName: string) {
 /**
  * 適切なファクトリ関数名を取得
  */
-function getFactoryFunctionName(methodType: MethodType): string | null {
+function getFactoryFunctionName(methodType: PropertyAccessType): string | null {
 	// 型別ファクトリ関数を削除し、一般的なファクトリ関数に置き換え
-	if (methodType === METHOD_TYPE.Instance) {
+	if (methodType === PROPERTY_ACCESS_TYPE.Instance) {
 		return "createInstanceMethodExistenceRule";
 	}
 	return "createStaticMethodExistenceRule";
@@ -105,7 +105,7 @@ export const { seed, rule } = ${factoryFunction}({
   objectTypeName: "${objectType}",
   methodName: ${JSON.stringify(methodName)},
   compatKey: "${parsedInfo.compatKey}",
-  concern: "${objectType}${methodType === METHOD_TYPE.Instance ? ".prototype" : ""}.${methodName}",
+  concern: "${objectType}${methodType === PROPERTY_ACCESS_TYPE.Instance ? ".prototype" : ""}.${methodName}",
   mdnUrl: ${JSON.stringify(seed.mdn_url)},
   specUrl: ${JSON.stringify(seed.bcd.spec_url)},
   newlyAvailableAt: ${JSON.stringify(seed.baseline.baseline_low_date)},

@@ -1,14 +1,5 @@
-import { computeBaseline } from "compute-baseline";
-import { getParserServices } from "@typescript-eslint/utils/eslint-utils";
-import { ensureConfig } from "../config.ts";
-import type { BaselineRuleConfig } from "../types.ts";
-import checkIsAvailable from "../utils/checkIsAvailable.ts";
-import {
-	createMessageData,
-	createRule,
-	createSeed,
-} from "../utils/ruleFactory.ts";
-import { createIsTargetType } from "../utils/createIsTargetType.ts";
+import { createRuleV2, createSeed } from "../utils/ruleFactory.ts";
+import { createInstancePropertyValidator } from "../utils/validators/createPropertyValidator.ts";
 
 export const seed = createSeed({
 	concern: "Array.prototype.length",
@@ -21,45 +12,12 @@ export const seed = createSeed({
 	widelyAvailableAt: "2018-01-29",
 });
 
-const rule = createRule(seed, {
-	create(context) {
-		const options = context.options[0] || {};
-		const config: BaselineRuleConfig = ensureConfig(options);
-
-		const baseline = computeBaseline({
-			compatKeys: seed.compatKeys,
-			checkAncestors: true,
-		});
-
-		const services = getParserServices(context);
-		const typeChecker = services.program.getTypeChecker();
-
-		// Check if a type is Array
-		const isArrayType = createIsTargetType(typeChecker, "Array");
-
-		return {
-			// Check for Array.length property access
-			MemberExpression(node) {
-				const property = node.property;
-				if (property.type === "Identifier" && property.name === "length") {
-					const objectTsNode = services.esTreeNodeToTSNodeMap.get(node.object);
-					const objectType = typeChecker.getTypeAtLocation(objectTsNode);
-
-					if (isArrayType(objectType)) {
-						const isAvailable = checkIsAvailable(config, baseline);
-
-						if (!isAvailable) {
-							context.report({
-								messageId: "notAvailable",
-								node,
-								data: createMessageData(seed, config).notAvailable,
-							});
-						}
-					}
-				}
-			},
-		};
-	},
-});
+const rule = createRuleV2(
+	seed,
+	createInstancePropertyValidator({
+		typeName: "Array",
+		propertyName: "length",
+	}),
+);
 
 export default rule;

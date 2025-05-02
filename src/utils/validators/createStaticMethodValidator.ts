@@ -4,11 +4,15 @@ import type { BaselineRuleConfig } from "../../types.ts";
 import type { RuleModuleSeed } from "../ruleFactory.ts";
 import { createSharedValidator } from "./sharedValidator.ts";
 
-export function createStaticMethodValidator(
-	typeName: string,
-	constructorTypeName: string,
-	methodName: string,
-) {
+export function createStaticMethodValidator({
+	typeName,
+	constructorTypeName,
+	methodName,
+}: {
+	typeName: string;
+	constructorTypeName: string;
+	methodName: string;
+}) {
 	return function create<
 		MessageIds extends string,
 		Options extends readonly unknown[],
@@ -257,11 +261,15 @@ export function createStaticMethodArgumentExistsValidator({
 	};
 }
 
-export function createStaticPropertyValidator(
-	typeName: string,
-	constructorTypeName: string,
-	propertyName: string,
-) {
+export function createStaticPropertyValidator({
+	typeName,
+	constructorTypeName,
+	propertyName,
+}: {
+	typeName: string;
+	constructorTypeName: string;
+	propertyName: string;
+}) {
 	return function create<
 		MessageIds extends string,
 		Options extends readonly unknown[],

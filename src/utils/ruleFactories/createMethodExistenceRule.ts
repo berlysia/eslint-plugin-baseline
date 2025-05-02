@@ -36,11 +36,11 @@ export function createInstanceMethodExistenceRule(
 		widelyAvailableAt: config.widelyAvailableAt,
 	});
 
-	const createValidator = createInstanceMethodValidator(
-		config.objectTypeName,
-		objectTypeConstructorName,
-		config.methodName,
-	);
+	const createValidator = createInstanceMethodValidator({
+		typeName: config.objectTypeName,
+		constructorTypeName: objectTypeConstructorName,
+		methodName: config.methodName,
+	});
 
 	const rule = createRuleV2(seed, createValidator);
 
@@ -65,11 +65,11 @@ export function createStaticMethodExistenceRule(
 		widelyAvailableAt: config.widelyAvailableAt,
 	});
 
-	const createValidator = createStaticMethodValidator(
-		config.objectTypeName,
-		objectTypeConstructorName,
-		config.methodName,
-	);
+	const createValidator = createStaticMethodValidator({
+		typeName: config.objectTypeName,
+		constructorTypeName: objectTypeConstructorName,
+		methodName: config.methodName,
+	});
 
 	const rule = createRuleV2(seed, createValidator);
 

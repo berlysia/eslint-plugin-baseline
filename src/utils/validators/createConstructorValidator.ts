@@ -297,6 +297,18 @@ export function createConstructorUsageValidator({
 					sharedValidator.report(node);
 				}
 			},
+
+			// クラスでextendsされている場合
+			"ClassDeclaration, ClassExpression"(
+				node: TSESTree.ClassDeclaration | TSESTree.ClassExpression,
+			) {
+				if (
+					node.superClass &&
+					sharedValidator.validateConstructorType(node.superClass)
+				) {
+					sharedValidator.report(node);
+				}
+			},
 		};
 	};
 }
