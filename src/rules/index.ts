@@ -59,6 +59,7 @@ import js$javascript$builtins$ArrayBuffer$isView from "./javascript.builtins.Arr
 import js$javascript$builtins$ArrayBuffer$maxByteLength from "./javascript.builtins.ArrayBuffer.maxByteLength.ts";
 import js$javascript$builtins$ArrayBuffer$resizable from "./javascript.builtins.ArrayBuffer.resizable.ts";
 import js$javascript$builtins$ArrayBuffer$resize from "./javascript.builtins.ArrayBuffer.resize.ts";
+import js$javascript$builtins$ArrayBuffer$slice from "./javascript.builtins.ArrayBuffer.slice.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -136,6 +137,7 @@ const rules = {
 		js$javascript$builtins$ArrayBuffer$resizable,
 	"javascript.builtins.ArrayBuffer.resize":
 		js$javascript$builtins$ArrayBuffer$resize,
+		"javascript.builtins.ArrayBuffer.slice": js$javascript$builtins$ArrayBuffer$slice,
 	/* add new rules here */
 };
 

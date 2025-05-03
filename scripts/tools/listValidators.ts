@@ -164,6 +164,7 @@ async function main() {
 	}
 
 	for (const validatorName of toBeRemoved) {
+		// eslint-disable-next-line @typescript-eslint/no-dynamic-delete -- editting json ob ject
 		delete validators[validatorName];
 	}
 
