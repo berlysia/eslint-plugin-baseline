@@ -370,6 +370,8 @@ export default rule;
 		methodName: string,
 	): string {
 		return `
+    // 基本的な静的メソッド参照
+    "${objectType}.${methodName.replace("()", "")};",
     // 基本的な静的メソッド呼び出し
     "${objectType}.${methodName.replace("()", "")}();",
     // 変数経由の呼び出し
@@ -400,6 +402,8 @@ export default rule;
 		methodName: string,
 	): string {
 		return `
+    // インスタンスメソッドへの参照
+    "const obj = new ${objectType}(); obj.${methodName.replace("()", "")};",
     // 基本的なインスタンスメソッド呼び出し
     "const obj = new ${objectType}(); obj.${methodName.replace("()", "")}();",
     // 計算プロパティによる呼び出し
@@ -414,6 +418,8 @@ export default rule;
     "const obj = new ${objectType}(); const { [\\"${methodName}\\"]: renamed } = obj; renamed();",
     // 変数経由のdestructuringによる呼び出し
     "const obj = new ${objectType}(); const prop = \\"${methodName}\\"; const { [prop]: renamed } = obj; renamed();",
+    // prototype経由のメソッド取り出しと呼び出し
+    "const obj = new ${objectType}(); ${objectType}.prototype.${methodName.replace("()", "")}.call(obj);",
     `;
 	}
 

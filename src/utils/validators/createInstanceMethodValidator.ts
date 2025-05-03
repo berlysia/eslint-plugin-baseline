@@ -314,11 +314,10 @@ export function createInstanceMethodArgumentExistsValidator({
 					sharedValidator.report(node);
 				}
 
-				// ${Constructor}.prototype.${methodName}.[call|apply](...args)
+				// ${Constructor}.prototype.${methodName}.call(this, ...args)
 				if (
 					callee.property.type === "Identifier" &&
-					(callee.property.name === "call" ||
-						callee.property.name === "apply") &&
+					callee.property.name === "call" &&
 					callee.object.type === "MemberExpression" &&
 					callee.object.property.type === "Identifier" &&
 					callee.object.property.name === methodName &&
@@ -332,6 +331,8 @@ export function createInstanceMethodArgumentExistsValidator({
 				) {
 					sharedValidator.report(node);
 				}
+
+				// FIXME: ${Constructor}.prototype.${methodName}.apply(this, args)
 			},
 		};
 	};

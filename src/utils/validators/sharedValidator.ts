@@ -321,16 +321,12 @@ export function createSharedValidator<
 		argumentIndex: number,
 		expectedType: string,
 	): boolean {
-		if (!argumentExists(args, argumentIndex)) {
-			return false;
-		}
-
 		const spreadIndex = args.findIndex((arg) => arg.type === "SpreadElement");
 
 		// スプレッド引数がない、またはスプレッド前に目的の引数がある場合
 		if (spreadIndex === -1 || spreadIndex > argumentIndex) {
 			const arg = args[argumentIndex] as TSESTree.Expression;
-			return isNodeType(arg, expectedType);
+			return checkNodeType(arg, expectedType);
 		}
 
 		// スプレッド要素内の引数を検証
@@ -399,54 +395,47 @@ export function createSharedValidator<
 	/**
 	 * ノードの型をチェック
 	 */
-	function isNodeType(
+	function checkNodeType(
 		node: TSESTree.Expression,
 		expectedType: string,
 	): boolean {
-		// リテラルの直接チェック
-		if (
-			expectedType === "string" &&
-			node.type === "Literal" &&
-			typeof node.value === "string"
-		) {
-			return true;
-		}
-		if (
-			expectedType === "number" &&
-			node.type === "Literal" &&
-			typeof node.value === "number"
-		) {
-			return true;
-		}
-		if (
-			expectedType === "boolean" &&
-			node.type === "Literal" &&
-			typeof node.value === "boolean"
-		) {
-			return true;
-		}
-		if (
-			expectedType === "regexp" &&
-			node.type === "Literal" &&
-			node.value instanceof RegExp
-		) {
-			return true;
-		}
-		if (expectedType === "object" && node.type === "ObjectExpression") {
-			return true;
-		}
-		if (expectedType === "array" && node.type === "ArrayExpression") {
-			return true;
-		}
-		if (
-			expectedType === "function" &&
-			(node.type === "ArrowFunctionExpression" ||
-				node.type === "FunctionExpression")
-		) {
-			return true;
-		}
+		return (
+			isNodeTypeInLiterally(node, expectedType) ||
+			isNodeTypeInTypeLevel(node, expectedType)
+		);
+	}
 
-		// TypeScriptの型情報を使用して詳細なチェック
+	function isNodeTypeInLiterally(
+		node: TSESTree.Expression,
+		expectedType: string,
+	): boolean {
+		if (node.type === "Literal") {
+			if (expectedType === "string" && typeof node.value === "string") {
+				return true;
+			}
+			if (expectedType === "number" && typeof node.value === "number") {
+				return true;
+			}
+			if (expectedType === "boolean" && typeof node.value === "boolean") {
+				return true;
+			}
+			if (expectedType === "regexp" && node.value instanceof RegExp) {
+				return true;
+			}
+		}
+		if (node.type === "ObjectExpression" && expectedType === "object") {
+			return true;
+		}
+		if (node.type === "ArrayExpression" && expectedType === "array") {
+			return true;
+		}
+		return false;
+	}
+
+	function isNodeTypeInTypeLevel(
+		node: TSESTree.Expression,
+		expectedType: string,
+	): boolean {
 		const tsNode = services.esTreeNodeToTSNodeMap.get(node);
 		if (!tsNode) return false;
 
@@ -557,7 +546,7 @@ export function createSharedValidator<
 		isArgumentMatchPattern,
 		argumentExists,
 		hasTargetProperty,
-		checkNodeType: isNodeType,
+		checkNodeType,
 		checkTSType,
 		isTargetConstructor,
 		checkInstancePropertyAccess,

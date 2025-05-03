@@ -55,6 +55,10 @@ import js$javascript$builtins$ArrayBuffer$ArrayBuffer from "./javascript.builtin
 import js$javascript$builtins$ArrayBuffer$ArrayBuffer$maxByteLength_option from "./javascript.builtins.ArrayBuffer.ArrayBuffer.maxByteLength_option.ts";
 import js$javascript$builtins$ArrayBuffer$byteLength from "./javascript.builtins.ArrayBuffer.byteLength.ts";
 import js$javascript$builtins$ArrayBuffer$detached from "./javascript.builtins.ArrayBuffer.detached.ts";
+import js$javascript$builtins$ArrayBuffer$isView from "./javascript.builtins.ArrayBuffer.isView.ts";
+import js$javascript$builtins$ArrayBuffer$maxByteLength from "./javascript.builtins.ArrayBuffer.maxByteLength.ts";
+import js$javascript$builtins$ArrayBuffer$resizable from "./javascript.builtins.ArrayBuffer.resizable.ts";
+import js$javascript$builtins$ArrayBuffer$resize from "./javascript.builtins.ArrayBuffer.resize.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -124,6 +128,14 @@ const rules = {
 		js$javascript$builtins$ArrayBuffer$byteLength,
 	"javascript.builtins.ArrayBuffer.detached":
 		js$javascript$builtins$ArrayBuffer$detached,
+	"javascript.builtins.ArrayBuffer.isView":
+		js$javascript$builtins$ArrayBuffer$isView,
+	"javascript.builtins.ArrayBuffer.maxByteLength":
+		js$javascript$builtins$ArrayBuffer$maxByteLength,
+	"javascript.builtins.ArrayBuffer.resizable":
+		js$javascript$builtins$ArrayBuffer$resizable,
+	"javascript.builtins.ArrayBuffer.resize":
+		js$javascript$builtins$ArrayBuffer$resize,
 	/* add new rules here */
 };
 
