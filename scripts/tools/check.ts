@@ -1,7 +1,7 @@
 import $ from "dax-sh";
 
 const lintResult = await $`npm run lint:fix`.noThrow();
-const testResult = await $`npm run test:dot`.noThrow();
+const testResult = await $`npm run test`.noThrow();
 const typecheckResult = await $`npm run typecheck`.noThrow();
 
 if (lintResult.code !== 0) {

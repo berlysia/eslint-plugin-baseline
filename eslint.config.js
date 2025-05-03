@@ -19,7 +19,7 @@ export default berlysia(
 	},
 	globalIgnores([".tshy-build"]),
 	{
-		files: ["scripts/**/*.ts"],
+		files: ["scripts/**/*.ts", "scripts/**/*.js"],
 		rules: {
 			"unicorn/no-process-exit": "off",
 		},

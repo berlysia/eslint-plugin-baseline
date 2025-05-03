@@ -210,45 +210,124 @@ export function createInstanceMethodValidator({
 			config,
 		);
 
+		// Keep track of reported nodes to prevent double reporting
+		const reportedNodes = new Set<TSESTree.Node>();
+
+		function reportOnce(node: TSESTree.Node) {
+			if (!reportedNodes.has(node)) {
+				reportedNodes.add(node);
+				sharedValidator.report(node);
+			}
+		}
+
 		return {
 			MemberExpression(node: TSESTree.MemberExpression) {
+				// Skip if this is part of a prototype.method.call pattern, as we'll handle that in CallExpression
+				if (
+					node.parent &&
+					node.parent.type === "MemberExpression" &&
+					node.parent.object === node &&
+					node.parent.property.type === "Identifier" &&
+					(node.parent.property.name === "call" || node.parent.property.name === "apply")
+				) {
+					return;
+				}
+
+				// Normal identifier property: obj.methodName
 				if (
 					node.property.type === "Identifier" &&
 					node.property.name === methodName
 				) {
-					// ${instance}.${methodName}(...args)
+					// ${instance}.${methodName}
 					if (sharedValidator.validateInstanceType(node.object)) {
-						sharedValidator.report(node);
+						reportOnce(node);
 					}
-					// ${Constructor}.prototype.${methodName}(...args)
-					if (
+					// ${Constructor}.prototype.${methodName}
+					else if (
 						node.object.type === "MemberExpression" &&
 						node.object.property.type === "Identifier" &&
 						node.object.property.name === "prototype" &&
 						sharedValidator.validateConstructorType(node.object.object)
 					) {
-						sharedValidator.report(node);
+						reportOnce(node);
 					}
-				} else if (
+				} 
+				// String literal property: obj["methodName"]
+				else if (
 					node.property.type === "Literal" &&
 					typeof node.property.value === "string" &&
 					node.property.value === methodName
 				) {
-					// $instance["${methodName}"](...args)
+					// ${instance}["${methodName}"]
 					if (sharedValidator.validateInstanceType(node.object)) {
-						sharedValidator.report(node);
+						reportOnce(node);
 					}
-					// ${Constructor}.prototype["${methodName}"](...args)
-					if (
+					// ${Constructor}.prototype["${methodName}"]
+					else if (
 						node.object.type === "MemberExpression" &&
 						node.object.property.type === "Identifier" &&
 						node.object.property.name === "prototype" &&
 						sharedValidator.validateConstructorType(node.object.object)
 					) {
-						sharedValidator.report(node);
+						reportOnce(node);
+					}
+				}
+				// Computed property with variables: obj[prop]
+				else if (node.computed && node.property.type !== "Literal") {
+					// Check if the property is a string literal in the type system
+					const tsNode = sharedValidator.services.esTreeNodeToTSNodeMap.get(node.property);
+					if (tsNode) {
+						const type = sharedValidator.typeChecker.getTypeAtLocation(tsNode);
+						if (type && type.isStringLiteral() && type.value === methodName) {
+							// ${instance}[prop]
+							if (sharedValidator.validateInstanceType(node.object)) {
+								reportOnce(node);
+							}
+							// ${Constructor}.prototype[prop]
+							else if (
+								node.object.type === "MemberExpression" &&
+								node.object.property.type === "Identifier" &&
+								node.object.property.name === "prototype" &&
+								sharedValidator.validateConstructorType(node.object.object)
+							) {
+								reportOnce(node);
+							}
+						}
 					}
 				}
 			},
+			// Handle prototype method calls like ArrayBuffer.prototype.transferToFixedLength.call(obj)
+			"CallExpression[callee.type='MemberExpression']"(
+				node: TSESTree.CallExpression & {
+					callee: TSESTree.MemberExpression;
+				}
+			) {
+				const { callee } = node;
+
+				// Check for pattern: Type.prototype.method.call(obj)
+				if (
+					callee.property.type === "Identifier" &&
+					(callee.property.name === "call" || callee.property.name === "apply") &&
+					callee.object.type === "MemberExpression" && 
+					(
+						// For obj.method.call()
+						(callee.object.property.type === "Identifier" && callee.object.property.name === methodName) ||
+						// For obj['method'].call()
+						(callee.object.property.type === "Literal" && 
+						 typeof callee.object.property.value === "string" && 
+						 callee.object.property.value === methodName)
+					)
+				 && // Check for Type.prototype.method.call pattern
+					
+						callee.object.object.type === "MemberExpression" &&
+						callee.object.object.property.type === "Identifier" &&
+						callee.object.object.property.name === "prototype" &&
+						sharedValidator.validateConstructorType(callee.object.object.object)
+					 && // Verify first argument is of the right instance type
+						node.arguments.length > 0 && sharedValidator.validateInstanceType(node.arguments[0] as TSESTree.Expression)) {
+							reportOnce(callee.object); // Report on the method reference, not the call itself
+						}
+			}
 		};
 	};
 }

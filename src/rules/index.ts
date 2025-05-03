@@ -61,6 +61,7 @@ import js$javascript$builtins$ArrayBuffer$resizable from "./javascript.builtins.
 import js$javascript$builtins$ArrayBuffer$resize from "./javascript.builtins.ArrayBuffer.resize.ts";
 import js$javascript$builtins$ArrayBuffer$slice from "./javascript.builtins.ArrayBuffer.slice.ts";
 import js$javascript$builtins$ArrayBuffer$transfer from "./javascript.builtins.ArrayBuffer.transfer.ts";
+import js$javascript$builtins$ArrayBuffer$transferToFixedLength from "./javascript.builtins.ArrayBuffer.transferToFixedLength.ts";
 
 const rules = {
 	"javascript.builtins.AggregateError.AggregateError":
@@ -140,6 +141,7 @@ const rules = {
 		js$javascript$builtins$ArrayBuffer$resize,
 		"javascript.builtins.ArrayBuffer.slice": js$javascript$builtins$ArrayBuffer$slice,
 		"javascript.builtins.ArrayBuffer.transfer": js$javascript$builtins$ArrayBuffer$transfer,
+		"javascript.builtins.ArrayBuffer.transferToFixedLength": js$javascript$builtins$ArrayBuffer$transferToFixedLength,
 	/* add new rules here */
 };
 
