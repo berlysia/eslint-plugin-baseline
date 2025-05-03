@@ -123,6 +123,7 @@ export class RuleScaffoldGenerator {
 			methodName: string;
 			methodType: PropertyAccessType;
 			compatKey: string;
+			isMethod?: boolean;
 		},
 		validatorName: string | undefined,
 		validatorsConfig: Record<
@@ -155,16 +156,22 @@ export class RuleScaffoldGenerator {
 				methodName,
 			);
 		} else {
-			// 自動判別：メソッド名とプロパティタイプから適切なバリデータを選択
-			const isMethodOrProperty = methodName.includes("(")
-				? "Method"
-				: "Property";
+			// 自動判別：isMethodフラグを使用してメソッドかプロパティかを判定
+			// もしisMethodが未定義の場合は、従来のパターンマッチをバックアップとして使用
+			let isMethodOrProperty: string;
+			if (parsedInfo.isMethod) {
+				isMethodOrProperty = parsedInfo.isMethod ? "Method" : "Property";
+			} else {
+				// 従来のフォールバック方式
+				isMethodOrProperty = methodName.includes("(") ? "Method" : "Property";
+			}
+
 			// 重要: ここでpropertyAccessTypeを使用して適切なバリデータを選択
 			const validatorType =
 				methodType === PROPERTY_ACCESS_TYPE.Static ? "Static" : "Instance";
 
 			console.log(
-				`プロパティタイプ: ${validatorType}${isMethodOrProperty}, ${methodType}`,
+				`プロパティタイプ: ${validatorType}${isMethodOrProperty}, ${methodType}, isMethod: ${parsedInfo.isMethod}`,
 			);
 
 			selectedValidatorName = `create${validatorType}${isMethodOrProperty}Validator`;
@@ -205,6 +212,7 @@ export class RuleScaffoldGenerator {
 			methodName: string;
 			methodType: PropertyAccessType;
 			compatKey: string;
+			isMethod?: boolean;
 		},
 		validatorName: string | undefined,
 	): Promise<string | null> {

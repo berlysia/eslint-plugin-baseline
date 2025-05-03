@@ -11,6 +11,7 @@ export interface PropertyInfo {
 	methodName: string;
 	methodType: PropertyAccessType;
 	compatKey: string;
+	isMethod?: boolean;
 }
 
 /**
@@ -60,7 +61,16 @@ export default rule;
 		validatorName?: string,
 	): string | null {
 		const { objectType, methodName, methodType } = propertyInfo;
-		const isProperty = !methodName.includes("(");
+		// プロパティかメソッドかの判定
+		let isProperty: boolean;
+		
+		// isMethodフラグがあればそれを使用、なければ従来の方法
+		if (propertyInfo.isMethod !== undefined) {
+			isProperty = !propertyInfo.isMethod;
+		} else {
+			isProperty = !methodName.includes("(");
+		}
+		
 		let testCases = "";
 
 		// 明示的なバリデータの場合はバリデータ名に基づいてサンプルコードを生成
@@ -86,7 +96,7 @@ export default rule;
 				testCases = this.generateConstructorTestCases(objectType);
 			}
 		}
-		// methodTypeに基づいてサンプルコードを生成（従来の方法）
+		// methodTypeとisPropertyに基づいてサンプルコードを生成
 		else {
 			// StaticPropertyの場合のサンプルコードを生成
 			if (methodType === PROPERTY_ACCESS_TYPE.Static && isProperty) {
