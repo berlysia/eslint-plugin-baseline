@@ -63,14 +63,13 @@ export default rule;
 		const { objectType, methodName, methodType } = propertyInfo;
 		// プロパティかメソッドかの判定
 		let isProperty: boolean;
-		
+
 		// isMethodフラグがあればそれを使用、なければ従来の方法
-		if (propertyInfo.isMethod !== undefined) {
-			isProperty = !propertyInfo.isMethod;
-		} else {
-			isProperty = !methodName.includes("(");
-		}
-		
+		isProperty =
+			propertyInfo.isMethod === undefined
+				? !methodName.includes("(")
+				: !propertyInfo.isMethod;
+
 		let testCases = "";
 
 		// 明示的なバリデータの場合はバリデータ名に基づいてサンプルコードを生成

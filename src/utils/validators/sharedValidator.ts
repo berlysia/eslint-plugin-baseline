@@ -27,6 +27,36 @@ export function findParentClass(
 	return null;
 }
 
+/**
+ * Checks if a node is of the expected type based on its literal value
+ */
+function isNodeTypeInLiterally(
+	node: TSESTree.Expression,
+	expectedType: string,
+): boolean {
+	if (node.type === "Literal") {
+		if (expectedType === "string" && typeof node.value === "string") {
+			return true;
+		}
+		if (expectedType === "number" && typeof node.value === "number") {
+			return true;
+		}
+		if (expectedType === "boolean" && typeof node.value === "boolean") {
+			return true;
+		}
+		if (expectedType === "regexp" && node.value instanceof RegExp) {
+			return true;
+		}
+	}
+	if (node.type === "ObjectExpression" && expectedType === "object") {
+		return true;
+	}
+	if (node.type === "ArrayExpression" && expectedType === "array") {
+		return true;
+	}
+	return false;
+}
+
 export function createSharedValidator<
 	MessageIds extends string,
 	Options extends readonly unknown[],
@@ -403,33 +433,6 @@ export function createSharedValidator<
 			isNodeTypeInLiterally(node, expectedType) ||
 			isNodeTypeInTypeLevel(node, expectedType)
 		);
-	}
-
-	function isNodeTypeInLiterally(
-		node: TSESTree.Expression,
-		expectedType: string,
-	): boolean {
-		if (node.type === "Literal") {
-			if (expectedType === "string" && typeof node.value === "string") {
-				return true;
-			}
-			if (expectedType === "number" && typeof node.value === "number") {
-				return true;
-			}
-			if (expectedType === "boolean" && typeof node.value === "boolean") {
-				return true;
-			}
-			if (expectedType === "regexp" && node.value instanceof RegExp) {
-				return true;
-			}
-		}
-		if (node.type === "ObjectExpression" && expectedType === "object") {
-			return true;
-		}
-		if (node.type === "ArrayExpression" && expectedType === "array") {
-			return true;
-		}
-		return false;
 	}
 
 	function isNodeTypeInTypeLevel(

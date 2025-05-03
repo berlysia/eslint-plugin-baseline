@@ -214,14 +214,39 @@ export function createInstanceMethodValidator({
 			MemberExpression(node: TSESTree.MemberExpression) {
 				if (
 					node.property.type === "Identifier" &&
-					node.property.name === methodName &&
-					(sharedValidator.validateInstanceType(node.object) ||
-						(node.object.type === "MemberExpression" &&
-							node.object.property.type === "Identifier" &&
-							node.object.property.name === "prototype" &&
-							sharedValidator.validateConstructorType(node.object.object)))
+					node.property.name === methodName
 				) {
-					sharedValidator.report(node);
+					// ${instance}.${methodName}(...args)
+					if (sharedValidator.validateInstanceType(node.object)) {
+						sharedValidator.report(node);
+					}
+					// ${Constructor}.prototype.${methodName}(...args)
+					if (
+						node.object.type === "MemberExpression" &&
+						node.object.property.type === "Identifier" &&
+						node.object.property.name === "prototype" &&
+						sharedValidator.validateConstructorType(node.object.object)
+					) {
+						sharedValidator.report(node);
+					}
+				} else if (
+					node.property.type === "Literal" &&
+					typeof node.property.value === "string" &&
+					node.property.value === methodName
+				) {
+					// $instance["${methodName}"](...args)
+					if (sharedValidator.validateInstanceType(node.object)) {
+						sharedValidator.report(node);
+					}
+					// ${Constructor}.prototype["${methodName}"](...args)
+					if (
+						node.object.type === "MemberExpression" &&
+						node.object.property.type === "Identifier" &&
+						node.object.property.name === "prototype" &&
+						sharedValidator.validateConstructorType(node.object.object)
+					) {
+						sharedValidator.report(node);
+					}
 				}
 			},
 		};
