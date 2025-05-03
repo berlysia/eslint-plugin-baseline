@@ -3,67 +3,13 @@ import type { RuleContext } from "@typescript-eslint/utils/ts-eslint";
 import type { BaselineRuleConfig } from "../../types.ts";
 import type { RuleModuleSeed } from "../ruleFactory.ts";
 import { createSharedValidator } from "./sharedValidator.ts";
-
-/**
- * プロパティアクセスタイプ
- */
-export const PROPERTY_ACCESS_TYPE = {
-	Instance: "instance",
-	Static: "static",
-} as const;
-
-export type PropertyAccessType =
-	(typeof PROPERTY_ACCESS_TYPE)[keyof typeof PROPERTY_ACCESS_TYPE];
-
-export interface PropertyValidatorOptions {
-	/**
-	 * 対象オブジェクトの型名
-	 */
-	typeName: string;
-	/**
-	 * コンストラクタの型名（スタティックプロパティの場合に使用）
-	 */
-	constructorTypeName?: string;
-	/**
-	 * プロパティ名
-	 */
-	propertyName: string;
-	/**
-	 * プロパティアクセスタイプ
-	 */
-	accessType: PropertyAccessType;
-}
-
-/**
- * インスタンスプロパティのアクセスを検証するバリデータ
- */
-export function createInstancePropertyValidator(
-	options: Omit<PropertyValidatorOptions, "accessType" | "constructorTypeName">,
-) {
-	return createPropertyValidator({
-		...options,
-		accessType: PROPERTY_ACCESS_TYPE.Instance,
-	});
-}
-
-/**
- * スタティックプロパティのアクセスを検証するバリデータ
- */
-export function createStaticPropertyValidator(
-	options: Omit<PropertyValidatorOptions, "accessType"> & {
-		constructorTypeName: string;
-	},
-) {
-	return createPropertyValidator({
-		...options,
-		accessType: PROPERTY_ACCESS_TYPE.Static,
-	});
-}
+import type { PropertyValidatorOptions } from "./propertyAccessType.ts";
+import { PROPERTY_ACCESS_TYPE } from "./propertyAccessType.ts";
 
 /**
  * プロパティアクセスを検証するバリデータ
  */
-function createPropertyValidator(options: PropertyValidatorOptions) {
+export function createPropertyValidator(options: PropertyValidatorOptions) {
 	const { typeName, constructorTypeName, propertyName, accessType } = options;
 
 	return function create<

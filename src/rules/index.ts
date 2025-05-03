@@ -139,9 +139,12 @@ const rules = {
 		js$javascript$builtins$ArrayBuffer$resizable,
 	"javascript.builtins.ArrayBuffer.resize":
 		js$javascript$builtins$ArrayBuffer$resize,
-		"javascript.builtins.ArrayBuffer.slice": js$javascript$builtins$ArrayBuffer$slice,
-		"javascript.builtins.ArrayBuffer.transfer": js$javascript$builtins$ArrayBuffer$transfer,
-		"javascript.builtins.ArrayBuffer.transferToFixedLength": js$javascript$builtins$ArrayBuffer$transferToFixedLength,
+	"javascript.builtins.ArrayBuffer.slice":
+		js$javascript$builtins$ArrayBuffer$slice,
+	"javascript.builtins.ArrayBuffer.transfer":
+		js$javascript$builtins$ArrayBuffer$transfer,
+	"javascript.builtins.ArrayBuffer.transferToFixedLength":
+		js$javascript$builtins$ArrayBuffer$transferToFixedLength,
 	/* add new rules here */
 };
 

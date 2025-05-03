@@ -124,19 +124,19 @@ function reportOnce(node: TSESTree.Node) {
 ```javascript
 // 配列リテラルメソッド - [].method
 if (typeName === "Array" && isArrayLiteralMethod(node)) {
-  // call/applyパターンの場合は追跡
-  if (isPartOfCallOrApply(node)) {
-    trackArrayLiteralMethod(node);
-    return;
-  }
-  
-  reportOnce(node);
-  return;
+	// call/applyパターンの場合は追跡
+	if (isPartOfCallOrApply(node)) {
+		trackArrayLiteralMethod(node);
+		return;
+	}
+
+	reportOnce(node);
+	return;
 }
 
 // 追跡した配列リテラルメソッドの呼び出しを検出
 if (typeName === "Array" && isTrackedArrayLiteralMethod(callee.object)) {
-  reportOnce(callee.object);
+	reportOnce(callee.object);
 }
 ```
 
@@ -174,32 +174,32 @@ function isStringLiteralWithValue(node: TSESTree.Node, value: string): boolean {
 
 ```javascript
 createSimpleRuleTest({
-  rule,
-  seed,
-  codes: [
-    // 通常の呼び出し
-    "const obj = new ArrayBuffer(); obj.transferToFixedLength();",
-    // 計算プロパティ
-    "const obj = new ArrayBuffer(); obj[\"transferToFixedLength\"]();",
-    // 変数経由
-    "const obj = new ArrayBuffer(); const prop = \"transferToFixedLength\"; obj[prop]();",
-    // プロトタイプ経由
-    "const obj = new ArrayBuffer(); ArrayBuffer.prototype.transferToFixedLength.call(obj);",
-    // 分割代入
-    "const obj = new ArrayBuffer(); const { transferToFixedLength } = obj; transferToFixedLength();",
-    // 変数に格納したメソッド
-    "const obj = new ArrayBuffer(); const method = obj.transferToFixedLength; method.call(obj);",
-    // 関数内での呼び出し（型注釈あり）
-    "function processBuffer(buf: ArrayBuffer) { return buf.transferToFixedLength(); } const obj = new ArrayBuffer(); processBuffer(obj);",
-  ],
-  // 誤検出すべきでないケース
-  validOnlyCodes: [
-    // 独自オブジェクトの同名メソッド
-    "const customObj = { transferToFixedLength: () => {} }; customObj.transferToFixedLength();",
-  ],
-  // 日付設定
-  validOption: { asOf: "2024-03-06", support: "newly" },
-  invalidOption: { asOf: "2024-03-04", support: "newly" },
+	rule,
+	seed,
+	codes: [
+		// 通常の呼び出し
+		"const obj = new ArrayBuffer(); obj.transferToFixedLength();",
+		// 計算プロパティ
+		'const obj = new ArrayBuffer(); obj["transferToFixedLength"]();',
+		// 変数経由
+		'const obj = new ArrayBuffer(); const prop = "transferToFixedLength"; obj[prop]();',
+		// プロトタイプ経由
+		"const obj = new ArrayBuffer(); ArrayBuffer.prototype.transferToFixedLength.call(obj);",
+		// 分割代入
+		"const obj = new ArrayBuffer(); const { transferToFixedLength } = obj; transferToFixedLength();",
+		// 変数に格納したメソッド
+		"const obj = new ArrayBuffer(); const method = obj.transferToFixedLength; method.call(obj);",
+		// 関数内での呼び出し（型注釈あり）
+		"function processBuffer(buf: ArrayBuffer) { return buf.transferToFixedLength(); } const obj = new ArrayBuffer(); processBuffer(obj);",
+	],
+	// 誤検出すべきでないケース
+	validOnlyCodes: [
+		// 独自オブジェクトの同名メソッド
+		"const customObj = { transferToFixedLength: () => {} }; customObj.transferToFixedLength();",
+	],
+	// 日付設定
+	validOption: { asOf: "2024-03-06", support: "newly" },
+	invalidOption: { asOf: "2024-03-04", support: "newly" },
 });
 ```
 
@@ -223,13 +223,13 @@ TypeScriptプロジェクトでは、特に関数でパラメータを扱う場�
 
 ```typescript
 // 型注釈あり - 型情報を解析で活用可能
-function processArray(arr: Array<number>) { 
-  return arr.slice(1); 
+function processArray(arr: Array<number>) {
+	return arr.slice(1);
 }
 
 // 型注釈なし - 型情報が不明確で解析が困難
-function processArray(arr) { 
-  return arr.slice(1); 
+function processArray(arr) {
+	return arr.slice(1);
 }
 ```
 

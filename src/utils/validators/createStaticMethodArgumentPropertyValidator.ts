@@ -4,14 +4,21 @@ import type { BaselineRuleConfig } from "../../types.ts";
 import type { RuleModuleSeed } from "../ruleFactory.ts";
 import { createSharedValidator } from "./sharedValidator.ts";
 
-export function createStaticMethodValidator({
+/**
+ * スタティックメソッドの引数のプロパティを検証するバリデータを作成
+ */
+export function createStaticMethodArgumentPropertyValidator({
 	typeName,
 	constructorTypeName,
 	methodName,
+	argumentIndex,
+	optionProperty,
 }: {
 	typeName: string;
 	constructorTypeName: string;
 	methodName: string;
+	argumentIndex: number;
+	optionProperty: string;
 }) {
 	return function create<
 		MessageIds extends string,
@@ -30,11 +37,21 @@ export function createStaticMethodValidator({
 		);
 
 		return {
-			MemberExpression(node: TSESTree.MemberExpression) {
+			"CallExpression[callee.type='MemberExpression']"(
+				node: TSESTree.CallExpression & {
+					callee: TSESTree.MemberExpression;
+				},
+			) {
+				const { callee } = node;
 				if (
-					node.property.type === "Identifier" &&
-					node.property.name === methodName &&
-					sharedValidator.validateConstructorType(node.object)
+					callee.property.type === "Identifier" &&
+					callee.property.name === methodName &&
+					sharedValidator.validateConstructorType(callee.object) &&
+					sharedValidator.isArgumentHasTheProperty(
+						node.arguments,
+						argumentIndex,
+						optionProperty,
+					)
 				) {
 					sharedValidator.report(node);
 				}
