@@ -66,8 +66,14 @@ export default [
 # 次に実装すべきルールを検索
 npm run agent:rules:next
 
+# ルール名からプロパティタイプ（メソッド/プロパティ、Static/Instance）を事前に検出
+npm run agent:rules:detect -- --ruleName javascript.builtins.Array.at
+
 # 静的メソッド/プロパティのルールスカフォールドを生成
 npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.fromAsync
+
+# 明示的にバリデータを指定してルールスカフォールドを生成
+npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.from --validator createStaticMethodValidator
 
 # インスタンスメソッド/プロパティのルールスカフォールドを生成
 npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.at

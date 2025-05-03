@@ -13,6 +13,7 @@
 		"generateSeeds": "node scripts/generateSeeds.ts",
 		"agent:ast:acorn": "node scripts/tools/getAstByAcorn.ts",
 		"agent:ast:typescript": "node scripts/tools/getAstByTsParser.ts",
+		"agent:rules:detect": "node scripts/tools/detectPropertyType.ts",
 		"agent:rules:scaffold": "node scripts/tools/generateRuleScaffold.ts",
 		"agent:rules:next": "node scripts/tools/getUnimplementedRuleName.ts",
 		"agent:rules:add": "node scripts/tools/addRuleToIndex.ts",

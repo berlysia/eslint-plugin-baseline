@@ -40,16 +40,20 @@ export class PropertyTypeDetector {
 		if (specUrl) {
 			// メソッドかプロパティかの判定
 			// メソッド判定パターン
-			if (specUrl.includes("call") || 
-				specUrl.includes("apply") || 
-				specUrl.includes("function") || 
-				specUrl.includes("method")) {
+			if (
+				specUrl.includes("call") ||
+				specUrl.includes("apply") ||
+				specUrl.includes("function") ||
+				specUrl.includes("method")
+			) {
 				isMethod = true;
 			}
 			// プロパティ判定パターン
-			else if (specUrl.includes("sec-get") || 
-					specUrl.includes("sec-set") || 
-					specUrl.includes("property")) {
+			else if (
+				specUrl.includes("sec-get") ||
+				specUrl.includes("sec-set") ||
+				specUrl.includes("property")
+			) {
 				isMethod = false;
 			}
 
@@ -67,69 +71,128 @@ export class PropertyTypeDetector {
 		// MDN URLから判定
 		if (mdnUrl) {
 			const parts = mdnUrl.split("/");
-			
+
 			// MDN URLのパターンから判断（例：/ArrayBuffer/prototype/byteLength）
 			if (parts.includes("prototype")) {
 				accessType = PROPERTY_ACCESS_TYPE.Instance;
 			}
 
 			// メソッドかプロパティかの判定：複数の観点から判断
-            const lastSegment = parts[parts.length - 1];
-            
-            // MDNのURLでのメソッド判定パターン
-            // 例: URL内に "method" または "function" がある場合
-            if (mdnUrl.includes("/method/") || mdnUrl.includes("/function/")) {
-                isMethod = true;
-            }
-            // URLの特定パターン
-            else if (mdnUrl.includes("callable")) {
-                isMethod = true;
-            }
-            // プロパティ特有のパターン
-            else if (mdnUrl.includes("/property/") || mdnUrl.includes("/attribute/")) {
-                isMethod = false;
-            }
-            // それ以外は名前のパターンから推測
-            else {
-                // 動詞ベースの判定（メソッドは動詞で始まることが多い）
-                const commonVerbPrefixes = [
-                    // 作成/変更系
-                    "create", "make", "build", "add", "set", "put", "insert", "update", 
-                    "remove", "delete", "clear", "reset", "init", "format",
-                    // 取得/検索系
-                    "get", "fetch", "find", "search", "query", "select", "load", "read",
-                    // 変換系
-                    "convert", "transform", "parse", "stringify", "serialize", "deserialize",
-                    // 検証系
-                    "is", "has", "check", "validate", "test", "verify", "ensure",
-                    // 実行系
-                    "run", "execute", "perform", "do", "apply", "call", "invoke",
-                    // 配列系
-                    "sort", "map", "filter", "reduce", "forEach", "slice", "splice",
-                    "join", "split", "concat", "push", "pop", "shift", "unshift"
-                ];
-                
-                // 接尾辞による判定（特定のパターンで終わる場合）
-                const commonVerbSuffixes = ["By", "With", "To", "From", "In", "At", "Async"];
-                
-                // メソッドらしい接頭辞をチェック
-                for (const prefix of commonVerbPrefixes) {
-                    if (lastSegment.toLowerCase().startsWith(prefix.toLowerCase())) {
-                        isMethod = true;
-                        break;
-                    }
-                }
-                
-                // 接尾辞による判定（まだ判断できていない場合）
-                if (isMethod === null) {
-                    for (const suffix of commonVerbSuffixes) {
-                        if (lastSegment.endsWith(suffix)) {
-                            isMethod = true;
-                            break;
-                        }
-                    }
-                }
-            }
+			const lastSegment = parts.at(-1)!;
+
+			// MDNのURLでのメソッド判定パターン
+			// 例: URL内に "method" または "function" がある場合
+			if (mdnUrl.includes("/method/") || mdnUrl.includes("/function/")) {
+				isMethod = true;
+			}
+			// URLの特定パターン
+			else if (mdnUrl.includes("callable")) {
+				isMethod = true;
+			}
+			// プロパティ特有のパターン
+			else if (
+				mdnUrl.includes("/property/") ||
+				mdnUrl.includes("/attribute/")
+			) {
+				isMethod = false;
+			}
+			// それ以外は名前のパターンから推測
+			else {
+				// 動詞ベースの判定（メソッドは動詞で始まることが多い）
+				const commonVerbPrefixes = [
+					// 作成/変更系
+					"create",
+					"make",
+					"build",
+					"add",
+					"set",
+					"put",
+					"insert",
+					"update",
+					"remove",
+					"delete",
+					"clear",
+					"reset",
+					"init",
+					"format",
+					// 取得/検索系
+					"get",
+					"fetch",
+					"find",
+					"search",
+					"query",
+					"select",
+					"load",
+					"read",
+					// 変換系
+					"convert",
+					"transform",
+					"parse",
+					"stringify",
+					"serialize",
+					"deserialize",
+					// 検証系
+					"is",
+					"has",
+					"check",
+					"validate",
+					"test",
+					"verify",
+					"ensure",
+					// 実行系
+					"run",
+					"execute",
+					"perform",
+					"do",
+					"apply",
+					"call",
+					"invoke",
+					// 配列系
+					"sort",
+					"map",
+					"filter",
+					"reduce",
+					"forEach",
+					"slice",
+					"splice",
+					"join",
+					"split",
+					"concat",
+					"push",
+					"pop",
+					"shift",
+					"unshift",
+				];
+
+				// 接尾辞による判定（特定のパターンで終わる場合）
+				const commonVerbSuffixes = [
+					"By",
+					"With",
+					"To",
+					"From",
+					"In",
+					"At",
+					"Async",
+				];
+
+				// メソッドらしい接頭辞をチェック
+				for (const prefix of commonVerbPrefixes) {
+					if (lastSegment.toLowerCase().startsWith(prefix.toLowerCase())) {
+						isMethod = true;
+						break;
+					}
+				}
+
+				// 接尾辞による判定（まだ判断できていない場合）
+				if (isMethod === null) {
+					for (const suffix of commonVerbSuffixes) {
+						if (lastSegment.endsWith(suffix)) {
+							isMethod = true;
+							break;
+						}
+					}
+				}
+			}
 		}
 
 		return { accessType, isMethod };
@@ -156,7 +219,7 @@ export class PropertyTypeDetector {
 		if (!objectType || !methodName) return null;
 
 		// メソッド名の基本的な判定（後でURLの情報で上書きされる可能性あり）
-		let isMethod: boolean | undefined = undefined;
+		let isMethod: boolean | undefined;
 
 		// 1. メタデータファイルでの修正があるかチェック
 		const corrections = await this.loadPropertyCorrections();
@@ -187,12 +250,12 @@ export class PropertyTypeDetector {
 			const mdnUrl = seed.bcd?.mdn_url;
 
 			const inferredInfo = this.inferPropertyTypeFromUrls(specUrl, mdnUrl);
-			
+
 			if (inferredInfo.accessType) {
 				console.log(
 					`URLから推定したプロパティタイプ: ${inferredInfo.accessType} (${ruleName})`,
 				);
-				
+
 				if (inferredInfo.isMethod !== null) {
 					isMethod = inferredInfo.isMethod;
 					console.log(
@@ -221,21 +284,68 @@ export class PropertyTypeDetector {
 			// 動詞ベースの判定（メソッドは動詞で始まることが多い）
 			const commonVerbPrefixes = [
 				// 作成/変更系
-				"get", "set", "add", "put", "insert", "update", "remove", "delete", 
-				"clear", "reset", "create", "make", "build", "init", "format",
+				"get",
+				"set",
+				"add",
+				"put",
+				"insert",
+				"update",
+				"remove",
+				"delete",
+				"clear",
+				"reset",
+				"create",
+				"make",
+				"build",
+				"init",
+				"format",
 				// 取得/検索系
-				"fetch", "find", "search", "query", "select", "load", "read",
+				"fetch",
+				"find",
+				"search",
+				"query",
+				"select",
+				"load",
+				"read",
 				// 変換系
-				"convert", "transform", "parse", "stringify", 
+				"convert",
+				"transform",
+				"parse",
+				"stringify",
 				// 検証系
-				"is", "has", "check", "validate", "test", "verify", "ensure",
+				"is",
+				"has",
+				"check",
+				"validate",
+				"test",
+				"verify",
+				"ensure",
 				// 実行系
-				"run", "execute", "perform", "do", "apply", "call", "invoke",
+				"run",
+				"execute",
+				"perform",
+				"do",
+				"apply",
+				"call",
+				"invoke",
 				// 配列系
-				"sort", "map", "filter", "reduce", "forEach", "slice", "splice", 
-				"join", "split", "concat", "push", "pop", "shift", "unshift", "reverse"
+				"sort",
+				"map",
+				"filter",
+				"reduce",
+				"forEach",
+				"slice",
+				"splice",
+				"join",
+				"split",
+				"concat",
+				"push",
+				"pop",
+				"shift",
+				"unshift",
+				"reverse",
 			];
-			
+
 			// メソッドらしい名前のパターンをチェック
 			for (const pattern of commonVerbPrefixes) {
 				if (methodName.toLowerCase().startsWith(pattern.toLowerCase())) {
@@ -243,10 +353,18 @@ export class PropertyTypeDetector {
 					break;
 				}
 			}
-			
+
 			// 接尾辞による判定（まだ判断できていない場合）
 			if (isMethod === undefined) {
-				const commonVerbSuffixes = ["By", "With", "To", "From", "In", "At", "Async"];
+				const commonVerbSuffixes = [
+					"By",
+					"With",
+					"To",
+					"From",
+					"In",
+					"At",
+					"Async",
+				];
 				for (const suffix of commonVerbSuffixes) {
 					if (methodName.endsWith(suffix)) {
 						isMethod = true;

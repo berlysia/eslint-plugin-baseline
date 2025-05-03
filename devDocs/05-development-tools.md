@@ -89,10 +89,37 @@ npm run agent:rules:next
 - 連続でこのコマンドを複数回実行することは禁止されています
 - 結果が受け取れなかった場合は、新規に作成されたファイルを確認してください
 
+### ルール名からプロパティタイプの検出
+
+```bash
+npm run agent:rules:detect -- --ruleName javascript.builtins.Array.at
+```
+
+このコマンドは、ルール名からプロパティタイプ（静的/インスタンス、メソッド/プロパティ）を検出し、推奨される次のステップを提示します。
+
+#### オプション
+
+- `--ruleName "<ルール名>"` - 解析するルール名を指定します
+- `--seedPath "<シードパス>"` - オプション: シードデータへのパスを指定すると、より精度の高い検出が可能になります
+
+#### 出力
+
+- オブジェクトタイプ
+- メソッド/プロパティ名
+- アクセスタイプ（Static/Instance）
+- メソッド/プロパティの種別判定
+- 推奨されるスカフォールド生成コマンド
+
+#### 利点
+
+- スカフォールド生成前に種別を確認できる
+- 自動判定に誤りがあれば、明示的なバリデータ指定でスカフォールドを生成できる
+- 人間による判断を挟むことで品質を向上
+
 ### ルールの雛形生成
 
 ```bash
-npm run agent:rules:scaffold -- --ruleName "Array.prototype.at"
+npm run agent:rules:scaffold -- --ruleName "javascript.builtins.Array.at"
 ```
 
 このコマンドは、指定されたルール名で新しいルールの雛形を生成します。
@@ -100,8 +127,18 @@ npm run agent:rules:scaffold -- --ruleName "Array.prototype.at"
 #### オプション
 
 - `--ruleName "<ルール名>"` - 実装するルール名を指定します
-  - `instance`: インスタンスメソッド（例: `Array.prototype.at`）
-  - `static`: 静的メソッド（例: `Array.of`）
+- `--validator "<バリデータ名>"` - オプション: 明示的にバリデータを指定します
+  - 例: `createInstanceMethodValidator`, `createStaticPropertyValidator` など
+
+#### 使用例
+
+```bash
+# 自動判定でスカフォールドを生成
+npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.at
+
+# 明示的にバリデータを指定してスカフォールド生成
+npm run agent:rules:scaffold -- --ruleName javascript.builtins.Array.from --validator createStaticMethodValidator
+```
 
 #### 生成されるファイル
 
@@ -112,6 +149,7 @@ npm run agent:rules:scaffold -- --ruleName "Array.prototype.at"
 
 - ルール名は元の名前（エスケープなし）を指定します
 - 雛形には基本的なルール構造とテストケースが含まれます
+- 適切なバリデータを選択するため、事前に `agent:rules:detect` コマンドで種別を確認することを推奨
 
 ### ルールの登録
 
