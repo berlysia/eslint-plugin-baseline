@@ -28,6 +28,10 @@
 - **柔軟な設定システム**
   - グローバル設定とオーバーライド設定をサポート
   - 機能ごとの細かい制御が可能
+- **多様なJavaScriptパターンへの対応**
+  - 文字列リテラル、計算プロパティ、call/applyパターンなど様々な書き方に対応
+  - 分割代入や変数経由のメソッド呼び出しなど高度なパターンをサポート
+  - 配列リテラルメソッド呼び出し（`[].slice.call(arguments)`）などの特殊パターンも検出
 
 ## インストール
 
@@ -59,6 +63,7 @@ export default [
 - [実装状況とガイドライン](./devDocs/03-implementation.md)
 - [テストケースのガイドライン](./devDocs/04-testing-guidelines.md)
 - [開発ツール](./devDocs/05-development-tools.md)
+- [実装パターンと対応方法](./devDocs/06-implementation-patterns.md)
 
 ## 開発コマンド
 
